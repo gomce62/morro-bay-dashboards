@@ -574,7 +574,7 @@
         <!-- Presenter Visual Stage (Large Centered Head-to-Toe Foreground + Locked Morro Bay Background) -->
         <div class="relative w-full h-[min(520px,58vh)] bg-slate-950 overflow-hidden">
             <!-- Locked Background Plate (100% still) -->
-            <img src="assets/bg_morro_bay.jpg" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover scale-105 origin-bottom" />
+            <img id="indie-bg-img" src="assets/bg_morro_bay.jpg" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover scale-105 origin-bottom" />
 
             <!-- Soft Grounding Shadow Under Her Feet -->
             <div class="absolute bottom-[3.2%] left-1/2 -translate-x-1/2 w-32 h-3.5 rounded-full bg-slate-950/45 blur-[4px] pointer-events-none"></div>
@@ -2602,6 +2602,30 @@
                 blink: 'assets/indie_shorts_blink.png'
             },
             {
+                key: 'skort',
+                label: 'Skort & Knit',
+                closed: 'assets/indie_skort_closed.png',
+                mid: 'assets/indie_skort_mid.png',
+                open: 'assets/indie_skort_open.png',
+                blink: 'assets/indie_skort_blink.png'
+            },
+            {
+                key: 'rashguard',
+                label: 'Surf Rashguard',
+                closed: 'assets/indie_rashguard_closed.png',
+                mid: 'assets/indie_rashguard_mid.png',
+                open: 'assets/indie_rashguard_open.png',
+                blink: 'assets/indie_rashguard_blink.png'
+            },
+            {
+                key: 'cozy',
+                label: 'Cozy Knit',
+                closed: 'assets/indie_cozy_closed.png',
+                mid: 'assets/indie_cozy_mid.png',
+                open: 'assets/indie_cozy_open.png',
+                blink: 'assets/indie_cozy_blink.png'
+            },
+            {
                 key: 'rainy',
                 label: 'Rainy Day',
                 closed: 'assets/indie_rainy_closed.png',
@@ -2612,6 +2636,11 @@
         ];
         let indieOutfitIdx = -1;
 
+        function isIndieRainingNow() {
+            const rawSky = (document.getElementById('telemetry-sky')?.innerText || '').toLowerCase();
+            return Boolean((typeof liveRainState !== 'undefined' && liveRainState.isRaining) || /rain|drizzle|shower|storm|thunder/.test(rawSky));
+        }
+
         function applyIndieOutfit(idx) {
             indieOutfitIdx = ((idx % indieOutfits.length) + indieOutfits.length) % indieOutfits.length;
             const outfit = indieOutfits[indieOutfitIdx];
@@ -2619,19 +2648,23 @@
             const mid = document.getElementById('indie-frame-mid');
             const open = document.getElementById('indie-frame-open');
             const blink = document.getElementById('indie-frame-blink');
+            const bgImg = document.getElementById('indie-bg-img');
             const label = document.getElementById('indie-outfit-label');
             if (closed) closed.src = outfit.closed;
             if (mid) mid.src = outfit.mid;
             if (open) open.src = outfit.open;
             if (blink) blink.src = outfit.blink;
+            if (bgImg) {
+                bgImg.src = (outfit.key === 'rainy' || isIndieRainingNow())
+                    ? 'assets/bg_morro_bay_rainy.jpg'
+                    : 'assets/bg_morro_bay.jpg';
+            }
             if (label) label.innerText = outfit.label;
             try { localStorage.setItem('indie_outfit_idx', String(indieOutfitIdx)); } catch (e) {}
         }
 
         function rotateIndieOutfit() {
-            const rawSky = (document.getElementById('telemetry-sky')?.innerText || '').toLowerCase();
-            const isRaining = /rain|drizzle|shower|storm|thunder/.test(rawSky);
-            if (isRaining) {
+            if (isIndieRainingNow()) {
                 const rainyIdx = indieOutfits.findIndex(o => o.key === 'rainy');
                 if (rainyIdx !== -1) {
                     applyIndieOutfit(rainyIdx);
@@ -2723,7 +2756,7 @@
                 : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
 
             const intro = liveRainState.isRaining
-                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I'm keeping Chris's kayak dry on shore for now—it's raining in Morro Bay, and I definitely don't want him out on the water getting soaked. Here's what's happening.`
+                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors today because of the rain, and I definitely don't want him out on the water getting soaked. Here's what's happening.`
                 : `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I've got Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here's what he can expect.`;
 
             const rainNote = (!liveRainState.isRaining && today.precipProb >= 30)
