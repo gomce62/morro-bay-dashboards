@@ -2600,6 +2600,14 @@
                 mid: 'assets/indie_shorts_mid.png',
                 open: 'assets/indie_shorts_open.png',
                 blink: 'assets/indie_shorts_blink.png'
+            },
+            {
+                key: 'rainy',
+                label: 'Rainy Day',
+                closed: 'assets/indie_rainy_closed.png',
+                mid: 'assets/indie_rainy_mid.png',
+                open: 'assets/indie_rainy_open.png',
+                blink: 'assets/indie_rainy_blink.png'
             }
         ];
         let indieOutfitIdx = -1;
@@ -2621,12 +2629,22 @@
         }
 
         function rotateIndieOutfit() {
+            const rawSky = (document.getElementById('telemetry-sky')?.innerText || '').toLowerCase();
+            const isRaining = /rain|drizzle|shower|storm|thunder/.test(rawSky);
+            if (isRaining) {
+                const rainyIdx = indieOutfits.findIndex(o => o.key === 'rainy');
+                if (rainyIdx !== -1) {
+                    applyIndieOutfit(rainyIdx);
+                    return;
+                }
+            }
+            const clearCount = indieOutfits.filter(o => o.key !== 'rainy').length;
             let lastIdx = -1;
             try {
                 const stored = localStorage.getItem('indie_outfit_idx');
                 if (stored !== null && !Number.isNaN(Number(stored))) lastIdx = Number(stored);
             } catch (e) {}
-            applyIndieOutfit((lastIdx + 1) % indieOutfits.length);
+            applyIndieOutfit((lastIdx + 1) % clearCount);
         }
 
         function cycleIndieOutfit() {
