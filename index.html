@@ -123,14 +123,14 @@
                                 </linearGradient>
                             </defs>
                             <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M 10 45 A 40 40 0 0 1 72 18" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
-                            <line x1="50" y1="45" x2="68" y2="20" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <path id="water-arc" d="M 10 45 A 40 40 0 0 1 72 18" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
+                            <line id="water-needle" x1="50" y1="45" x2="68" y2="20" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
                             <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <span id="telemetry-watertemp" class="text-2xl font-bold text-white">58.8°F</span>
-                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Harbor</span>
+                        <span id="telemetry-watertemp" class="text-2xl font-bold text-white">--°F</span>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay / Port San Luis</span>
                     </div>
                 </div>
 
@@ -140,13 +140,13 @@
                     <div class="flex flex-col items-center justify-center my-1">
                         <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
                             <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M 10 45 A 40 40 0 0 1 82 24" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
-                            <line x1="50" y1="45" x2="78" y2="16" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <path id="air-arc" d="M 10 45 A 40 40 0 0 1 82 24" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
+                            <line id="air-needle" x1="50" y1="45" x2="78" y2="16" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
                             <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <span id="telemetry-airtemp" class="text-2xl font-bold text-white">68°F</span>
+                        <span id="telemetry-airtemp" class="text-2xl font-bold text-white">--°F</span>
                         <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Station</span>
                     </div>
                 </div>
@@ -164,15 +164,15 @@
                                 </linearGradient>
                             </defs>
                             <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M 10 45 A 40 40 0 0 1 45 14" fill="none" stroke="url(#windGrad)" stroke-width="8" stroke-linecap="round"/>
-                            <circle cx="38" cy="18" r="4" fill="#f97316" stroke="#0f172a" stroke-width="1.5"/>
+                            <path id="wind-arc" d="M 10 45 A 40 40 0 0 1 45 14" fill="none" stroke="url(#windGrad)" stroke-width="8" stroke-linecap="round"/>
+                            <circle id="wind-peak-dot" cx="38" cy="18" r="4" fill="#f97316" stroke="#0f172a" stroke-width="1.5"/>
                             <line id="wind-needle" x1="50" y1="45" x2="35" y2="28" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
                             <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <span id="telemetry-wind" class="text-2xl font-bold text-white">1.9 mph</span>
-                        <span id="telemetry-wind-sub" class="text-[11px] text-slate-400 block mt-0.5">from WSW &bull; <span class="text-amber-400">●</span> peak 2.9 mph</span>
+                        <span id="telemetry-wind" class="text-2xl font-bold text-white">-- mph</span>
+                        <span id="telemetry-wind-sub" class="text-[11px] text-slate-400 block mt-0.5">Syncing wind...</span>
                     </div>
                 </div>
 
@@ -182,14 +182,14 @@
                     <div class="flex flex-col items-center justify-center my-1">
                         <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
                             <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M 10 45 A 40 40 0 0 1 25 32" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
-                            <line x1="50" y1="45" x2="22" y2="34" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <path id="waves-arc" d="M 10 45 A 40 40 0 0 1 25 32" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+                            <line id="waves-needle" x1="50" y1="45" x2="22" y2="34" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
                             <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <span id="telemetry-waves" class="text-2xl font-bold text-white">0.1 ft</span>
-                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Entrance</span>
+                        <span id="telemetry-waves" class="text-2xl font-bold text-white">-- ft</span>
+                        <span id="telemetry-waves-sub" class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Entrance</span>
                     </div>
                 </div>
 
@@ -206,14 +206,14 @@
                                 </linearGradient>
                             </defs>
                             <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M 10 45 A 40 40 0 0 1 30 28" fill="none" stroke="url(#tealPurple)" stroke-width="8" stroke-linecap="round"/>
-                            <line x1="50" y1="45" x2="25" y2="45" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <path id="precip-arc" d="M 10 45 A 40 40 0 0 1 14 39" fill="none" stroke="url(#tealPurple)" stroke-width="8" stroke-linecap="round"/>
+                            <line id="precip-needle" x1="50" y1="45" x2="18" y2="45" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
                             <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <span class="text-2xl font-bold text-white">0.0 mm/h</span>
-                        <span class="text-[11px] text-emerald-400 block mt-0.5">Morro Bay Estuary</span>
+                        <span id="telemetry-precip" class="text-2xl font-bold text-white">--</span>
+                        <span id="telemetry-precip-sub" class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Estuary</span>
                     </div>
                 </div>
 
@@ -256,6 +256,9 @@
                     </span>
                     <span class="inline-flex items-center gap-1.5 text-indigo-300 font-medium">
                         <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50"></span> Indigo = After Dark
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-sky-300 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shadow-sm shadow-sky-400/50"></span> Blue = Rain (Hold)
                     </span>
                 </div>
             </div>
@@ -489,7 +492,7 @@
                     <h3 class="text-xl font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-calendar-days text-teal-400"></i> 7-Day Kayaking Forecast &amp; Optimal Windows
                     </h3>
-                    <p class="text-sm text-slate-400 mt-1" id="forecast-subtitle">Tailored recommendations integrating Morro Bay daylight hours, tide windows, and wind forecasts.</p>
+                    <p class="text-sm text-slate-400 mt-1" id="forecast-subtitle">Tailored recommendations integrating Morro Bay daylight hours, tide windows, precipitation, and wind forecasts.</p>
                 </div>
                 <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-teal-500/30 text-xs text-teal-300 bg-teal-950/30 shadow-inner">
                     <i class="fa-solid fa-star text-teal-400"></i>
@@ -512,20 +515,78 @@
 
     <!-- Application Logic -->
     <script>
-        // Morro Bay Daylight Boundaries (Sunrise ~6:35 AM, Sunset ~5:02 PM in November; computed dynamically by month)
+        // Live State Stores (populated from NOAA, NWS, and Open-Meteo)
+        let liveSkyState = null;
+        let liveWaterTempStr = '59.0°F';
+        let liveRainState = {
+            isRaining: false,
+            rateMmh: 0,
+            precipProb: 0,
+            label: 'Dry',
+            summary: 'No active rain'
+        };
+        let liveDailySunTimes = {}; // keyed by YYYY-MM-DD
+        let liveTidesByDate = {};   // keyed by YYYY-MM-DD
+        let liveHourlyByDate = {};  // keyed by YYYY-MM-DD -> array of { mins, precipMm, precipProb, weatherCode, shortForecast }
+        let liveDailyWeatherByDate = {}; // keyed by YYYY-MM-DD
+
+        function getMorroBayDateKey(dateObj = new Date()) {
+            return dateObj.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+        }
+
+        function setGaugeVisual(needleId, arcId, fraction, peakDotId = null, peakFraction = null) {
+            const clamped = Math.max(0.03, Math.min(0.98, fraction));
+            const angle = clamped * Math.PI;
+            const arcX = 50 - 40 * Math.cos(angle);
+            const arcY = 45 - 40 * Math.sin(angle);
+            const needleX = 50 - 30 * Math.cos(angle);
+            const needleY = 45 - 30 * Math.sin(angle);
+
+            const arcEl = document.getElementById(arcId);
+            if (arcEl) {
+                arcEl.setAttribute('d', `M 10 45 A 40 40 0 0 1 ${arcX.toFixed(1)} ${arcY.toFixed(1)}`);
+            }
+            const needleEl = document.getElementById(needleId);
+            if (needleEl) {
+                needleEl.setAttribute('x2', needleX.toFixed(1));
+                needleEl.setAttribute('y2', needleY.toFixed(1));
+            }
+            if (peakDotId && peakFraction !== null) {
+                const pClamped = Math.max(0.03, Math.min(0.98, peakFraction));
+                const pAngle = pClamped * Math.PI;
+                const px = 50 - 40 * Math.cos(pAngle);
+                const py = 45 - 40 * Math.sin(pAngle);
+                const dotEl = document.getElementById(peakDotId);
+                if (dotEl) {
+                    dotEl.setAttribute('cx', px.toFixed(1));
+                    dotEl.setAttribute('cy', py.toFixed(1));
+                }
+            }
+        }
+
+        function parseIsoTimeMinutes(isoStr) {
+            if (!isoStr || typeof isoStr !== 'string') return null;
+            const m = isoStr.match(/T(\d{2}):(\d{2})/);
+            if (!m) return null;
+            return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+        }
+
+        // Morro Bay Daylight Boundaries (uses live Open-Meteo sunrise/sunset when available; monthly table fallback)
         function getMorroBaySunTimes(dateObj = new Date()) {
-            const month = dateObj.getMonth(); // 0 = Jan ... 10 = Nov
-            // Approximate local Sunrise & Sunset minutes for Morro Bay, CA (35.3658° N, 120.8499° W)
+            const key = getMorroBayDateKey(dateObj);
+            if (liveDailySunTimes[key]) {
+                return liveDailySunTimes[key];
+            }
+            const month = dateObj.getMonth();
             const sunriseByMonth = [428, 408, 430, 392, 362, 348, 358, 378, 402, 425, 395, 418];
             const sunsetByMonth  = [1025, 1055, 1150, 1180, 1205, 1222, 1218, 1190, 1150, 1110, 1022, 1012];
-            const sunriseMins = sunriseByMonth[month] ?? 395; // 6:35 AM
-            const sunsetMins  = sunsetByMonth[month] ?? 1022; // 5:02 PM
+            const sunriseMins = sunriseByMonth[month] ?? 395;
+            const sunsetMins  = sunsetByMonth[month] ?? 1022;
             return {
                 sunriseMins,
                 sunsetMins,
                 sunriseStr: formatMinutesToTime(sunriseMins),
                 sunsetStr: formatMinutesToTime(sunsetMins),
-                // Latest safe launch cutoff is 45 mins before sunset so kayakers return before dark
                 lastSafeLaunchMins: sunsetMins - 45
             };
         }
@@ -572,40 +633,43 @@
             }
         };
 
-        // Base 7-Day Morro Bay Harbor (Station 9412139) Tide & Weather Templates
+        // Fallback 7-Day Templates (used only before live APIs respond or if offline)
         const baseForecastTemplates = [
             {
-                weatherIcon: "fa-sun",
-                high: 68, low: 52,
-                wind: "1.9 mph WSW",
+                weatherIcon: "fa-cloud-sun",
+                weatherIconColor: "text-amber-300",
+                high: 62, low: 48,
+                wind: "5-10 mph NW",
+                windMaxMph: 10,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "3:08 AM", minutes: 188, height: "1.7ft" },
-                    { type: "High", time: "9:16 AM", minutes: 556, height: "4.9ft" },
-                    { type: "Low", time: "4:37 PM", minutes: 997, height: "0.0ft" },
-                    { type: "High", time: "10:52 PM", minutes: 1372, height: "3.7ft" }
+                    { type: "Low", time: "1:10 AM", minutes: 70, height: "1.9ft" },
+                    { type: "High", time: "7:34 AM", minutes: 454, height: "6.2ft" },
+                    { type: "Low", time: "2:46 PM", minutes: 886, height: "-0.4ft" },
+                    { type: "High", time: "9:08 PM", minutes: 1268, height: "3.9ft" }
                 ],
-                morningFloodWindow: "7:45 AM - 9:15 AM",
-                afternoonFloodWindow: "3:30 PM - 4:30 PM",
-                morningEbbWindow: "9:30 AM - 11:00 AM",
-                optimalWindowRising: "7:45 AM - 9:15 AM",
-                optimalWindowGoingOut: "9:30 AM - 11:00 AM",
-                rating: "Excellent",
-                ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+                rating: "Good",
+                ratingColor: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
                 descRising: "Tide is rising into the back bay to assist your return paddle south.",
-                descGoingOut: "Morning tide is going out after the 9:16 AM high, pushing you north to Coleman."
+                descGoingOut: "Outgoing tide assists your return leg north to Coleman Park."
             },
             {
                 weatherIcon: "fa-sun",
-                high: 65, low: 50,
-                wind: "3-9 mph W",
+                weatherIconColor: "text-amber-400",
+                high: 64, low: 49,
+                wind: "4-9 mph W",
+                windMaxMph: 9,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "3:30 AM", minutes: 210, height: "2.0ft" },
-                    { type: "High", time: "9:44 AM", minutes: 584, height: "4.9ft" },
-                    { type: "Low", time: "5:18 PM", minutes: 1038, height: "-0.1ft" },
-                    { type: "High", time: "11:38 PM", minutes: 1418, height: "3.6ft" }
+                    { type: "Low", time: "1:47 AM", minutes: 107, height: "2.2ft" },
+                    { type: "High", time: "8:08 AM", minutes: 488, height: "6.6ft" },
+                    { type: "Low", time: "3:25 PM", minutes: 925, height: "-0.6ft" },
+                    { type: "High", time: "9:52 PM", minutes: 1312, height: "3.8ft" }
                 ],
-                optimalWindowRising: "8:00 AM - 9:30 AM",
-                optimalWindowGoingOut: "10:00 AM - 11:30 AM",
                 rating: "Great",
                 ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
                 descRising: "Gentle morning breeze while the tide is rising to assist your return leg.",
@@ -613,15 +677,19 @@
             },
             {
                 weatherIcon: "fa-cloud-sun",
-                high: 61, low: 48,
+                weatherIconColor: "text-amber-300",
+                high: 63, low: 48,
                 wind: "4-8 mph N",
+                windMaxMph: 8,
+                precipProb: 10,
+                precipSum: 0,
+                precipDisplay: "10% • Dry",
                 tides: [
-                    { type: "Low", time: "3:44 AM", minutes: 224, height: "2.2ft" },
-                    { type: "High", time: "10:13 AM", minutes: 613, height: "4.9ft" },
-                    { type: "Low", time: "6:00 PM", minutes: 1080, height: "-0.1ft" }
+                    { type: "Low", time: "2:28 AM", minutes: 148, height: "2.3ft" },
+                    { type: "High", time: "8:46 AM", minutes: 526, height: "6.7ft" },
+                    { type: "Low", time: "4:08 PM", minutes: 968, height: "-0.7ft" },
+                    { type: "High", time: "10:38 PM", minutes: 1358, height: "3.7ft" }
                 ],
-                optimalWindowRising: "8:30 AM - 10:00 AM",
-                optimalWindowGoingOut: "10:30 AM - 12:00 PM",
                 rating: "Great",
                 ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
                 descRising: "Mid-morning tide is rising steadily, making the return paddle south effortless.",
@@ -629,15 +697,19 @@
             },
             {
                 weatherIcon: "fa-sun",
+                weatherIconColor: "text-amber-400",
                 high: 66, low: 51,
                 wind: "2-6 mph Var",
+                windMaxMph: 6,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "4:12 AM", minutes: 252, height: "2.4ft" },
-                    { type: "High", time: "10:45 AM", minutes: 645, height: "4.8ft" },
-                    { type: "Low", time: "6:40 PM", minutes: 1120, height: "-0.1ft" }
+                    { type: "Low", time: "3:12 AM", minutes: 192, height: "2.4ft" },
+                    { type: "High", time: "9:28 AM", minutes: 568, height: "6.6ft" },
+                    { type: "Low", time: "4:52 PM", minutes: 1012, height: "-0.6ft" },
+                    { type: "High", time: "11:25 PM", minutes: 1405, height: "3.6ft" }
                 ],
-                optimalWindowRising: "9:00 AM - 10:30 AM",
-                optimalWindowGoingOut: "11:00 AM - 12:30 PM",
                 rating: "Excellent",
                 ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
                 descRising: "Exceptional glassy water across the estuary while the morning tide is rising.",
@@ -645,15 +717,18 @@
             },
             {
                 weatherIcon: "fa-sun",
+                weatherIconColor: "text-amber-400",
                 high: 67, low: 51,
                 wind: "3-7 mph NW",
+                windMaxMph: 7,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "4:45 AM", minutes: 285, height: "2.5ft" },
-                    { type: "High", time: "11:22 AM", minutes: 682, height: "4.7ft" },
-                    { type: "Low", time: "7:22 PM", minutes: 1162, height: "0.0ft" }
+                    { type: "Low", time: "4:00 AM", minutes: 240, height: "2.5ft" },
+                    { type: "High", time: "10:15 AM", minutes: 615, height: "6.3ft" },
+                    { type: "Low", time: "5:40 PM", minutes: 1060, height: "-0.4ft" }
                 ],
-                optimalWindowRising: "9:30 AM - 11:00 AM",
-                optimalWindowGoingOut: "11:30 AM - 1:00 PM",
                 rating: "Great",
                 ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
                 descRising: "Late-morning rising tide carries you smoothly back to your launch ramp.",
@@ -661,15 +736,18 @@
             },
             {
                 weatherIcon: "fa-sun",
+                weatherIconColor: "text-amber-400",
                 high: 68, low: 52,
                 wind: "2-6 mph W",
+                windMaxMph: 6,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "5:24 AM", minutes: 324, height: "2.5ft" },
-                    { type: "High", time: "12:04 PM", minutes: 724, height: "4.6ft" },
-                    { type: "Low", time: "8:06 PM", minutes: 1206, height: "0.1ft" }
+                    { type: "Low", time: "4:55 AM", minutes: 295, height: "2.5ft" },
+                    { type: "High", time: "11:08 AM", minutes: 668, height: "5.8ft" },
+                    { type: "Low", time: "6:30 PM", minutes: 1110, height: "-0.1ft" }
                 ],
-                optimalWindowRising: "10:00 AM - 11:30 AM",
-                optimalWindowGoingOut: "12:15 PM - 1:45 PM",
                 rating: "Excellent",
                 ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
                 descRising: "Late-morning incoming tide fills the bay with glassy conditions.",
@@ -677,15 +755,18 @@
             },
             {
                 weatherIcon: "fa-wind",
+                weatherIconColor: "text-cyan-300",
                 high: 64, low: 50,
                 wind: "5-11 mph NW",
+                windMaxMph: 11,
+                precipProb: 0,
+                precipSum: 0,
+                precipDisplay: "0% • Dry",
                 tides: [
-                    { type: "Low", time: "6:10 AM", minutes: 370, height: "2.6ft" },
-                    { type: "High", time: "12:52 PM", minutes: 772, height: "4.5ft" },
-                    { type: "Low", time: "8:50 PM", minutes: 1250, height: "0.2ft" }
+                    { type: "Low", time: "5:58 AM", minutes: 358, height: "2.4ft" },
+                    { type: "High", time: "12:08 PM", minutes: 728, height: "5.3ft" },
+                    { type: "Low", time: "7:22 PM", minutes: 1162, height: "0.2ft" }
                 ],
-                optimalWindowRising: "10:30 AM - 12:00 PM",
-                optimalWindowGoingOut: "1:00 PM - 2:30 PM",
                 rating: "Good",
                 ratingColor: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
                 descRising: "Late-morning rising tide helps push you south back to the ramp.",
@@ -705,38 +786,192 @@
 
         function getCurrentMinutesOfDay() {
             const now = new Date();
-            return now.getHours() * 60 + now.getMinutes();
+            const parts = now.toLocaleTimeString('en-GB', { timeZone: 'America/Los_Angeles', hour12: false, hour: '2-digit', minute: '2-digit' }).split(':');
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        function isRainWeatherCode(code) {
+            return (code >= 51 && code <= 67) || (code >= 80 && code <= 82) || (code >= 95 && code <= 99);
+        }
+
+        function isRainText(text) {
+            if (!text) return false;
+            const t = text.toLowerCase();
+            return t.includes('rain') || t.includes('shower') || t.includes('drizzle') || t.includes('thunder') || t.includes('storm');
+        }
+
+        function computeTideWindowsForDay(tides, sun, hourlyList = []) {
+            const safeEnd = sun.lastSafeLaunchMins;
+            const riseCandidates = [];
+            const ebbCandidates = [];
+
+            const events = [
+                { type: tides[0]?.type === 'Low' ? 'High' : 'Low', minutes: 0 },
+                ...tides,
+                { type: tides[tides.length - 1]?.type === 'Low' ? 'High' : 'Low', minutes: 1440 }
+            ];
+
+            for (let i = 0; i < events.length - 1; i++) {
+                const a = events[i];
+                const b = events[i + 1];
+                if (a.type === 'Low' && b.type === 'High') {
+                    // Rising tide interval [a.minutes, b.minutes]
+                    // Best launch so turnaround (+30m) is in rising water before High
+                    const winStart = Math.max(sun.sunriseMins, a.minutes - 15);
+                    const winEnd = Math.min(safeEnd, b.minutes - 30);
+                    if (winEnd - winStart >= 30) {
+                        const start = Math.round(winStart / 15) * 15;
+                        const end = Math.min(winEnd, start + 90);
+                        riseCandidates.push({ start, end: Math.max(start + 45, Math.round(end / 15) * 15), highMins: b.minutes });
+                    }
+                } else if (a.type === 'High' && b.type === 'Low') {
+                    // Outgoing tide interval [a.minutes, b.minutes]
+                    const winStart = Math.max(sun.sunriseMins, a.minutes - 10);
+                    const winEnd = Math.min(safeEnd, b.minutes - 30);
+                    if (winEnd - winStart >= 30) {
+                        const start = Math.round(winStart / 15) * 15;
+                        const end = Math.min(winEnd, start + 90);
+                        ebbCandidates.push({ start, end: Math.max(start + 45, Math.round(end / 15) * 15), lowMins: b.minutes });
+                    }
+                }
+            }
+
+            const scoreWindow = (w) => {
+                let penalty = 0;
+                if (w.start >= 750) penalty += 10; // afternoon wind
+                if (hourlyList.length > 0) {
+                    const rainyHrs = hourlyList.filter(h => h.mins >= w.start - 30 && h.mins <= w.end + 30 && (h.precipMm > 0 || isRainWeatherCode(h.weatherCode) || h.precipProb >= 50 || isRainText(h.shortForecast)));
+                    penalty += rainyHrs.length * 100;
+                }
+                return penalty + w.start * 0.001;
+            };
+
+            riseCandidates.sort((a, b) => scoreWindow(a) - scoreWindow(b));
+            ebbCandidates.sort((a, b) => scoreWindow(a) - scoreWindow(b));
+
+            const bestRise = riseCandidates[0] || { start: sun.sunriseMins + 60, end: sun.sunriseMins + 150 };
+            const bestEbb = ebbCandidates[0] || { start: sun.sunriseMins + 120, end: sun.sunriseMins + 210 };
+
+            return {
+                optimalWindowRising: `${formatMinutesToTime(bestRise.start)} - ${formatMinutesToTime(bestRise.end)}`,
+                optimalWindowRisingStart: bestRise.start,
+                optimalWindowRisingEnd: bestRise.end,
+                optimalWindowGoingOut: `${formatMinutesToTime(bestEbb.start)} - ${formatMinutesToTime(bestEbb.end)}`,
+                optimalWindowGoingOutStart: bestEbb.start,
+                optimalWindowGoingOutEnd: bestEbb.end,
+                morningFloodWindow: `${formatMinutesToTime(bestRise.start)} - ${formatMinutesToTime(bestRise.end)}`,
+                afternoonFloodWindow: `${formatMinutesToTime((riseCandidates[1] || bestRise).start)} - ${formatMinutesToTime((riseCandidates[1] || bestRise).end)}`,
+                morningEbbWindow: `${formatMinutesToTime(bestEbb.start)} - ${formatMinutesToTime(bestEbb.end)}`,
+                nextLowAfterNow: (nowMins) => tides.find(t => t.type === 'Low' && t.minutes > nowMins)
+            };
         }
 
         function buildDynamicForecastDays() {
-            const now = new Date();
-            const shortWeekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-            const fullWeekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const todayKey = getMorroBayDateKey(new Date());
+            const [ty, tm, td] = todayKey.split('-').map(Number);
 
-            return baseForecastTemplates.map((tpl, idx) => {
-                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + idx);
-                const dayNameFull = fullWeekdays[d.getDay()];
-                const dayNameShort = shortWeekdays[d.getDay()];
-                const monthShort = shortMonths[d.getMonth()];
-                const dateNum = d.getDate();
+            const days = [];
+            for (let idx = 0; idx < 7; idx++) {
+                // 12:00 UTC is 4:00 AM PST / 5:00 AM PDT — always the exact same calendar date in Morro Bay
+                const d = new Date(Date.UTC(ty, tm - 1, td + idx, 12, 0, 0));
+                const dateKey = getMorroBayDateKey(d);
+                const tpl = baseForecastTemplates[idx % baseForecastTemplates.length];
+                const liveWeather = liveDailyWeatherByDate[dateKey];
+                const liveTides = liveTidesByDate[dateKey];
+                const hourlyList = liveHourlyByDate[dateKey] || [];
+                const sun = getMorroBaySunTimes(d);
 
-                const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + idx + 1);
-                const nextDayShort = shortWeekdays[nextDate.getDay()];
-                const nextTpl = baseForecastTemplates[(idx + 1) % baseForecastTemplates.length];
+                const tides = (liveTides && liveTides.length >= 2) ? liveTides : tpl.tides;
+                const windows = computeTideWindowsForDay(tides, sun, hourlyList);
 
-                return {
-                    ...tpl,
+                const high = liveWeather ? liveWeather.high : tpl.high;
+                const low = liveWeather ? liveWeather.low : tpl.low;
+                const wind = liveWeather ? liveWeather.wind : tpl.wind;
+                const windMaxMph = liveWeather ? liveWeather.windMaxMph : tpl.windMaxMph;
+                const precipProb = liveWeather ? liveWeather.precipProb : tpl.precipProb;
+                const precipSum = liveWeather ? liveWeather.precipSum : tpl.precipSum;
+                const weatherCode = liveWeather ? liveWeather.weatherCode : 1;
+                const weatherIcon = liveWeather ? liveWeather.weatherIcon : tpl.weatherIcon;
+                const weatherIconColor = liveWeather ? liveWeather.weatherIconColor : tpl.weatherIconColor;
+
+                const precipAmountStr = precipSum >= 0.01 ? `${precipSum.toFixed(2)} in` : (precipSum > 0 ? 'Trace' : 'Dry');
+                const precipDisplay = `${precipProb}% • ${precipAmountStr}`;
+
+                const isRainyDay = precipSum >= 0.08 || precipProb >= 55 || isRainWeatherCode(weatherCode);
+                const isRainRisk = !isRainyDay && (precipProb >= 35 || precipSum >= 0.01);
+
+                let rating = tpl.rating;
+                let ratingColor = tpl.ratingColor;
+                let descRising = tpl.descRising;
+                let descGoingOut = tpl.descGoingOut;
+
+                if (isRainyDay) {
+                    rating = "Rainy • Hold";
+                    ratingColor = "text-sky-300 border-sky-500/40 bg-sky-950/60";
+                    descRising = `Rain expected (${precipProb}% chance) — avoid kayaking in the rain; check for dry breaks.`;
+                    descGoingOut = `Rain expected (${precipProb}% chance) — avoid kayaking in the rain; check for dry breaks.`;
+                } else if (windMaxMph >= 15) {
+                    rating = "Breezy";
+                    ratingColor = "text-amber-300 border-amber-500/40 bg-amber-950/50";
+                    descRising = `Afternoon gusts up to ${Math.round(windMaxMph)} mph — launch early on the rising tide.`;
+                    descGoingOut = `Afternoon gusts up to ${Math.round(windMaxMph)} mph — paddle early with the outgoing tide.`;
+                } else if (isRainRisk) {
+                    rating = "Fair • Rain Risk";
+                    ratingColor = "text-amber-300 border-amber-500/40 bg-amber-950/50";
+                    descRising = `${precipProb}% chance of showers — watch radar before launching on the rising tide.`;
+                    descGoingOut = `${precipProb}% chance of showers — watch radar before launching on the outgoing tide.`;
+                } else if (windMaxMph <= 7) {
+                    rating = "Excellent";
+                    ratingColor = "text-emerald-400 border-emerald-500/30 bg-emerald-950/40";
+                } else {
+                    rating = "Great";
+                    ratingColor = "text-teal-400 border-teal-500/30 bg-teal-950/40";
+                }
+
+                const dayNameFull = d.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'long' });
+                const dayNameShort = d.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short' });
+                const monthShort = d.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'short' });
+                const dateNum = parseInt(dateKey.split('-')[2], 10);
+
+                days.push({
                     dateObj: d,
+                    dateKey,
                     day: idx === 0 ? "Today" : dayNameFull,
                     date: idx === 0 ? `${dayNameShort}, ${monthShort} ${dateNum}` : `${monthShort} ${dateNum}`,
                     plannerOptionLabel: idx === 0
                         ? `Today (${dayNameShort}, ${monthShort} ${dateNum})`
                         : `${dayNameFull}, ${monthShort} ${dateNum}`,
-                    nextDayFloodNote: `${nextDayShort} ${nextTpl.optimalWindowRising}`,
-                    nextDayEbbNote: `${nextDayShort} ${nextTpl.optimalWindowGoingOut}`
-                };
-            });
+                    high,
+                    low,
+                    wind,
+                    windMaxMph,
+                    precipProb,
+                    precipSum,
+                    precipDisplay,
+                    isRainyDay,
+                    isRainRisk,
+                    weatherCode,
+                    weatherIcon,
+                    weatherIconColor,
+                    tides,
+                    hourly: hourlyList,
+                    ...windows,
+                    rating,
+                    ratingColor,
+                    descRising,
+                    descGoingOut
+                });
+            }
+
+            // Link nextDay notes
+            for (let i = 0; i < days.length; i++) {
+                const next = days[Math.min(days.length - 1, i + 1)];
+                const nextShort = next.dateObj.toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short' });
+                days[i].nextDayFloodNote = `${nextShort} ${next.optimalWindowRising}`;
+                days[i].nextDayEbbNote = `${nextShort} ${next.optimalWindowGoingOut}`;
+            }
+
+            return days;
         }
 
         let forecastDays = buildDynamicForecastDays();
@@ -754,6 +989,84 @@
 
         let currentSite = 'statepark';
         let tideSimMode = 'live';
+
+        function getRainStatusForWindow(dayIndex, startMins, durationMins = 60) {
+            const dayObj = forecastDays[dayIndex] || forecastDays[0];
+            const nowMins = getCurrentMinutesOfDay();
+
+            if (dayIndex === 0 && Math.abs(startMins - nowMins) <= 30 && liveRainState.isRaining) {
+                return {
+                    isRainy: true,
+                    prob: Math.max(liveRainState.precipProb, dayObj.precipProb || 70),
+                    reason: liveRainState.label || 'Active Rain'
+                };
+            }
+
+            const hourly = dayObj.hourly || [];
+            const endMins = startMins + durationMins;
+            const overlapping = hourly.filter(h => h.mins + 60 > startMins && h.mins <= endMins);
+
+            if (overlapping.length > 0) {
+                let maxProb = 0;
+                let rainyHour = null;
+                for (const h of overlapping) {
+                    if (h.precipProb > maxProb) maxProb = h.precipProb;
+                    if (h.precipMm > 0 || isRainWeatherCode(h.weatherCode) || h.precipProb >= 50 || isRainText(h.shortForecast)) {
+                        rainyHour = h;
+                    }
+                }
+                if (rainyHour) {
+                    return {
+                        isRainy: true,
+                        prob: Math.max(maxProb, rainyHour.precipProb || 60),
+                        reason: rainyHour.shortForecast || 'Rain Forecast'
+                    };
+                }
+                return { isRainy: false, prob: maxProb, reason: 'Dry' };
+            }
+
+            if (dayObj.isRainyDay) {
+                return {
+                    isRainy: true,
+                    prob: dayObj.precipProb,
+                    reason: 'Rain Expected'
+                };
+            }
+            return { isRainy: false, prob: dayObj.precipProb || 0, reason: 'Dry' };
+        }
+
+        function findNextDryDaylightWindow(startDayIdx, startMins, siteKey = currentSite) {
+            const siteInfo = launchData[siteKey] || launchData.statepark;
+            for (let dIdx = startDayIdx; dIdx < forecastDays.length; dIdx++) {
+                const dayObj = forecastDays[dIdx];
+                const sun = getMorroBaySunTimes(dayObj.dateObj);
+                const minStart = dIdx === startDayIdx
+                    ? Math.max(sun.sunriseMins, Math.ceil((startMins + 30) / 30) * 30)
+                    : Math.max(sun.sunriseMins, 450); // 7:30 AM default next day
+
+                for (let t = minStart; t <= sun.lastSafeLaunchMins; t += 30) {
+                    const rainCheck = getRainStatusForWindow(dIdx, t, siteInfo.minTripDurationMins);
+                    if (!rainCheck.isRainy) {
+                        const tideState = getTideStateAtTime(dIdx, t + siteInfo.turnaroundOffsetMins, siteKey, t);
+                        if (tideState.isDaylight && tideState.direction === siteInfo.idealDirection) {
+                            return { dayIdx: dIdx, startMins: t, dayObj, tideState, preferredSite: siteKey };
+                        }
+                    }
+                }
+                // Second pass: any dry daylight window on that day
+                for (let t = minStart; t <= sun.lastSafeLaunchMins; t += 30) {
+                    const rainCheck = getRainStatusForWindow(dIdx, t, siteInfo.minTripDurationMins);
+                    if (!rainCheck.isRainy) {
+                        const tideState = getTideStateAtTime(dIdx, t + siteInfo.turnaroundOffsetMins, siteKey, t);
+                        if (tideState.isDaylight) {
+                            const bestSite = tideState.direction === 'Rising' ? 'statepark' : 'coleman';
+                            return { dayIdx: dIdx, startMins: t, dayObj, tideState, preferredSite: bestSite };
+                        }
+                    }
+                }
+            }
+            return { dayIdx: Math.min(6, startDayIdx + 1), startMins: 480, dayObj: forecastDays[Math.min(6, startDayIdx + 1)], preferredSite: 'statepark' };
+        }
 
         function getTideStateAtTime(dayIndex, targetMinutes, siteKeyForLag = currentSite, launchMinutes = null) {
             const dayObj = forecastDays[dayIndex] || forecastDays[0];
@@ -775,7 +1088,7 @@
                 direction = nextEvent.type === "High" ? "Rising" : "Going Out";
             } else {
                 const lastEvent = tides[tides.length - 1];
-                direction = lastEvent.type === "Low" ? "Rising" : "Going Out";
+                direction = lastEvent && lastEvent.type === "Low" ? "Rising" : "Going Out";
             }
 
             const siteInfo = launchData[siteKeyForLag] || launchData.statepark;
@@ -839,7 +1152,16 @@
                 dlPill.innerHTML = `🌅 Sunrise ${sun.sunriseStr} &bull; 🌇 Sunset ${sun.sunsetStr}`;
             }
 
-            if (isDarkNow) {
+            if (liveSkyState) {
+                const desc = describeWeatherCode(liveSkyState.weatherCode, isDarkNow);
+                if (skyIconWrap) skyIconWrap.className = `${desc.color} text-3xl drop-shadow-md`;
+                if (skyIcon) skyIcon.className = `fa-solid ${desc.icon}`;
+                if (skyTitle) skyTitle.innerText = liveSkyState.labelOverride || desc.label;
+                if (skySub) {
+                    skySub.className = `text-[11px] ${isDarkNow ? 'text-indigo-300' : 'text-cyan-400'} block mt-0.5`;
+                    skySub.innerHTML = `<span class="${isDarkNow ? 'text-indigo-400' : 'text-cyan-400'}">●</span> ${liveSkyState.cloudCover}% cloud cover`;
+                }
+            } else if (isDarkNow) {
                 if (skyIconWrap) skyIconWrap.className = "text-indigo-300 text-3xl drop-shadow-md";
                 if (skyIcon) skyIcon.className = "fa-solid fa-moon";
                 if (skyTitle) skyTitle.innerText = "Clear Night";
@@ -876,7 +1198,10 @@
             const daySelect = document.getElementById('plan-day-select');
             const timeSelect = document.getElementById('plan-time-select');
             if (daySelect) daySelect.value = String(dayIndex);
-            if (timeSelect) timeSelect.value = String(timeMinutes);
+            if (timeSelect) {
+                const snapped = Math.min(1050, Math.max(360, Math.round(timeMinutes / 30) * 30));
+                timeSelect.value = String(snapped);
+            }
             if (preferredSite) {
                 currentSite = preferredSite;
             }
@@ -904,7 +1229,10 @@
 
             const modeBadge = document.getElementById('planner-mode-badge');
             if (modeBadge) {
-                if (isDarkNow) {
+                if (liveRainState.isRaining) {
+                    modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/40";
+                    modeBadge.innerText = "Live Now • Raining 🌧️";
+                } else if (isDarkNow) {
                     modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40";
                     modeBadge.innerText = "Live Now • After Dark 🌙";
                 } else {
@@ -934,18 +1262,19 @@
 
             const dayObj = forecastDays[dayIdx] || forecastDays[0];
             const returnTide = getTideStateAtTime(dayIdx, returnMins, currentSite, startMins);
+            const rainCheck = getRainStatusForWindow(dayIdx, startMins, activeSiteData.minTripDurationMins || 50);
             const sun = returnTide.sun;
             const startStr = formatMinutesToTime(startMins);
             const spReturnStr = formatMinutesToTime(startMins + launchData.statepark.turnaroundOffsetMins);
             const pubReturnStr = formatMinutesToTime(startMins + launchData.public.turnaroundOffsetMins);
             const colReturnStr = formatMinutesToTime(startMins + launchData.coleman.turnaroundOffsetMins);
 
-            // CASE 1: AFTER DARK OR BEFORE SUNRISE (Either Live Now at night, or Custom time in the dark)
+            // CASE 1: AFTER DARK OR BEFORE SUNRISE
             if (returnTide.isAfterSunset || returnTide.isBeforeSunrise) {
                 const isLiveNight = tideSimMode === 'live';
-                const nextDayIdx = (dayIdx === 0 && startMins >= sun.sunsetMins) ? 1 : dayIdx;
-                const nextDayObj = forecastDays[nextDayIdx] || forecastDays[1] || forecastDays[0];
-                const nextDayLabel = nextDayIdx === 1 ? `Tomorrow (${nextDayObj.day}, ${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`;
+                const nextDry = findNextDryDaylightWindow(dayIdx, startMins, currentSite);
+                const nextDayObj = nextDry.dayObj || forecastDays[1] || forecastDays[0];
+                const nextDayLabel = nextDry.dayIdx === 1 ? `Tomorrow (${nextDayObj.day}, ${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`;
 
                 box.className = "bg-indigo-950/50 border border-indigo-500/40 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
                 box.innerHTML = `
@@ -959,28 +1288,61 @@
                             </span>
                         </div>
                         <p class="text-xs text-slate-200 leading-relaxed">
-                            Kayaking in Morro Bay Harbor &amp; Estuary is <strong class="text-indigo-200">not recommended after dark</strong> due to unlit shoals, strong tidal currents, cold <strong class="text-white">58.8°F</strong> water, and commercial boat traffic.
+                            Kayaking in Morro Bay Harbor &amp; Estuary is <strong class="text-indigo-200">not recommended after dark</strong> due to unlit shoals, strong tidal currents, cold <strong class="text-white">${liveWaterTempStr}</strong> water, and commercial boat traffic.${liveRainState.isRaining && isLiveNight ? ' Plus, it is currently raining in Morro Bay.' : ''}
                             <span class="block mt-1 text-teal-300">
-                                <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Daylight Recommendation for ${nextDayLabel}:</strong>
-                                Launch <strong class="text-white">${nextDayObj.optimalWindowRising}</strong> from <strong class="text-white">State Park or Public Ramp</strong> (rising tide return) or <strong class="text-white">${nextDayObj.optimalWindowGoingOut}</strong> from <strong class="text-white">Coleman Park</strong> (outgoing tide return).
+                                <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Dry Daylight Recommendation for ${nextDayLabel}:</strong>
+                                Launch around <strong class="text-white">${formatMinutesToTime(nextDry.startMins)}</strong> from <strong class="text-white">${launchData[nextDry.preferredSite].name}</strong>.
                             </span>
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 shrink-0">
-                        <button onclick="planDaylightTime(${nextDayIdx}, 480, 'statepark')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-all cursor-pointer shadow-sm">
-                            <i class="fa-solid fa-sun mr-1"></i> Plan ${nextDayIdx === 1 ? 'Tomorrow' : 'Daylight'} 8:00 AM (Rising Tide)
-                        </button>
-                        <button onclick="planDaylightTime(${nextDayIdx}, 600, 'coleman')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition-all cursor-pointer">
-                            Plan 10:00 AM (Coleman)
+                        <button onclick="planDaylightTime(${nextDry.dayIdx}, ${nextDry.startMins}, '${nextDry.preferredSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-all cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-sun mr-1"></i> Plan ${nextDry.dayIdx === 1 ? 'Tomorrow' : nextDayObj.day} ${formatMinutesToTime(nextDry.startMins)}
                         </button>
                     </div>
                 `;
                 return;
             }
 
-            // CASE 2: LAUNCH IS BEFORE SUNSET, BUT RETURN TRIP CUTS INTO DARKNESS (Twilight Cutoff Warning)
+            // CASE 2: RAINING NOW OR RAIN FORECAST DURING LAUNCH WINDOW
+            if (rainCheck.isRainy) {
+                const isLiveRain = tideSimMode === 'live' && dayIdx === 0;
+                const nextDry = findNextDryDaylightWindow(dayIdx, startMins, currentSite);
+                const nextDayObj = nextDry.dayObj || forecastDays[1] || forecastDays[0];
+                const nextDayLabel = nextDry.dayIdx === 0 ? 'Later Today' : (nextDry.dayIdx === 1 ? `Tomorrow (${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`);
+
+                box.className = "bg-sky-950/55 border border-sky-400/50 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
+                box.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-200 uppercase tracking-wide bg-sky-500/25 border border-sky-400/40 px-2.5 py-0.5 rounded-md">
+                                <i class="fa-solid fa-cloud-rain text-sky-300"></i> ${isLiveRain ? 'Raining Now — Stay Off the Water' : 'Rain Expected — Do Not Launch'}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-300">
+                                ${rainCheck.reason} (${rainCheck.prob}% chance) &bull; ${isLiveRain ? `Current Time: ${startStr}` : `${dayObj.day} at ${startStr}`}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-200 leading-relaxed">
+                            Paddling during rain reduces visibility, brings gusty squalls, and chills you quickly over <strong class="text-white">${liveWaterTempStr}</strong> water. Stay dry ashore until the rain clears.
+                            <span class="block mt-1 text-teal-300">
+                                <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Dry Daylight Window (${nextDayLabel}):</strong>
+                                Launch around <strong class="text-white">${formatMinutesToTime(nextDry.startMins)}</strong> from <strong class="text-white">${launchData[nextDry.preferredSite].name}</strong>.
+                            </span>
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button onclick="planDaylightTime(${nextDry.dayIdx}, ${nextDry.startMins}, '${nextDry.preferredSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-400 hover:bg-sky-300 text-slate-950 transition-all cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-calendar-check mr-1"></i> Plan Dry Window (${nextDayLabel} ${formatMinutesToTime(nextDry.startMins)})
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // CASE 3: LAUNCH IS BEFORE SUNSET, BUT RETURN TRIP CUTS INTO DARKNESS
             if (returnTide.isReturnAfterSunset) {
                 const finishTimeStr = formatMinutesToTime(startMins + activeSiteData.minTripDurationMins);
+                const nextDry = findNextDryDaylightWindow(Math.min(6, dayIdx + 1), 450, currentSite);
                 box.className = "bg-amber-950/40 border border-amber-500/40 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
                 box.innerHTML = `
                     <div class="space-y-1.5">
@@ -994,27 +1356,30 @@
                         </div>
                         <p class="text-xs text-slate-200 leading-relaxed">
                             Launching at <strong class="text-white">${startStr}</strong> leaves insufficient daylight before <strong class="text-amber-300">${sun.sunsetStr} sunset</strong> — you would be paddling back in the dark.
-                            If you launch earlier (by <strong class="text-teal-300">3:30 PM – 4:00 PM</strong>) or choose the shorter <strong class="text-white">Public Launch Ramp</strong> loop (35–55 mins RT), you can finish before sunset.
+                            Launch earlier or plan for the next dry morning window.
                         </p>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 shrink-0">
-                        <button onclick="planDaylightTime(${dayIdx}, 930, '${currentSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all cursor-pointer">
-                            Shift Launch to 3:30 PM
+                        <button onclick="planDaylightTime(${dayIdx}, ${Math.max(360, sun.lastSafeLaunchMins - 30)}, '${currentSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all cursor-pointer">
+                            Shift Launch Earlier
                         </button>
-                        <button onclick="planDaylightTime(${Math.min(6, dayIdx + 1)}, 480, 'statepark')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition-all cursor-pointer">
-                            Plan Next Morning (8:00 AM)
+                        <button onclick="planDaylightTime(${nextDry.dayIdx}, ${nextDry.startMins}, '${nextDry.preferredSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition-all cursor-pointer">
+                            Plan Next Dry Morning
                         </button>
                     </div>
                 `;
                 return;
             }
 
-            // CASE 3: NORMAL DAYLIGHT HOURS — RECOMMEND RAMP BASED ON TURNAROUND TIDE
+            // CASE 4: NORMAL DRY DAYLIGHT HOURS — RECOMMEND RAMP BASED ON TURNAROUND TIDE
             box.className = "bg-slate-900/90 border border-teal-500/30 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
             const isAfternoonWindy = startMins >= 750;
             const windWarningHtml = isAfternoonWindy
-                ? `<span class="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-wind text-amber-400"></i> Note: Afternoon NW breeze (${dayObj.wind}) can add chop after 12:30 PM</span>`
-                : `<span class="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-emerald-400"></i> Daylight &amp; calm morning wind (${dayObj.wind})</span>`;
+                ? `<span class="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-wind text-amber-400"></i> Afternoon breeze (${dayObj.wind})</span>`
+                : `<span class="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-emerald-400"></i> Dry &amp; calm (${dayObj.wind})</span>`;
+            const rainRiskPill = rainCheck.prob >= 25
+                ? `<span class="inline-flex items-center gap-1 text-[10px] text-sky-300 bg-sky-950/60 border border-sky-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-droplet text-sky-400"></i> ${rainCheck.prob}% rain chance</span>`
+                : '';
 
             if (returnTide.direction === "Rising") {
                 box.innerHTML = `
@@ -1023,6 +1388,7 @@
                             <span class="text-xs font-bold text-teal-300 uppercase tracking-wide"><i class="fa-solid fa-thumbs-up mr-1"></i>Recommended Daylight Launch:</span>
                             <span class="text-sm font-bold text-white">State Park Launch Ramp <span class="text-slate-400 font-normal">or</span> Public Launch Ramp</span>
                             ${windWarningHtml}
+                            ${rainRiskPill}
                         </div>
                         <p class="text-xs text-slate-300">
                             Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${pubReturnStr}–${spReturnStr}</strong> (~25–38 mins in) when the <strong class="text-teal-300">Tide is Rising</strong> — incoming water will push you south back to the Public Ramp (35–55m RT) or State Park Ramp (sub-1 hr with tide).
@@ -1044,6 +1410,7 @@
                             <span class="text-xs font-bold text-teal-300 uppercase tracking-wide"><i class="fa-solid fa-thumbs-up mr-1"></i>Recommended Daylight Launch:</span>
                             <span class="text-sm font-bold text-white">Coleman Park</span>
                             ${windWarningHtml}
+                            ${rainRiskPill}
                         </div>
                         <p class="text-xs text-slate-300">
                             Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${colReturnStr}</strong> (~30 mins in) when the <strong class="text-teal-300">Tide is going out</strong> — outgoing water carries you north back to Coleman Park (45m–1h 15m RT).
@@ -1060,6 +1427,12 @@
 
         function updateTideAlignmentUI() {
             const headerState = getEffectiveTideState(currentSite);
+            const daySelect = document.getElementById('plan-day-select');
+            const timeSelect = document.getElementById('plan-time-select');
+            const dayIdx = tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0);
+            const startMins = tideSimMode === 'live' ? getCurrentMinutesOfDay() : (timeSelect ? parseInt(timeSelect.value, 10) : 930);
+            const rainCheck = getRainStatusForWindow(dayIdx, startMins, 50);
+
             const pillText = document.getElementById('live-tide-pill-text');
             const pillIcon = document.getElementById('live-tide-pill-icon');
             if (pillText) {
@@ -1068,6 +1441,9 @@
                     const darkLabel = headerState.isReturnAfterSunset ? 'Near Sunset Cutoff' : 'After Dark';
                     pillText.innerText = `${prefix}: ${darkLabel} (${headerState.label})`;
                     if (pillIcon) pillIcon.className = "fa-solid fa-moon text-indigo-400";
+                } else if (rainCheck.isRainy) {
+                    pillText.innerText = `${prefix}: Rain Hold (${headerState.label})`;
+                    if (pillIcon) pillIcon.className = "fa-solid fa-cloud-rain text-sky-400";
                 } else {
                     const dayPrefix = tideSimMode === 'custom' ? 'Planned Return' : 'Now';
                     pillText.innerText = `${dayPrefix}: ${headerState.label}`;
@@ -1081,20 +1457,12 @@
                 const info = launchData[key];
                 const stateForSite = getEffectiveTideState(key);
                 const isTideAligned = stateForSite.direction === info.idealDirection;
-                const isSiteAligned = isTideAligned && stateForSite.isDaylight;
+                const isSiteAligned = isTideAligned && stateForSite.isDaylight && !rainCheck.isRainy;
                 const ruleText = info.idealDirection === 'Rising' ? 'Ideal Return: Tide is Rising' : 'Ideal Return: Tide is going out';
                 const statusWord = tideSimMode === 'custom' ? 'Favorable' : 'Favorable Now';
                 const opposeWord = tideSimMode === 'custom' ? 'Opposing' : 'Opposing Now';
 
-                if (isSiteAligned) {
-                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-teal-200 bg-teal-950/90 border-teal-500/60 shadow-sm shadow-teal-500/10";
-                    badgeEl.innerHTML = `
-                        <span>${ruleText}</span>
-                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded border border-teal-400/30 shrink-0">
-                            <i class="fa-solid fa-circle-check text-teal-400"></i> ${statusWord}
-                        </span>
-                    `;
-                } else if (!stateForSite.isDaylight) {
+                if (!stateForSite.isDaylight) {
                     const darkTag = stateForSite.isReturnAfterSunset
                         ? 'Sunset Cutoff'
                         : (tideSimMode === 'custom' ? 'After Dark • Unsafe' : 'After Dark Now');
@@ -1103,6 +1471,23 @@
                         <span>${ruleText}</span>
                         <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-1.5 py-0.5 rounded border border-indigo-400/30 shrink-0">
                             <i class="fa-solid fa-moon text-indigo-300"></i> ${darkTag}
+                        </span>
+                    `;
+                } else if (rainCheck.isRainy) {
+                    const rainTag = tideSimMode === 'custom' ? 'Rain Expected • Hold' : 'Raining • Hold';
+                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-sky-200 bg-sky-950/80 border-sky-400/50 shadow-sm shadow-sky-500/10";
+                    badgeEl.innerHTML = `
+                        <span>${ruleText}</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-sky-200 bg-sky-500/25 px-1.5 py-0.5 rounded border border-sky-400/40 shrink-0">
+                            <i class="fa-solid fa-cloud-rain text-sky-300"></i> ${rainTag}
+                        </span>
+                    `;
+                } else if (isSiteAligned) {
+                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-teal-200 bg-teal-950/90 border-teal-500/60 shadow-sm shadow-teal-500/10";
+                    badgeEl.innerHTML = `
+                        <span>${ruleText}</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded border border-teal-400/30 shrink-0">
+                            <i class="fa-solid fa-circle-check text-teal-400"></i> ${statusWord}
                         </span>
                     `;
                 } else {
@@ -1162,45 +1547,78 @@
             const nowMins = getCurrentMinutesOfDay();
             const sun = getMorroBaySunTimes(dayObj.dateObj || new Date());
 
+            if (nowMins > sun.lastSafeLaunchMins) {
+                return {
+                    windowText: `Tomorrow: ${isRisingPreferred ? dayObj.nextDayFloodNote : dayObj.nextDayEbbNote}`,
+                    descText: `After dark / past sunset cutoff (${sun.sunsetStr}) — next ideal window is tomorrow morning.`,
+                    isAfterDarkToday: true,
+                    isRainingNow: liveRainState.isRaining
+                };
+            }
+
+            if (liveRainState.isRaining) {
+                const nextDry = findNextDryDaylightWindow(0, nowMins, currentSite);
+                const nextLabel = nextDry.dayIdx === 0
+                    ? `Dry ~${formatMinutesToTime(nextDry.startMins)}`
+                    : `Tomorrow: ${formatMinutesToTime(nextDry.startMins)}`;
+                return {
+                    windowText: `Hold (Rain) • ${nextLabel}`,
+                    descText: `Currently raining in Morro Bay (${liveRainState.label}) — stay off the water until dry.`,
+                    isAfterDarkToday: false,
+                    isRainingNow: true
+                };
+            }
+
             if (isRisingPreferred) {
-                if (nowMins < 545) {
+                const winEnd = dayObj.optimalWindowRisingEnd || (sun.lastSafeLaunchMins);
+                const winStart = dayObj.optimalWindowRisingStart || sun.sunriseMins;
+                if (nowMins <= winEnd && nowMins >= winStart - 30) {
                     return {
-                        windowText: dayObj.morningFloodWindow,
-                        descText: "Morning tide is rising; calm estuary waters assist your return south.",
-                        isAfterDarkToday: false
+                        windowText: `Now - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
+                        descText: `Tide is rising now; calm bay conditions assist your return south before ${sun.sunsetStr} sunset.`,
+                        isAfterDarkToday: false,
+                        isRainingNow: false
                     };
                 }
-                if (nowMins <= sun.lastSafeLaunchMins) {
+                if (nowMins < winStart) {
                     return {
-                        windowText: dayObj.afternoonFloodWindow,
-                        descText: `Late-afternoon turnaround before ${sun.sunsetStr} sunset; rising tide assists your return south.`,
-                        isAfterDarkToday: false
+                        windowText: dayObj.optimalWindowRising,
+                        descText: "Tide is rising during this window to assist your return paddle south.",
+                        isAfterDarkToday: false,
+                        isRainingNow: false
                     };
                 }
                 return {
                     windowText: `Tomorrow: ${dayObj.nextDayFloodNote}`,
-                    descText: `After dark now (Sunset ${sun.sunsetStr}) — daylight windows have ended today; launch tomorrow morning.`,
-                    isAfterDarkToday: true
+                    descText: `Today's best rising-tide daylight window has passed; next ideal window is tomorrow.`,
+                    isAfterDarkToday: false,
+                    isRainingNow: false
                 };
             } else {
-                if (nowMins < 645) {
+                const winEnd = dayObj.optimalWindowGoingOutEnd || sun.lastSafeLaunchMins;
+                const winStart = dayObj.optimalWindowGoingOutStart || sun.sunriseMins;
+                const nextLow = dayObj.nextLowAfterNow ? dayObj.nextLowAfterNow(nowMins) : null;
+                if (nowMins <= winEnd && nowMins >= winStart - 30) {
                     return {
-                        windowText: dayObj.morningEbbWindow,
-                        descText: "Morning tide is going out toward the harbor entrance, carrying you north.",
-                        isAfterDarkToday: false
+                        windowText: `Now - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
+                        descText: `Tide is going out${nextLow ? ` until the ${nextLow.time} low` : ''}, carrying you north to Coleman before ${sun.sunsetStr} sunset.`,
+                        isAfterDarkToday: false,
+                        isRainingNow: false
                     };
                 }
-                if (nowMins < 950 && nowMins <= sun.lastSafeLaunchMins) {
+                if (nowMins < winStart) {
                     return {
-                        windowText: "Now - 4:00 PM",
-                        descText: `Tide is going out until the 4:37 PM low, carrying you north back to Coleman before ${sun.sunsetStr} sunset.`,
-                        isAfterDarkToday: false
+                        windowText: dayObj.optimalWindowGoingOut,
+                        descText: "Outgoing tide during this window carries you north back to Coleman Park.",
+                        isAfterDarkToday: false,
+                        isRainingNow: false
                     };
                 }
                 return {
                     windowText: `Tomorrow: ${dayObj.nextDayEbbNote}`,
-                    descText: `After dark / past daylight ebb cutoff (Sunset ${sun.sunsetStr}) — next ideal window is tomorrow morning.`,
-                    isAfterDarkToday: true
+                    descText: `Today's best outgoing-tide daylight window has passed; next ideal window is tomorrow.`,
+                    isAfterDarkToday: false,
+                    isRainingNow: false
                 };
             }
         }
@@ -1224,7 +1642,10 @@
                     const todayPlan = getTodayOptimalWindow(item, isRisingPreferred);
                     optimalTime = todayPlan.windowText;
                     descText = todayPlan.descText;
-                    if (todayPlan.isAfterDarkToday) {
+                    if (todayPlan.isRainingNow) {
+                        ratingLabel = "Rainy • Hold";
+                        ratingClass = "text-sky-300 border-sky-400/50 bg-sky-950/70";
+                    } else if (todayPlan.isAfterDarkToday) {
                         ratingLabel = "After Dark";
                         ratingClass = "text-indigo-300 border-indigo-500/40 bg-indigo-950/60";
                     }
@@ -1245,6 +1666,14 @@
                     return `<div class="flex items-center justify-between text-slate-300"><span>${t.type} ${t.time}</span><span class="text-slate-400">(${t.height})</span></div>`;
                 }).join('');
 
+                const hasPrecip = item.precipProb >= 30 || item.precipSum > 0;
+                const precipClass = item.isRainyDay
+                    ? 'text-sky-300'
+                    : (hasPrecip ? 'text-cyan-300' : 'text-slate-300');
+                const precipIcon = item.isRainyDay
+                    ? 'fa-cloud-rain text-sky-400'
+                    : (hasPrecip ? 'fa-droplet text-cyan-400' : 'fa-droplet text-slate-500');
+
                 const card = document.createElement('div');
                 card.className = isToday
                     ? "bg-slate-900/90 border-2 border-teal-500/80 rounded-2xl p-4 flex flex-col justify-between shadow-xl shadow-teal-500/10 relative"
@@ -1254,15 +1683,21 @@
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <span class="font-bold text-white text-sm">${item.day}</span>
-                            <i class="fa-solid ${item.weatherIcon} text-amber-400 text-sm"></i>
+                            <i class="fa-solid ${item.weatherIcon} ${item.weatherIconColor || 'text-amber-400'} text-sm"></i>
                         </div>
                         <div class="text-xs text-slate-400 mb-3">${item.date}</div>
 
                         <div class="text-xs text-slate-400 mb-1">High / Low</div>
-                        <div class="text-sm font-bold text-slate-100 mb-3">${item.high}° / ${item.low}°</div>
+                        <div class="text-sm font-bold text-slate-100 mb-2.5">${item.high}° / ${item.low}°</div>
+
+                        <div class="text-xs text-slate-400 mb-1">Precipitation</div>
+                        <div class="text-xs font-semibold ${precipClass} mb-2.5 flex items-center gap-1.5">
+                            <i class="fa-solid ${precipIcon}"></i>
+                            <span>${item.precipDisplay}</span>
+                        </div>
 
                         <div class="text-xs text-slate-400 mb-1">Wind</div>
-                        <div class="text-xs font-semibold text-teal-300 mb-3">${item.wind}</div>
+                        <div class="text-xs font-semibold text-teal-300 mb-2.5">${item.wind}</div>
 
                         <div class="text-xs text-slate-400 mb-1">Tides:</div>
                         <div class="text-[11px] text-slate-300 space-y-1 mb-4 font-mono">
@@ -1279,6 +1714,7 @@
                             <i class="fa-regular fa-clock text-teal-400 mr-1"></i> ${optimalTime}
                         </div>
                         <p class="text-[11px] text-slate-400 leading-tight">${descText}</p>
+
                     </div>
                 `;
                 container.appendChild(card);
@@ -1288,7 +1724,7 @@
         // ============================================================================
         // 805 WEBCAMS ESTUARY PROGRAM SNAPSHOT FETCHER & 5-MINUTE AUTO-REFRESH ENGINE
         // ============================================================================
-        const SNAPSHOT_INTERVAL_MS = 300000; // 5 minutes (300,000 ms)
+        const SNAPSHOT_INTERVAL_MS = 300000;
         let snapshotAutoRefreshTimer = null;
 
         function refreshEstuarySnapshot(resetTimer = true) {
@@ -1299,11 +1735,9 @@
             if (resetTimer) {
                 startSnapshotAutoRefreshTimer();
             }
-
             if (badge) {
                 badge.innerText = "Syncing 805 Cam...";
             }
-
             if (imgEl && cam) {
                 cam.fallbackIndex = 0;
                 const activeUrl = cam.urls[0];
@@ -1311,7 +1745,6 @@
             }
         }
 
-        // Non-blocking background discovery in case 805 Webcams ever changes the camera image path
         async function discoverLive805EstuaryCameraUrl() {
             const pageUrl = window.estuaryWebcamConfig.pageUrl;
             const cb = Date.now();
@@ -1362,7 +1795,391 @@
             }, SNAPSHOT_INTERVAL_MS);
         }
 
-        function refreshTelemetry() {
+        function degreesToCompass(deg) {
+            if (typeof deg !== 'number' || Number.isNaN(deg)) return 'NW';
+            const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            return dirs[Math.round(deg / 22.5) % 16];
+        }
+
+        function describeWeatherCode(code, isDark) {
+            if (code >= 95) return { label: 'Thunderstorm', icon: 'fa-cloud-bolt', color: 'text-amber-300' };
+            if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return { label: 'Rain', icon: 'fa-cloud-rain', color: 'text-sky-300' };
+            if (code >= 51 && code <= 57) return { label: 'Drizzle', icon: 'fa-cloud-rain', color: 'text-sky-300' };
+            if (code === 45 || code === 48) return { label: 'Coastal Fog', icon: 'fa-smog', color: 'text-slate-300' };
+            if (code === 3) return { label: 'Overcast', icon: 'fa-cloud', color: 'text-slate-300' };
+            if (code === 2) return { label: 'Partly Cloudy', icon: isDark ? 'fa-cloud-moon' : 'fa-cloud-sun', color: isDark ? 'text-indigo-300' : 'text-amber-300' };
+            if (code === 1) return { label: isDark ? 'Mostly Clear' : 'Mostly Sunny', icon: isDark ? 'fa-moon' : 'fa-sun', color: isDark ? 'text-indigo-300' : 'text-amber-400' };
+            return { label: isDark ? 'Clear Night' : 'Clear Sky', icon: isDark ? 'fa-moon' : 'fa-sun', color: isDark ? 'text-indigo-300' : 'text-amber-400' };
+        }
+
+        function formatNoaaTimeToMinutes(timeStr) {
+            // "2026-11-22 07:19"
+            const m = timeStr.match(/(\d{2}):(\d{2})/);
+            if (!m) return { mins: 0, label: '12:00 AM' };
+            const total = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+            return { mins: total, label: formatMinutesToTime(total) };
+        }
+
+        async function fetchLiveMorroBayConditions() {
+            const now = new Date();
+            const beginDate = getMorroBayDateKey(now).replace(/-/g, '');
+            const endObj = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7);
+            const endDate = getMorroBayDateKey(endObj).replace(/-/g, '');
+
+            const openMeteoUrl = 'https://api.open-meteo.com/v1/forecast?latitude=35.3658&longitude=-120.8499&current=temperature_2m,precipitation,rain,showers,weather_code,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m&hourly=temperature_2m,precipitation_probability,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7';
+            const openMeteoMarineUrl = 'https://marine-api.open-meteo.com/v1/marine?latitude=35.3658&longitude=-120.865&current=wave_height,wave_direction,wave_period&daily=wave_height_max&length_unit=imperial&timezone=America%2FLos_Angeles&forecast_days=7';
+            const nwsObsUrl = 'https://api.weather.gov/stations/KSBP/observations/latest';
+            const nwsHourlyUrl = 'https://api.weather.gov/gridpoints/LOX/72,119/forecast/hourly';
+            const nwsDailyUrl = 'https://api.weather.gov/gridpoints/LOX/72,119/forecast';
+            const noaaWaterUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9412110&product=water_temperature&date=latest&units=english&time_zone=lst_ldt&format=json';
+            const noaaWindUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9412110&product=wind&date=latest&units=english&time_zone=lst_ldt&format=json';
+            const noaaTidesUrl = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9412110&product=predictions&datum=MLLW&time_zone=lst_ldt&interval=hilo&units=english&format=json&begin_date=${beginDate}&end_date=${endDate}`;
+
+            try {
+                const [omRes, marineRes, nwsObsRes, nwsHourlyRes, nwsDailyRes, waterRes, windRes, tidesRes] = await Promise.allSettled([
+                    fetch(openMeteoUrl, { cache: 'no-store' }),
+                    fetch(openMeteoMarineUrl, { cache: 'no-store' }),
+                    fetch(nwsObsUrl, { cache: 'no-store' }),
+                    fetch(nwsHourlyUrl, { cache: 'no-store' }),
+                    fetch(nwsDailyUrl, { cache: 'no-store' }),
+                    fetch(noaaWaterUrl, { cache: 'no-store' }),
+                    fetch(noaaWindUrl, { cache: 'no-store' }),
+                    fetch(noaaTidesUrl, { cache: 'no-store' })
+                ]);
+
+                let gotLiveAny = false;
+                let airTempF = null;
+                let windMph = null;
+                let gustMph = null;
+                let windDir = 'NW';
+                let cloudCover = 0;
+                let skyCode = 0;
+                let skyLabelOverride = null;
+                let precipMmh = 0;
+                let currentPrecipProb = 0;
+                let currentIsRaining = false;
+                let currentRainLabel = 'Dry';
+
+                // 1. Open-Meteo (exact Morro Bay coords: current + hourly + 7-day daily + sunrise/sunset)
+                if (omRes.status === 'fulfilled' && omRes.value.ok) {
+                    const om = await omRes.value.json();
+                    gotLiveAny = true;
+
+                    if (om.current) {
+                        if (typeof om.current.temperature_2m === 'number') airTempF = om.current.temperature_2m;
+                        if (typeof om.current.wind_speed_10m === 'number') windMph = om.current.wind_speed_10m;
+                        if (typeof om.current.wind_gusts_10m === 'number') gustMph = om.current.wind_gusts_10m;
+                        if (typeof om.current.wind_direction_10m === 'number') windDir = degreesToCompass(om.current.wind_direction_10m);
+                        if (typeof om.current.cloud_cover === 'number') cloudCover = om.current.cloud_cover;
+                        if (typeof om.current.weather_code === 'number') skyCode = om.current.weather_code;
+                        if (typeof om.current.precipitation === 'number' && om.current.precipitation > 0) {
+                            precipMmh = om.current.precipitation * 25.4;
+                            currentIsRaining = true;
+                            currentRainLabel = 'Rain';
+                        }
+                        if (isRainWeatherCode(skyCode)) {
+                            currentIsRaining = true;
+                            currentRainLabel = describeWeatherCode(skyCode, false).label;
+                        }
+                    }
+
+                    if (om.hourly && Array.isArray(om.hourly.time)) {
+                        liveHourlyByDate = {};
+                        om.hourly.time.forEach((tStr, i) => {
+                            const dateKey = tStr.slice(0, 10);
+                            const mins = parseIsoTimeMinutes(tStr);
+                            if (mins === null) return;
+                            if (!liveHourlyByDate[dateKey]) liveHourlyByDate[dateKey] = [];
+                            liveHourlyByDate[dateKey].push({
+                                mins,
+                                precipMm: (om.hourly.precipitation?.[i] || 0) * 25.4,
+                                precipProb: om.hourly.precipitation_probability?.[i] || 0,
+                                weatherCode: om.hourly.weather_code?.[i] || 0,
+                                shortForecast: ''
+                            });
+                        });
+                    }
+
+                    if (om.daily && Array.isArray(om.daily.time)) {
+                        liveDailySunTimes = {};
+                        liveDailyWeatherByDate = {};
+                        om.daily.time.forEach((dateKey, i) => {
+                            const sr = parseIsoTimeMinutes(om.daily.sunrise?.[i]);
+                            const ss = parseIsoTimeMinutes(om.daily.sunset?.[i]);
+                            if (sr !== null && ss !== null) {
+                                liveDailySunTimes[dateKey] = {
+                                    sunriseMins: sr,
+                                    sunsetMins: ss,
+                                    sunriseStr: formatMinutesToTime(sr),
+                                    sunsetStr: formatMinutesToTime(ss),
+                                    lastSafeLaunchMins: ss - 45
+                                };
+                            }
+                            const wCode = om.daily.weather_code?.[i] ?? 1;
+                            const desc = describeWeatherCode(wCode, false);
+                            const wMax = Math.round(om.daily.wind_speed_10m_max?.[i] ?? 8);
+                            const wMin = Math.max(2, Math.round(wMax * 0.45));
+                            const wDir = degreesToCompass(om.daily.wind_direction_10m_dominant?.[i]);
+                            liveDailyWeatherByDate[dateKey] = {
+                                high: Math.round(om.daily.temperature_2m_max?.[i] ?? 65),
+                                low: Math.round(om.daily.temperature_2m_min?.[i] ?? 48),
+                                wind: `${wMin}-${wMax} mph ${wDir}`,
+                                windMaxMph: om.daily.wind_speed_10m_max?.[i] ?? 8,
+                                precipProb: om.daily.precipitation_probability_max?.[i] ?? 0,
+                                precipSum: om.daily.precipitation_sum?.[i] ?? 0,
+                                weatherCode: wCode,
+                                weatherIcon: desc.icon,
+                                weatherIconColor: desc.color
+                            };
+                        });
+                    }
+                }
+
+                // 2. NWS Hourly Forecast for Morro Bay Harbor (LOX/72,119)
+                if (nwsHourlyRes.status === 'fulfilled' && nwsHourlyRes.value.ok) {
+                    const nh = await nwsHourlyRes.value.json();
+                    const periods = nh?.properties?.periods || [];
+                    if (periods.length > 0) {
+                        gotLiveAny = true;
+                        const curP = periods[0];
+                        const pop = curP.probabilityOfPrecipitation?.value;
+                        if (typeof pop === 'number') currentPrecipProb = Math.max(currentPrecipProb, pop);
+                        if (isRainText(curP.shortForecast)) {
+                            currentIsRaining = true;
+                            currentRainLabel = curP.shortForecast;
+                            skyLabelOverride = curP.shortForecast.includes('Thunder') ? 'Thunderstorm' : (curP.shortForecast.includes('Showers') ? 'Rain Showers' : 'Rain');
+                            if (skyCode < 51) skyCode = curP.shortForecast.includes('Thunder') ? 95 : 61;
+                        }
+                        if (airTempF === null && typeof curP.temperature === 'number') {
+                            airTempF = curP.temperature;
+                        }
+                        // Merge NWS hourly precip prob & shortForecast into liveHourlyByDate
+                        periods.forEach(p => {
+                            const dKey = (p.startTime || '').slice(0, 10);
+                            const mins = parseIsoTimeMinutes(p.startTime);
+                            if (!dKey || mins === null) return;
+                            const list = liveHourlyByDate[dKey];
+                            if (list) {
+                                const match = list.find(h => Math.abs(h.mins - mins) <= 30);
+                                if (match) {
+                                    const pVal = p.probabilityOfPrecipitation?.value;
+                                    if (typeof pVal === 'number') match.precipProb = Math.max(match.precipProb, pVal);
+                                    match.shortForecast = p.shortForecast || '';
+                                }
+                            }
+                        });
+                    }
+                }
+
+                // 3. NWS Daily Forecast for Morro Bay (merge max PoP & rain icons into 7-day cards)
+                if (nwsDailyRes.status === 'fulfilled' && nwsDailyRes.value.ok) {
+                    const nd = await nwsDailyRes.value.json();
+                    const periods = nd?.properties?.periods || [];
+                    periods.forEach(p => {
+                        const dKey = (p.startTime || '').slice(0, 10);
+                        const dw = liveDailyWeatherByDate[dKey];
+                        if (!dw) return;
+                        const pop = p.probabilityOfPrecipitation?.value;
+                        if (typeof pop === 'number' && pop > dw.precipProb) {
+                            dw.precipProb = pop;
+                        }
+                        if (p.isDaytime && isRainText(p.shortForecast) && !isRainWeatherCode(dw.weatherCode)) {
+                            dw.weatherCode = p.shortForecast.toLowerCase().includes('thunder') ? 95 : 61;
+                            const desc = describeWeatherCode(dw.weatherCode, false);
+                            dw.weatherIcon = desc.icon;
+                            dw.weatherIconColor = desc.color;
+                        }
+                    });
+                }
+
+                // 4. NWS KSBP Observation (live local airport sensor for rain/temp/wind)
+                if (nwsObsRes.status === 'fulfilled' && nwsObsRes.value.ok) {
+                    const obs = await nwsObsRes.value.json();
+                    const props = obs?.properties || {};
+                    gotLiveAny = true;
+
+                    if (typeof props.precipitationLastHour?.value === 'number' && props.precipitationLastHour.value > 0) {
+                        precipMmh = Math.max(precipMmh, props.precipitationLastHour.value);
+                        currentIsRaining = true;
+                        currentRainLabel = 'Rain';
+                    }
+                    if (props.textDescription) {
+                        const descText = props.textDescription.toLowerCase();
+                        if (isRainText(descText)) {
+                            currentIsRaining = true;
+                            currentRainLabel = props.textDescription;
+                            if (descText.includes('thunder')) { skyCode = 95; cloudCover = Math.max(cloudCover, 90); }
+                            else if (descText.includes('drizzle')) { skyCode = Math.max(skyCode, 51); cloudCover = Math.max(cloudCover, 80); }
+                            else { skyCode = Math.max(skyCode, 61); cloudCover = Math.max(cloudCover, 85); }
+                        } else if (skyCode === 0) {
+                            if (descText.includes('fog') || descText.includes('mist')) { skyCode = 45; cloudCover = Math.max(cloudCover, 75); }
+                            else if (descText.includes('overcast')) { skyCode = 3; cloudCover = Math.max(cloudCover, 95); }
+                            else if (descText.includes('mostly cloudy') || descText.includes('broken')) { skyCode = 2; cloudCover = Math.max(cloudCover, 70); }
+                            else if (descText.includes('partly') || descText.includes('scattered')) { skyCode = 2; cloudCover = Math.max(cloudCover, 35); }
+                        }
+                    }
+                    if (airTempF === null && typeof props.temperature?.value === 'number') {
+                        airTempF = (props.temperature.value * 9 / 5) + 32;
+                    }
+                    if (windMph === null && typeof props.windSpeed?.value === 'number') {
+                        windMph = props.windSpeed.value * 0.621371;
+                        gustMph = typeof props.windGust?.value === 'number' ? props.windGust.value * 0.621371 : windMph;
+                        if (typeof props.windDirection?.value === 'number') windDir = degreesToCompass(props.windDirection.value);
+                    }
+                }
+
+                // 5. NOAA CO-OPS 9412110 Water Temp & Wind fallback
+                if (waterRes.status === 'fulfilled' && waterRes.value.ok) {
+                    const n = await waterRes.value.json();
+                    const v = n?.data?.[0] && parseFloat(n.data[0].v);
+                    if (!Number.isNaN(v)) {
+                        liveWaterTempStr = `${v.toFixed(1)}°F`;
+                        const wtEl = document.getElementById('telemetry-watertemp');
+                        if (wtEl) wtEl.innerText = liveWaterTempStr;
+                        setGaugeVisual('water-needle', 'water-arc', (v - 45) / 30);
+                        gotLiveAny = true;
+                    }
+                }
+
+                if (windMph === null && windRes.status === 'fulfilled' && windRes.value.ok) {
+                    const w = await windRes.value.json();
+                    const row = w?.data?.[0];
+                    if (row) {
+                        const spd = parseFloat(row.s) * 1.15078;
+                        const gst = parseFloat(row.g) * 1.15078;
+                        if (!Number.isNaN(spd)) {
+                            windMph = spd;
+                            gustMph = Number.isNaN(gst) ? spd : gst;
+                            windDir = row.dr || 'NW';
+                        }
+                    }
+                }
+
+                // 6. Open-Meteo Marine (Wave Height at Morro Bay Entrance)
+                if (marineRes.status === 'fulfilled' && marineRes.value.ok) {
+                    const mar = await marineRes.value.json();
+                    const wh = mar?.current?.wave_height;
+                    const wp = mar?.current?.wave_period;
+                    const wd = mar?.current?.wave_direction;
+                    if (typeof wh === 'number') {
+                        const wavesEl = document.getElementById('telemetry-waves');
+                        const wavesSubEl = document.getElementById('telemetry-waves-sub');
+                        if (wavesEl) wavesEl.innerText = `${wh.toFixed(1)} ft`;
+                        if (wavesSubEl) {
+                            const dirStr = typeof wd === 'number' ? degreesToCompass(wd) : 'W';
+                            const perStr = typeof wp === 'number' ? `${Math.round(wp)}s` : '';
+                            wavesSubEl.innerText = `Entrance Swell • ${dirStr}${perStr ? ' @ ' + perStr : ''}`;
+                        }
+                        setGaugeVisual('waves-needle', 'waves-arc', wh / 12);
+                    }
+                }
+
+                // 7. NOAA CO-OPS 9412110 7-Day Tide Predictions (+15m Morro Bay Harbor offset)
+                if (tidesRes.status === 'fulfilled' && tidesRes.value.ok) {
+                    const td = await tidesRes.value.json();
+                    const preds = td?.predictions || [];
+                    if (preds.length > 0) {
+                        liveTidesByDate = {};
+                        preds.forEach(p => {
+                            const baseDt = new Date(p.t.replace(' ', 'T') + ':00');
+                            // Add +15 min Morro Bay Harbor offset from Port San Luis
+                            const adjDt = new Date(baseDt.getTime() + 15 * 60000);
+                            const y = adjDt.getFullYear();
+                            const m = String(adjDt.getMonth() + 1).padStart(2, '0');
+                            const d = String(adjDt.getDate()).padStart(2, '0');
+                            const dateKey = `${y}-${m}-${d}`;
+                            const mins = adjDt.getHours() * 60 + adjDt.getMinutes();
+                            if (!liveTidesByDate[dateKey]) liveTidesByDate[dateKey] = [];
+                            liveTidesByDate[dateKey].push({
+                                type: p.type === 'H' ? 'High' : 'Low',
+                                time: formatMinutesToTime(mins),
+                                minutes: mins,
+                                height: `${parseFloat(p.v).toFixed(1)}ft`
+                            });
+                        });
+                    }
+                }
+
+                // Apply Air Temp, Wind, Precipitation, Sky & Live Rain State to UI
+                if (airTempF !== null) {
+                    const airEl = document.getElementById('telemetry-airtemp');
+                    if (airEl) airEl.innerText = `${Math.round(airTempF)}°F`;
+                    setGaugeVisual('air-needle', 'air-arc', (airTempF - 35) / 55);
+                }
+
+                if (windMph !== null) {
+                    const gst = gustMph !== null ? Math.max(windMph, gustMph) : windMph;
+                    const windEl = document.getElementById('telemetry-wind');
+                    const windSubEl = document.getElementById('telemetry-wind-sub');
+                    if (windEl) windEl.innerText = `${windMph.toFixed(1)} mph`;
+                    if (windSubEl) windSubEl.innerHTML = `from ${windDir} &bull; <span class="text-amber-400">●</span> peak ${gst.toFixed(1)} mph`;
+                    setGaugeVisual('wind-needle', 'wind-arc', windMph / 25, 'wind-peak-dot', gst / 25);
+                }
+
+                liveRainState = {
+                    isRaining: currentIsRaining,
+                    rateMmh: precipMmh,
+                    precipProb: currentPrecipProb,
+                    label: currentRainLabel,
+                    summary: currentIsRaining ? `${currentRainLabel} (${currentPrecipProb}% chance)` : 'Dry'
+                };
+
+                const precipEl = document.getElementById('telemetry-precip');
+                const precipSubEl = document.getElementById('telemetry-precip-sub');
+                if (precipEl) {
+                    if (precipMmh > 0) {
+                        precipEl.innerText = `${precipMmh.toFixed(1)} mm/h`;
+                        precipEl.className = "text-2xl font-bold text-sky-300";
+                    } else if (currentIsRaining) {
+                        precipEl.innerText = currentRainLabel.includes('Thunder') ? 'Storm' : 'Raining';
+                        precipEl.className = "text-2xl font-bold text-sky-300";
+                    } else {
+                        precipEl.innerText = '0.0 mm/h';
+                        precipEl.className = "text-2xl font-bold text-white";
+                    }
+                }
+                if (precipSubEl) {
+                    if (currentIsRaining) {
+                        precipSubEl.className = "text-[11px] text-sky-300 block mt-0.5 font-medium";
+                        precipSubEl.innerText = `${currentPrecipProb > 0 ? currentPrecipProb + '% chance • ' : ''}Stay Ashore`;
+                    } else if (currentPrecipProb >= 20) {
+                        precipSubEl.className = "text-[11px] text-cyan-400 block mt-0.5";
+                        precipSubEl.innerText = `${currentPrecipProb}% chance today`;
+                    } else {
+                        precipSubEl.className = "text-[11px] text-emerald-400 block mt-0.5";
+                        precipSubEl.innerText = 'Dry • Morro Bay Estuary';
+                    }
+                }
+                const precipFrac = precipMmh > 0 ? Math.min(0.95, 0.2 + precipMmh / 8) : (currentIsRaining ? 0.38 : 0.04);
+                setGaugeVisual('precip-needle', 'precip-arc', precipFrac);
+
+                liveSkyState = {
+                    cloudCover,
+                    weatherCode: skyCode,
+                    labelOverride: skyLabelOverride
+                };
+
+                if (gotLiveAny) {
+                    const timeStr = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' });
+                    const tsEl = document.getElementById('live-timestamp');
+                    if (tsEl) tsEl.innerHTML = `Updated Live (${timeStr}) &bull; Morro Bay Harbor`;
+                }
+
+                populatePlannerDayDropdown();
+                if (tideSimMode === 'live') {
+                    resetPlannerToLive();
+                } else {
+                    updateSkyCardForDaylight();
+                    updatePlannerRecommendation();
+                    updateTideAlignmentUI();
+                }
+                renderForecast();
+            } catch (e) {
+                // Keep fallback values if offline
+            }
+        }
+
+        async function refreshTelemetry() {
             const btn = document.getElementById('refresh-btn');
             const icon = document.getElementById('refresh-icon');
             const text = document.getElementById('refresh-text');
@@ -1371,35 +2188,18 @@
             icon.classList.add('fa-spin');
             text.innerText = "Querying Station...";
 
-            // Immediately refresh the 805 Webcams snapshot and reset the 5-minute interval timer
             refreshEstuarySnapshot(true);
+            await fetchLiveMorroBayConditions();
+
+            icon.classList.remove('fa-spin');
+            text.innerText = "Station Updated!";
+            btn.classList.add('border-teal-500');
 
             setTimeout(() => {
-                document.getElementById('telemetry-watertemp').innerText = "58.8°F";
-                document.getElementById('telemetry-airtemp').innerText = "68°F";
-                document.getElementById('telemetry-wind').innerText = "1.9 mph";
-                document.getElementById('telemetry-wind-sub').innerHTML = 'from WSW &bull; <span class="text-amber-400">●</span> peak 2.9 mph';
-
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-                document.getElementById('live-timestamp').innerHTML = `Updated Live (${timeStr}) &bull; Morro Bay, CA`;
-
-                updateSkyCardForDaylight();
-                populatePlannerDayDropdown();
-                updatePlannerRecommendation();
-                updateTideAlignmentUI();
-                renderForecast();
-
-                icon.classList.remove('fa-spin');
-                text.innerText = "Station Updated!";
-                btn.classList.add('border-teal-500');
-
-                setTimeout(() => {
-                    text.innerText = "Refresh Station Data";
-                    btn.disabled = false;
-                    btn.classList.remove('border-teal-500');
-                }, 1500);
-            }, 600);
+                text.innerText = "Refresh Station Data";
+                btn.disabled = false;
+                btn.classList.remove('border-teal-500');
+            }, 1500);
         }
 
         // Initialize on load
@@ -1407,6 +2207,7 @@
             populatePlannerDayDropdown();
             resetPlannerToLive();
             renderForecast();
+            fetchLiveMorroBayConditions();
             refreshEstuarySnapshot(true);
             discoverLive805EstuaryCameraUrl();
         });
