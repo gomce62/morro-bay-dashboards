@@ -560,7 +560,7 @@
             <div class="flex items-center gap-1.5">
                 <button onclick="cycleIndieOutfit()" id="indie-outfit-btn" title="Switch Indie's Outfit" aria-label="Switch Indie's Outfit" class="tv-focus px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700">
                     <i class="fa-solid fa-shirt text-[10px]"></i>
-                    <span id="indie-outfit-label">Bikini</span>
+                    <span id="indie-outfit-label">One-Piece</span>
                 </button>
                 <button onclick="toggleIndieSettings()" id="indie-settings-btn" title="Voice Settings" aria-label="Voice Settings" class="tv-focus w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
                     <i class="fa-solid fa-sliders text-xs"></i>
@@ -582,10 +582,10 @@
             <!-- Zoomed Head-to-Toe Foreground Layer (Smooth Chest Breathing, Zero Jump) -->
             <div class="relative w-full h-full scale-[1.09]" style="transform-origin: 50% 94%;">
                 <div id="indie-stage" class="relative w-full h-full indie-live-motion">
-                    <img id="indie-frame-closed" src="assets/indie_v2_closed.png" alt="Indie standing head-to-toe beside her kayak at Morro Bay" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-100" />
-                    <img id="indie-frame-mid" src="assets/indie_v2_mid.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
-                    <img id="indie-frame-open" src="assets/indie_v2_open.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
-                    <img id="indie-frame-blink" src="assets/indie_v2_blink.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                    <img id="indie-frame-closed" src="assets/indie_onepiece_closed.png" alt="Indie standing head-to-toe beside her kayak at Morro Bay" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-100" />
+                    <img id="indie-frame-mid" src="assets/indie_onepiece_mid.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                    <img id="indie-frame-open" src="assets/indie_onepiece_open.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                    <img id="indie-frame-blink" src="assets/indie_onepiece_blink.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
                 </div>
             </div>
 
@@ -1921,14 +1921,6 @@
                 mid: 'assets/indie_shorts_mid.png',
                 open: 'assets/indie_shorts_open.png',
                 blink: 'assets/indie_shorts_blink.png'
-            },
-            {
-                key: 'bikini',
-                label: 'Bikini',
-                closed: 'assets/indie_v2_closed.png',
-                mid: 'assets/indie_v2_mid.png',
-                open: 'assets/indie_v2_open.png',
-                blink: 'assets/indie_v2_blink.png'
             }
         ];
         let indieOutfitIdx = -1;
