@@ -2,7 +2,8 @@
 
 A static web dashboard for checking kayaking conditions, tide-aligned launch strategies, live estuary webcam snapshots, and 7-day paddling windows in Morro Bay, CA.
 
-**Live Site:** https://gomce62.github.io/morro-bay-dashboards/
+**Live Site (Original):** https://gomce62.github.io/morro-bay-dashboards/  
+**Live Site (Indie's Kayak Forecast):** https://gomce62.github.io/morro-bay-dashboards/Indies%20Kayak%20Forecast/
 
 ---
 
@@ -13,6 +14,16 @@ A static web dashboard for checking kayaking conditions, tide-aligned launch str
 - **Live Estuary Webcam:** Pulls the [805 Webcams Morro Bay Estuary Program](https://www.805webcams.com/morro-bay-webcam-estuary-program/) snapshot with automatic 5-minute refreshes and fallback image proxies.
 - **7-Day Forecast & Optimal Windows:** Renders daily temperature highs/lows, wind forecasts, tide schedules, and highlighted optimal launch windows.
 - **Zero-Build Architecture:** Built with plain HTML, vanilla JavaScript, Tailwind CSS (CDN), Font Awesome (CDN), and Google Fonts (`Plus Jakarta Sans`)—no build step, Node backend, or API keys required.
+
+---
+
+## Indie's Kayak Forecast (`Indies Kayak Forecast/`)
+
+A standalone version at `Indies Kayak Forecast/index.html` (leaving the root `index.html` untouched) that adds:
+
+- **Interactive Forecast Presenter ("Indie"):** Click **Hear Indie's Kayak Forecast** in the header or on Today's card to open a centered broadcast modal with live captions, Web Speech API narration, voice/speed/pitch settings, and hybrid `onboundary` + cadence lip-sync (with D-pad focus support for Google TV APKs).
+- **Layered Artwork & Rotating Outfits:** Renders Indie's transparent full-body foreground frames over a locked Morro Bay / Morro Rock shoreline plate (`assets/bg_morro_bay.jpg`), rotating automatically between **One-Piece** (`indie_onepiece_*.png`) and **Sport Shorts** (`indie_shorts_closed.png`), with a manual **Outfit** toggle and saved bikini frames (`indie_v2_*.png`) in `Indies Kayak Forecast/assets/`.
+- **Live Central Coast Telemetry:** Fetches current air temperature, wind, precipitation, and sky conditions from **NWS (`KSBP`)** and water temperature from **NOAA CO-OPS (`9412110`)** on load and on **Refresh Station Data**.
 
 ---
 

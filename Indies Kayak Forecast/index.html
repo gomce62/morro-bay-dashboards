@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morro Bay Kayak Forecast &bull; Conditions &amp; Optimal Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        @keyframes indieBreathe {
+            0%, 100% { transform: scaleX(1.0) scaleY(1.0) translateY(0px); }
+            50% { transform: scaleX(1.005) scaleY(1.009) translateY(-1px); }
+        }
+        @keyframes indieSpeakBody {
+            0%   { transform: scaleX(1.0) scaleY(1.0) translateY(0px); }
+            35%  { transform: scaleX(1.007) scaleY(1.013) translateY(-1.5px); }
+            65%  { transform: scaleX(1.003) scaleY(1.006) translateY(-0.5px); }
+            100% { transform: scaleX(1.0) scaleY(1.0) translateY(0px); }
+        }
+        .indie-live-motion {
+            transform-origin: 50% 38%;
+            animation: indieBreathe 3.8s ease-in-out infinite;
+        }
+        .indie-live-motion.is-speaking {
+            animation: indieSpeakBody 2.6s ease-in-out infinite;
+        }
+        .indie-frame-img {
+            transition: opacity 75ms ease-in-out;
+        }
+        @keyframes barPulse {
+            0%, 100% { transform: scaleY(0.35); }
+            50% { transform: scaleY(1); }
+        }
+        .indie-eq-bar {
+            transform-origin: bottom;
+            animation: barPulse 0.55s ease-in-out infinite;
+        }
+        .tv-focus:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.85);
+        }
+    </style>
+
+    <!-- Early Webcam Snapshot Config & Fallback Handler (Matching Working 805 Webcams Pattern) -->
+    <script>
+        window.estuaryWebcamConfig = {
+            title: 'Morro Bay Webcam - Estuary Program',
+            pageUrl: 'https://www.805webcams.com/morro-bay-webcam-estuary-program/',
+            directPath: 'www.805webcams.com/cameras/morrobayestuary/camera.jpg',
+            urls: [
+                'https://images.weserv.nl/?url=www.805webcams.com/cameras/morrobayestuary/camera.jpg',
+                'https://wsrv.nl/?url=www.805webcams.com/cameras/morrobayestuary/camera.jpg',
+                'https://www.805webcams.com/cameras/morrobayestuary/camera.jpg',
+                'https://805webcams.com/cameras/morrobayestuary/camera.jpg'
+            ],
+            fallbackIndex: 0
+        };
+
+        window.buildEstuarySnapshotUrl = function(urlTemplate, ts) {
+            const stamp = ts || Date.now();
+            // For weserv.nl / wsrv.nl, append the timestamp to the upstream 805webcams.com URL
+            // as well as the proxy URL so neither the proxy CDN nor the browser serves a stale cached image.
+            if (urlTemplate.includes('weserv.nl') || urlTemplate.includes('wsrv.nl')) {
+                const upstreamWithTs = window.estuaryWebcamConfig.directPath + '?t=' + stamp;
+                const proxyBase = urlTemplate.split('?')[0];
+                return proxyBase + '?url=' + encodeURIComponent(upstreamWithTs) + '&n=-1&t=' + stamp;
+            }
+            const sep = urlTemplate.includes('?') ? '&' : '?';
+            return urlTemplate + sep + 't=' + stamp;
+        };
+
+        window.handleSnapshotImgLoad = function(imgEl) {
+            if (!imgEl) return;
+            imgEl.classList.remove('opacity-0');
+            const badge = document.getElementById('webcam-status-badge');
+            if (badge) {
+                const nowStr = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                badge.innerText = '805 Cam • ' + nowStr;
+            }
+        };
+
+        window.handleSnapshotImgError = function(imgEl) {
+            const cam = window.estuaryWebcamConfig;
+            if (!cam || !imgEl) return;
+            cam.fallbackIndex = (cam.fallbackIndex || 0) + 1;
+            if (cam.fallbackIndex < cam.urls.length) {
+                imgEl.src = window.buildEstuarySnapshotUrl(cam.urls[cam.fallbackIndex], Date.now());
+            } else {
+                const badge = document.getElementById('webcam-status-badge');
+                if (badge) {
+                    badge.innerText = '805 Cam Offline • Retrying';
+                }
+            }
+        };
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col selection:bg-teal-500 selection:text-slate-950">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900/85 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 min-h-16 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-teal-500/20 shrink-0">
+                    <i class="fa-solid fa-water text-slate-950 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                        <h1 class="font-bold text-lg tracking-tight text-white">Morro Bay Kayak Forecast</h1>
+                        <span class="text-xs text-teal-400 font-medium">NOAA Station 9412139 (Morro Bay Harbor)</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 italic mt-0.5">
+                        Like a cute weather girl on TV, this website may be nice to look at, but the forecast could be wrong
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2.5 self-end sm:self-center shrink-0">
+                <button onclick="openIndieBriefing(true)" id="header-indie-btn" class="tv-focus flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-xl text-xs font-semibold bg-teal-500/15 text-teal-200 border border-teal-500/40 hover:bg-teal-500/25 transition-all cursor-pointer shadow-sm">
+                    <img src="assets/indie_closed.jpg" alt="Indie" class="w-6 h-6 rounded-lg object-cover object-top border border-teal-400/50">
+                    <span>Hear Indie's Kayak Forecast</span>
+                    <i class="fa-solid fa-volume-high text-[10px] text-teal-300"></i>
+                </button>
+                <button onclick="refreshTelemetry()" id="refresh-btn" class="tv-focus flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-teal-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer shadow-sm">
+                    <i id="refresh-icon" class="fa-solid fa-rotate"></i>
+                    <span id="refresh-text">Refresh Station Data</span>
+                </button>
+                <span class="hidden lg:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-500/10 text-teal-300 border border-teal-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-2"></span>
+                    Morro Bay Station Active
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8 w-full">
+
+        <!-- Section 1: Current Conditions / 6-Card Gauge Layout -->
+        <section class="space-y-4">
+            <div class="flex items-center justify-between px-1">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-gauge-high text-teal-400"></i> Current Conditions
+                </h2>
+                <span id="live-timestamp" class="text-xs text-slate-400 font-medium">Updated Live &bull; Morro Bay, CA</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4" id="conditionsGrid">
+                
+                <!-- Card 1: WATER TEMP -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">WATER TEMP</div>
+                    <div class="flex flex-col items-center justify-center my-1">
+                        <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
+                            <defs>
+                                <linearGradient id="blueOrange" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#3b82f6" />
+                                    <stop offset="50%" stop-color="#2dd4bf" />
+                                    <stop offset="100%" stop-color="#f97316" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+                            <path d="M 10 45 A 40 40 0 0 1 72 18" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
+                            <line x1="50" y1="45" x2="68" y2="20" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-watertemp" class="text-2xl font-bold text-white">58.8°F</span>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Harbor</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: AIR TEMP -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">AIR TEMP</div>
+                    <div class="flex flex-col items-center justify-center my-1">
+                        <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+                            <path d="M 10 45 A 40 40 0 0 1 82 24" fill="none" stroke="url(#blueOrange)" stroke-width="8" stroke-linecap="round"/>
+                            <line x1="50" y1="45" x2="78" y2="16" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-airtemp" class="text-2xl font-bold text-white">68°F</span>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Station</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: WIND • NOW VS PEAK -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">WIND &bull; NOW VS PEAK</div>
+                    <div class="flex flex-col items-center justify-center my-1 relative">
+                        <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
+                            <defs>
+                                <linearGradient id="windGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#3b82f6" />
+                                    <stop offset="50%" stop-color="#eab308" />
+                                    <stop offset="100%" stop-color="#ef4444" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+                            <path d="M 10 45 A 40 40 0 0 1 45 14" fill="none" stroke="url(#windGrad)" stroke-width="8" stroke-linecap="round"/>
+                            <circle cx="38" cy="18" r="4" fill="#f97316" stroke="#0f172a" stroke-width="1.5"/>
+                            <line id="wind-needle" x1="50" y1="45" x2="35" y2="28" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-wind" class="text-2xl font-bold text-white">1.9 mph</span>
+                        <span id="telemetry-wind-sub" class="text-[11px] text-slate-400 block mt-0.5">from WSW &bull; <span class="text-amber-400">●</span> peak 2.9 mph</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: PEAK WAVES -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">PEAK WAVES</div>
+                    <div class="flex flex-col items-center justify-center my-1">
+                        <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+                            <path d="M 10 45 A 40 40 0 0 1 25 32" fill="none" stroke="#38bdf8" stroke-width="8" stroke-linecap="round"/>
+                            <line x1="50" y1="45" x2="22" y2="34" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-waves" class="text-2xl font-bold text-white">0.1 ft</span>
+                        <span class="text-[11px] text-slate-400 block mt-0.5">Morro Bay Entrance</span>
+                    </div>
+                </div>
+
+                <!-- Card 5: PRECIPITATION -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">PRECIPITATION</div>
+                    <div class="flex flex-col items-center justify-center my-1">
+                        <svg class="w-24 h-12 overflow-visible" viewBox="0 0 100 50">
+                            <defs>
+                                <linearGradient id="tealPurple" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#10b981" />
+                                    <stop offset="50%" stop-color="#3b82f6" />
+                                    <stop offset="100%" stop-color="#8b5cf6" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 10 45 A 40 40 0 0 1 90 45" fill="none" stroke="#1e293b" stroke-width="8" stroke-linecap="round"/>
+                            <path d="M 10 45 A 40 40 0 0 1 30 28" fill="none" stroke="url(#tealPurple)" stroke-width="8" stroke-linecap="round"/>
+                            <line x1="50" y1="45" x2="25" y2="45" stroke="#f8fafc" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="50" cy="45" r="4" fill="#f8fafc"/>
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-precip" class="text-2xl font-bold text-white">0.0 mm/h</span>
+                        <span class="text-[11px] text-emerald-400 block mt-0.5">Morro Bay Estuary</span>
+                    </div>
+                </div>
+
+                <!-- Card 6: SKY -->
+                <div class="bg-slate-900/95 border border-slate-800/90 rounded-2xl p-5 flex flex-col justify-between shadow-xl">
+                    <div class="text-center font-bold text-xs uppercase tracking-wider text-slate-300 mb-3">SKY</div>
+                    <div class="flex flex-col items-center justify-center my-1 py-1">
+                        <div id="sky-icon-wrap" class="text-amber-400 text-3xl drop-shadow-md">
+                            <i id="sky-icon" class="fa-solid fa-sun"></i>
+                        </div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <span id="telemetry-sky" class="text-2xl font-bold text-white">Clear Sky</span>
+                        <span id="telemetry-sky-sub" class="text-[11px] text-cyan-400 block mt-0.5"><span class="text-cyan-400">●</span> 0% cloud cover</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section 2: Launch Site Selector & Active Route Profile -->
+        <section class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-6">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-location-crosshairs text-teal-400"></i> Select Your Launch Location
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">Choose your starting ramp or use the trip planner below to see where daylight &amp; the return tide favor you.</p>
+                </div>
+                <!-- Clear Legend for Badge Colors -->
+                <div class="flex flex-wrap items-center gap-3 bg-slate-950/80 border border-slate-800 px-3.5 py-2 rounded-xl text-xs">
+                    <span id="live-tide-pill" class="font-semibold text-slate-200 pr-2 border-r border-slate-800 flex items-center gap-1.5">
+                        <i id="live-tide-pill-icon" class="fa-solid fa-water text-cyan-400"></i> <span id="live-tide-pill-text">Now: Tide is Rising</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-teal-300 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-teal-400 shadow-sm shadow-teal-400/50"></span> Teal = Favorable Return
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-amber-300 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400/50"></span> Amber = Opposing Tide
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-indigo-300 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-400 shadow-sm shadow-indigo-400/50"></span> Indigo = After Dark
+                    </span>
+                </div>
+            </div>
+
+            <!-- Interactive Trip Start Date/Time Planner & Launch Recommender -->
+            <div class="bg-slate-950/90 border border-slate-800/90 rounded-xl p-4 shadow-inner space-y-3.5">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shrink-0">
+                            <i class="fa-solid fa-compass-drafting text-sm"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center flex-wrap gap-2">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-teal-300">Plan Your Launch Time &amp; Get Site Recommendation</h3>
+                                <span id="planner-mode-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">Live Now Mode</span>
+                                <span id="daylight-hours-pill" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800">
+                                    🌅 Sunrise 6:35 AM &bull; 🌇 Sunset 5:02 PM
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">Evaluates daylight hours (Sunrise–Sunset) and turnaround tide (~25–40 mins in) to highlight the safest, easiest ramp.</p>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time Inputs -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex items-center bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs">
+                            <i class="fa-regular fa-calendar text-teal-400 mr-2"></i>
+                            <label for="plan-day-select" class="sr-only">Launch Day</label>
+                            <select id="plan-day-select" onchange="onPlannerInputChange()" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer pr-1">
+                                <!-- Dynamically populated via JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="flex items-center bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs">
+                            <i class="fa-regular fa-clock text-teal-400 mr-2"></i>
+                            <label for="plan-time-select" class="sr-only">Start Time</label>
+                            <select id="plan-time-select" onchange="onPlannerInputChange()" class="bg-transparent text-white font-semibold focus:outline-none cursor-pointer pr-1">
+                                <option value="360" class="bg-slate-900">6:00 AM (Pre-Dawn)</option>
+                                <option value="390" class="bg-slate-900">6:30 AM (Dawn)</option>
+                                <option value="420" class="bg-slate-900">7:00 AM</option>
+                                <option value="450" class="bg-slate-900">7:30 AM</option>
+                                <option value="480" class="bg-slate-900">8:00 AM</option>
+                                <option value="510" class="bg-slate-900">8:30 AM</option>
+                                <option value="540" class="bg-slate-900">9:00 AM</option>
+                                <option value="570" class="bg-slate-900">9:30 AM</option>
+                                <option value="600" class="bg-slate-900">10:00 AM</option>
+                                <option value="630" class="bg-slate-900">10:30 AM</option>
+                                <option value="660" class="bg-slate-900">11:00 AM</option>
+                                <option value="690" class="bg-slate-900">11:30 AM</option>
+                                <option value="720" class="bg-slate-900">12:00 PM</option>
+                                <option value="750" class="bg-slate-900">12:30 PM</option>
+                                <option value="780" class="bg-slate-900">1:00 PM</option>
+                                <option value="810" class="bg-slate-900">1:30 PM</option>
+                                <option value="840" class="bg-slate-900">2:00 PM</option>
+                                <option value="870" class="bg-slate-900">2:30 PM</option>
+                                <option value="900" class="bg-slate-900">3:00 PM</option>
+                                <option value="930" class="bg-slate-900" selected>3:30 PM</option>
+                                <option value="960" class="bg-slate-900">4:00 PM</option>
+                                <option value="990" class="bg-slate-900">4:30 PM (Near Sunset)</option>
+                                <option value="1020" class="bg-slate-900">5:00 PM (Sunset)</option>
+                                <option value="1050" class="bg-slate-900">5:30 PM (After Dark)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="resetPlannerToLive()" id="reset-live-btn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-teal-400 text-[10px]"></i> Reset to Live Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Recommendation Result Banner -->
+                <div id="planner-recommendation-box" class="bg-slate-900/90 border border-teal-500/30 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                    <!-- Populated via JavaScript -->
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="launchSelector">
+                <!-- State Park Launch -->
+                <div onclick="setLaunchSite('statepark')" id="btn-statepark" class="launch-btn text-left p-4 rounded-xl border transition-all relative overflow-hidden bg-slate-800/50 border-teal-500/80 shadow-lg shadow-teal-500/10 ring-2 ring-teal-500/50 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="inline-flex items-center gap-1.5">
+                                <span class="location-title font-bold text-white inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-rose-400"></i> State Park Launch Ramp
+                                </span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=Morro+Bay+State+Park+Marina+Launch+Ramp" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Open location in Google Maps" class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-900/90 hover:bg-teal-500/20 text-slate-400 hover:text-teal-300 border border-slate-700/80 hover:border-teal-500/50 transition-colors">
+                                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </div>
+                            <i class="fa-solid fa-circle-check text-teal-400 text-lg check-icon"></i>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                            <span class="text-[11px] font-bold text-teal-300 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md">~3.5 Miles RT</span>
+                            <span class="text-[11px] font-semibold text-slate-200 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock text-teal-400 mr-1"></i>50 min – 1.5 hrs</span>
+                        </div>
+                        <p class="text-xs text-slate-300">State Park &rarr; Morro Rock &rarr; Sandspit &rarr; Back (Sub-1 hr with favorable return tide).</p>
+                    </div>
+                    <div id="badge-statepark" class="mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all">
+                        <span>Ideal Return: Tide is Rising</span>
+                        <span class="badge-status"></span>
+                    </div>
+                </div>
+
+                <!-- Public Launch Ramp -->
+                <div onclick="setLaunchSite('public')" id="btn-public" class="launch-btn text-left p-4 rounded-xl border transition-all relative overflow-hidden bg-slate-800/30 border-slate-800 hover:border-slate-700 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="inline-flex items-center gap-1.5">
+                                <span class="location-title font-bold text-slate-200 inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-rose-400"></i> Public Launch Ramp
+                                </span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=1287+Embarcadero+Morro+Bay+CA" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Open location in Google Maps" class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-900/90 hover:bg-teal-500/20 text-slate-400 hover:text-teal-300 border border-slate-700/80 hover:border-teal-500/50 transition-colors">
+                                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </div>
+                            <i class="fa-regular fa-circle text-slate-600 text-lg check-icon"></i>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                            <span class="text-[11px] font-bold text-teal-300 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md">~2.2 Miles RT</span>
+                            <span class="text-[11px] font-semibold text-slate-200 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock text-teal-400 mr-1"></i>35 – 55 mins</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Public Ramp (1287 Embarcadero) &rarr; Morro Rock &rarr; Sandspit &rarr; Back (Shortest loop).</p>
+                    </div>
+                    <div id="badge-public" class="mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all">
+                        <span>Ideal Return: Tide is Rising</span>
+                        <span class="badge-status"></span>
+                    </div>
+                </div>
+
+                <!-- Coleman Park -->
+                <div onclick="setLaunchSite('coleman')" id="btn-coleman" class="launch-btn text-left p-4 rounded-xl border transition-all relative overflow-hidden bg-slate-800/30 border-slate-800 hover:border-slate-700 cursor-pointer flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="inline-flex items-center gap-1.5">
+                                <span class="location-title font-bold text-slate-200 inline-flex items-center gap-1.5">
+                                    <i class="fa-solid fa-location-dot text-rose-400"></i> Coleman Park
+                                </span>
+                                <a href="https://www.google.com/maps/search/?api=1&query=Coleman+Park+Morro+Bay+CA" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Open location in Google Maps" class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-900/90 hover:bg-teal-500/20 text-slate-400 hover:text-teal-300 border border-slate-700/80 hover:border-teal-500/50 transition-colors">
+                                    <i class="fa-solid fa-up-right-from-square text-[10px]"></i>
+                                </a>
+                            </div>
+                            <i class="fa-regular fa-circle text-slate-600 text-lg check-icon"></i>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                            <span class="text-[11px] font-bold text-teal-300 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md">~2.8 Miles RT</span>
+                            <span class="text-[11px] font-semibold text-slate-200 bg-slate-950/90 border border-slate-700/80 px-2 py-0.5 rounded-md"><i class="fa-regular fa-clock text-teal-400 mr-1"></i>45 min – 1 hr 15 min</span>
+                        </div>
+                        <p class="text-xs text-slate-400">Coleman &rarr; Public Ramp &rarr; Sandspit &rarr; Rock &rarr; Back (Fast return on outgoing tide).</p>
+                    </div>
+                    <div id="badge-coleman" class="mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all">
+                        <span>Ideal Return: Tide is going out</span>
+                        <span class="badge-status"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Streamlined 3-Column Section: Active Launch Site Profile, Live Webcam, and Wildlife & Safety Advisory -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-800">
+                <!-- Column 1: Active Launch Site Profile -->
+                <div class="space-y-3.5 flex flex-col justify-between bg-slate-950/50 border border-slate-800/80 rounded-2xl p-5">
+                    <div class="space-y-2.5">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-teal-300 text-xs font-semibold bg-teal-950/60 border border-teal-500/30 px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-route"></i> Active Launch Profile
+                            </span>
+                            <span id="profile-metrics-pill" class="text-[11px] font-bold text-slate-100 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded-lg">
+                                ~3.5 Miles RT &bull; 50 min – 1.5 hrs
+                            </span>
+                        </div>
+                        <h3 id="route-title" class="text-base font-bold text-white leading-snug">State Park Kayak Launch Ramp &rarr; Morro Rock &amp; Back</h3>
+                        <p id="route-desc" class="text-xs text-slate-300 leading-relaxed">
+                            This classic ~3.5-mile round-trip kayak route runs from the State Park Marina north to Morro Rock, across to the Sandspit dunes, and back south. Easily finished in under 1 hour when the rising tide assists your return south.
+                        </p>
+                        <div class="text-[11px] text-slate-400 flex items-center gap-2 pt-0.5">
+                            <i class="fa-solid fa-square-parking text-teal-400"></i>
+                            <span id="route-surface-note">Free parking lot &bull; Protected concrete ramp &amp; mudflat edge</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2.5 text-xs text-teal-300 bg-teal-950/40 p-3 rounded-xl border border-teal-500/20">
+                        <i class="fa-solid fa-lightbulb text-teal-400 text-sm mt-0.5"></i>
+                        <span id="route-tide-strategy"><strong>Tide Strategy:</strong> Turn around at Morro Rock (~38 mins in) when the tide is rising so incoming water pushes you effortlessly south back to the ramp.</span>
+                    </div>
+                </div>
+
+                <!-- Column 2: Live Webcam of Morro Bay Estuary Card (805webcams.com Auto-Refresh Every 5 Mins) -->
+                <div class="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-lg">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="font-bold text-white text-sm">
+                            <a href="https://www.805webcams.com/morro-bay-webcam-estuary-program/" target="_blank" rel="noopener noreferrer" title="Open 805 Webcams Morro Bay Estuary live feed in a new tab" class="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors group">
+                                <span>Live Webcam of Morro Bay Estuary</span>
+                                <i class="fa-solid fa-up-right-from-square text-[11px] text-teal-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                            </a>
+                        </h4>
+                        <span id="webcam-status-badge" class="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-slate-900 text-teal-300 border border-slate-800 shrink-0">
+                            Syncing 805 Cam...
+                        </span>
+                    </div>
+
+                    <!-- Live 805 Webcams Estuary Snapshot Image Viewport -->
+                    <div class="relative w-full flex-grow aspect-video rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-inner">
+                        <img id="estuary-snapshot-img"
+                             referrerpolicy="no-referrer"
+                             src="https://images.weserv.nl/?url=www.805webcams.com/cameras/morrobayestuary/camera.jpg&n=-1"
+                             onload="handleSnapshotImgLoad(this)"
+                             onerror="handleSnapshotImgError(this)"
+                             alt="Morro Bay Webcam Snapshot - Estuary Program"
+                             class="w-full h-full object-cover transition-opacity duration-300">
+                    </div>
+                </div>
+
+                <!-- Column 3: Kayak Wildlife & Safety Advisory -->
+                <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-2.5">
+                        <h4 class="font-bold text-cyan-400 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-binoculars"></i> Kayak Wildlife &amp; Safety Advisory
+                        </h4>
+                        <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+                            <p><strong class="text-white"><i class="fa-solid fa-otter text-amber-400 mr-1.5"></i>Sea Otters &amp; Seals:</strong> Keep 50–100 ft from resting sea otters and harbor seals near the marina and Morro Rock.</p>
+                            <p><strong class="text-white"><i class="fa-solid fa-ship text-cyan-400 mr-1.5"></i>Boat Traffic:</strong> Hug the channel edges and stay clear of commercial fishing boats and harbor tour vessels.</p>
+                            <p><strong class="text-white"><i class="fa-solid fa-moon text-indigo-400 mr-1.5"></i>Daylight Only &amp; Morning Glass:</strong> Avoid launching after dark or within 45 mins of sunset. Morning offers the calmest water before NW winds pick up past 12:30 PM.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: 7-Day Kayaking Forecast & Optimal Windows -->
+        <section id="forecastSection" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur space-y-6 scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+                <div>
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-teal-400"></i> 7-Day Kayaking Forecast &amp; Optimal Windows
+                    </h3>
+                    <p class="text-sm text-slate-400 mt-1" id="forecast-subtitle">Tailored recommendations integrating Morro Bay daylight hours, tide windows, and wind forecasts.</p>
+                </div>
+                <div class="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-teal-500/30 text-xs text-teal-300 bg-teal-950/30 shadow-inner">
+                    <i class="fa-solid fa-star text-teal-400"></i>
+                    <span id="forecast-rule-summary">Easiest Return: When Tide is Rising</span>
+                </div>
+            </div>
+
+            <!-- 7 Day Cards Container -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4" id="forecastGrid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>Indies Kayak Forecast &bull; Morro Bay Harbor &amp; Estuary Telemetry</p>
+    </footer>
+
+    <!-- Indie Broadcast Presenter Pop-up (Large Centered Modal for Web & Google TV) -->
+    <div id="indie-modal" role="dialog" aria-modal="true" aria-label="Indie's Today Forecast Briefing" onclick="if (event.target === this) closeIndieBriefing()" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm">
+    <aside class="w-full max-w-[620px] max-h-[calc(100vh-2rem)] overflow-y-auto bg-slate-900/95 backdrop-blur-xl border-2 border-teal-500/60 rounded-2xl shadow-2xl shadow-black/80">
+        <!-- Top Broadcast Bar -->
+        <div class="flex items-center justify-between px-4 py-3 bg-slate-950/90 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+                <span id="indie-onair-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                <span class="text-sm font-bold text-white tracking-wide">Indie &bull; Today's Forecast</span>
+                <span id="indie-status-pill" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700">Ready</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button onclick="cycleIndieOutfit()" id="indie-outfit-btn" title="Switch Indie's Outfit" aria-label="Switch Indie's Outfit" class="tv-focus px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700">
+                    <i class="fa-solid fa-shirt text-[10px]"></i>
+                    <span id="indie-outfit-label">Bikini</span>
+                </button>
+                <button onclick="toggleIndieSettings()" id="indie-settings-btn" title="Voice Settings" aria-label="Voice Settings" class="tv-focus w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                </button>
+                <button onclick="closeIndieBriefing()" id="indie-close-btn" title="Close" aria-label="Close Indie Forecast" class="tv-focus w-8 h-8 rounded-lg bg-slate-800 hover:bg-rose-500/20 text-slate-300 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Presenter Visual Stage (Large Centered Head-to-Toe Foreground + Locked Morro Bay Background) -->
+        <div class="relative w-full h-[min(520px,58vh)] bg-slate-950 overflow-hidden">
+            <!-- Locked Background Plate (100% still) -->
+            <img src="assets/bg_morro_bay.jpg" alt="" aria-hidden="true" class="absolute inset-0 w-full h-full object-cover scale-105 origin-bottom" />
+
+            <!-- Soft Grounding Shadow Under Her Feet -->
+            <div class="absolute bottom-[3.2%] left-1/2 -translate-x-1/2 w-32 h-3.5 rounded-full bg-slate-950/45 blur-[4px] pointer-events-none"></div>
+
+            <!-- Zoomed Head-to-Toe Foreground Layer (Smooth Chest Breathing, Zero Jump) -->
+            <div class="relative w-full h-full scale-[1.09]" style="transform-origin: 50% 94%;">
+                <div id="indie-stage" class="relative w-full h-full indie-live-motion">
+                    <img id="indie-frame-closed" src="assets/indie_v2_closed.png" alt="Indie standing head-to-toe beside her kayak at Morro Bay" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-100" />
+                    <img id="indie-frame-mid" src="assets/indie_v2_mid.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                    <img id="indie-frame-open" src="assets/indie_v2_open.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                </div>
+            </div>
+
+            <!-- Subtle Bottom Gradient & Live Audio Equalizer -->
+            <div class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent pointer-events-none"></div>
+            <div class="absolute bottom-2.5 left-3 right-3 flex items-center justify-between pointer-events-none">
+                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-950/80 text-teal-300 border border-teal-500/30">
+                    Morro Bay Live Desk
+                </span>
+                <div id="indie-eq" class="hidden items-end gap-0.5 h-4 px-2 py-1 rounded bg-slate-950/80 border border-teal-500/30">
+                    <span class="w-1 h-full bg-teal-400 rounded-full indie-eq-bar" style="animation-delay:0ms"></span>
+                    <span class="w-1 h-full bg-cyan-300 rounded-full indie-eq-bar" style="animation-delay:140ms"></span>
+                    <span class="w-1 h-full bg-teal-400 rounded-full indie-eq-bar" style="animation-delay:280ms"></span>
+                    <span class="w-1 h-full bg-cyan-300 rounded-full indie-eq-bar" style="animation-delay:90ms"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Collapsible Voice Settings -->
+        <div id="indie-settings-panel" class="hidden px-3.5 py-2.5 bg-slate-950/90 border-b border-slate-800 space-y-2 text-xs">
+            <div class="flex flex-col gap-1">
+                <label for="indie-voice-select" class="text-[11px] text-slate-400 font-medium">Voice</label>
+                <select id="indie-voice-select" onchange="onIndieVoicePrefsChange()" class="tv-focus bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none"></select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <label class="flex flex-col gap-1 text-[11px] text-slate-400">
+                    <span>Speed: <strong id="indie-rate-label" class="text-teal-300 font-mono">0.95x</strong></span>
+                    <input id="indie-rate-input" type="range" min="0.80" max="1.20" step="0.05" value="0.95" oninput="onIndieVoicePrefsChange()" class="accent-teal-400 cursor-pointer" />
+                </label>
+                <label class="flex flex-col gap-1 text-[11px] text-slate-400">
+                    <span>Pitch: <strong id="indie-pitch-label" class="text-teal-300 font-mono">0.98</strong></span>
+                    <input id="indie-pitch-input" type="range" min="0.85" max="1.20" step="0.02" value="0.98" oninput="onIndieVoicePrefsChange()" class="accent-teal-400 cursor-pointer" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Captions & Playback Controls -->
+        <div class="p-3.5 space-y-3">
+            <div id="indie-captions" class="text-xs sm:text-sm leading-relaxed text-slate-100 bg-slate-950/90 border border-slate-800 rounded-xl p-3 max-h-28 overflow-y-auto">
+                Click Play to hear Indie read Today's Morro Bay forecast.
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="speakIndieForecast()" id="indie-play-btn" class="tv-focus flex-1 py-2.5 px-3 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-play"></i> <span id="indie-play-label">Play Forecast</span>
+                </button>
+                <button onclick="stopIndieForecast()" id="indie-stop-btn" class="tv-focus py-2.5 px-3.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-all cursor-pointer flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-stop text-[10px]"></i> Stop
+                </button>
+            </div>
+        </div>
+    </aside>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Morro Bay Daylight Boundaries (Sunrise ~6:35 AM, Sunset ~5:02 PM in November; computed dynamically by month)
+        function getMorroBaySunTimes(dateObj = new Date()) {
+            const month = dateObj.getMonth(); // 0 = Jan ... 10 = Nov
+            // Approximate local Sunrise & Sunset minutes for Morro Bay, CA (35.3658° N, 120.8499° W)
+            const sunriseByMonth = [428, 408, 430, 392, 362, 348, 358, 378, 402, 425, 395, 418];
+            const sunsetByMonth  = [1025, 1055, 1150, 1180, 1205, 1222, 1218, 1190, 1150, 1110, 1022, 1012];
+            const sunriseMins = sunriseByMonth[month] ?? 395; // 6:35 AM
+            const sunsetMins  = sunsetByMonth[month] ?? 1022; // 5:02 PM
+            return {
+                sunriseMins,
+                sunsetMins,
+                sunriseStr: formatMinutesToTime(sunriseMins),
+                sunsetStr: formatMinutesToTime(sunsetMins),
+                // Latest safe launch cutoff is 45 mins before sunset so kayakers return before dark
+                lastSafeLaunchMins: sunsetMins - 45
+            };
+        }
+
+        const launchData = {
+            statepark: {
+                name: "State Park Launch Ramp",
+                distance: "~3.5 Miles RT",
+                duration: "50 min – 1.5 hrs",
+                surfaceNote: "Free parking lot • Protected concrete ramp & mudflat edge",
+                turnaroundOffsetMins: 38,
+                minTripDurationMins: 55,
+                idealDirection: "Rising",
+                title: "State Park Kayak Launch Ramp &rarr; Morro Rock &amp; Back",
+                desc: "This classic ~3.5-mile round-trip kayak route runs from the State Park Marina north to Morro Rock, across to the Sandspit dunes, and back south. Easily finished in under 1 hour when the rising tide assists your return south.",
+                strategy: "<strong>Tide Strategy:</strong> Turn around at Morro Rock (~38 mins in) when the tide is rising so incoming water pushes you effortlessly south back to the ramp.",
+                ruleSummary: "Easiest Return: When Tide is Rising"
+            },
+            public: {
+                name: "Public Launch Ramp",
+                distance: "~2.2 Miles RT",
+                duration: "35 – 55 mins",
+                surfaceNote: "1287 Embarcadero parking • Concrete boat ramp & floating dock",
+                turnaroundOffsetMins: 25,
+                minTripDurationMins: 40,
+                idealDirection: "Rising",
+                title: "Public Launch Ramp (1287 Embarcadero) &rarr; Morro Rock Loop",
+                desc: "Launching from 1287 Embarcadero cuts the harbor distance in half (~2.2 miles RT). Head north to Morro Rock, loop past the northern Sandspit dunes, and ride the rising tide back south to the ramp in 35 to 55 minutes.",
+                strategy: "<strong>Tide Strategy:</strong> With a quick ~25-minute paddle up to Morro Rock, time your turnaround so the rising tide pushes you effortlessly south back to the Public Launch Ramp.",
+                ruleSummary: "Easiest Return: When Tide is Rising"
+            },
+            coleman: {
+                name: "Coleman Park",
+                distance: "~2.8 Miles RT",
+                duration: "45 min – 1 hr 15 min",
+                surfaceNote: "Coleman Dr parking • Protected sandy beach launch near Morro Rock",
+                turnaroundOffsetMins: 30,
+                minTripDurationMins: 50,
+                idealDirection: "Going Out",
+                title: "Coleman Park Loop (South to Public Ramp, Sandspit &amp; Morro Rock)",
+                desc: "Launch from Coleman Beach near Morro Rock, paddle south down the harbor to the Public Launch Ramp, cross to the Sandspit dunes, and return north past Sea Lion Dock and Morro Rock (~2.8 miles RT).",
+                strategy: "<strong>Tide Strategy:</strong> Head south toward the Public Ramp on a slack or rising tide, then turn north (~30 mins in) when the tide is going out so the current carries you back to Coleman Park.",
+                ruleSummary: "Easiest Return: When Tide is Going Out"
+            }
+        };
+
+        // Base 7-Day Morro Bay Harbor (Station 9412139) Tide & Weather Templates
+        const baseForecastTemplates = [
+            {
+                weatherIcon: "fa-sun",
+                high: 68, low: 52,
+                wind: "1.9 mph WSW",
+                tides: [
+                    { type: "Low", time: "3:08 AM", minutes: 188, height: "1.7ft" },
+                    { type: "High", time: "9:16 AM", minutes: 556, height: "4.9ft" },
+                    { type: "Low", time: "4:37 PM", minutes: 997, height: "0.0ft" },
+                    { type: "High", time: "10:52 PM", minutes: 1372, height: "3.7ft" }
+                ],
+                morningFloodWindow: "7:45 AM - 9:15 AM",
+                afternoonFloodWindow: "3:30 PM - 4:30 PM",
+                morningEbbWindow: "9:30 AM - 11:00 AM",
+                optimalWindowRising: "7:45 AM - 9:15 AM",
+                optimalWindowGoingOut: "9:30 AM - 11:00 AM",
+                rating: "Excellent",
+                ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+                descRising: "Tide is rising into the back bay to assist your return paddle south.",
+                descGoingOut: "Morning tide is going out after the 9:16 AM high, pushing you north to Coleman."
+            },
+            {
+                weatherIcon: "fa-sun",
+                high: 65, low: 50,
+                wind: "3-9 mph W",
+                tides: [
+                    { type: "Low", time: "3:30 AM", minutes: 210, height: "2.0ft" },
+                    { type: "High", time: "9:44 AM", minutes: 584, height: "4.9ft" },
+                    { type: "Low", time: "5:18 PM", minutes: 1038, height: "-0.1ft" },
+                    { type: "High", time: "11:38 PM", minutes: 1418, height: "3.6ft" }
+                ],
+                optimalWindowRising: "8:00 AM - 9:30 AM",
+                optimalWindowGoingOut: "10:00 AM - 11:30 AM",
+                rating: "Great",
+                ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
+                descRising: "Gentle morning breeze while the tide is rising to assist your return leg.",
+                descGoingOut: "Smooth mid-morning outgoing tide carries you north past Sea Lion Dock."
+            },
+            {
+                weatherIcon: "fa-cloud-sun",
+                high: 61, low: 48,
+                wind: "4-8 mph N",
+                tides: [
+                    { type: "Low", time: "3:44 AM", minutes: 224, height: "2.2ft" },
+                    { type: "High", time: "10:13 AM", minutes: 613, height: "4.9ft" },
+                    { type: "Low", time: "6:00 PM", minutes: 1080, height: "-0.1ft" }
+                ],
+                optimalWindowRising: "8:30 AM - 10:00 AM",
+                optimalWindowGoingOut: "10:30 AM - 12:00 PM",
+                rating: "Great",
+                ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
+                descRising: "Mid-morning tide is rising steadily, making the return paddle south effortless.",
+                descGoingOut: "Late morning tide is going out, giving a steady push north to Coleman Park."
+            },
+            {
+                weatherIcon: "fa-sun",
+                high: 66, low: 51,
+                wind: "2-6 mph Var",
+                tides: [
+                    { type: "Low", time: "4:12 AM", minutes: 252, height: "2.4ft" },
+                    { type: "High", time: "10:45 AM", minutes: 645, height: "4.8ft" },
+                    { type: "Low", time: "6:40 PM", minutes: 1120, height: "-0.1ft" }
+                ],
+                optimalWindowRising: "9:00 AM - 10:30 AM",
+                optimalWindowGoingOut: "11:00 AM - 12:30 PM",
+                rating: "Excellent",
+                ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+                descRising: "Exceptional glassy water across the estuary while the morning tide is rising.",
+                descGoingOut: "Calm midday waters while the tide is going out toward the harbor entrance."
+            },
+            {
+                weatherIcon: "fa-sun",
+                high: 67, low: 51,
+                wind: "3-7 mph NW",
+                tides: [
+                    { type: "Low", time: "4:45 AM", minutes: 285, height: "2.5ft" },
+                    { type: "High", time: "11:22 AM", minutes: 682, height: "4.7ft" },
+                    { type: "Low", time: "7:22 PM", minutes: 1162, height: "0.0ft" }
+                ],
+                optimalWindowRising: "9:30 AM - 11:00 AM",
+                optimalWindowGoingOut: "11:30 AM - 1:00 PM",
+                rating: "Great",
+                ratingColor: "text-teal-400 border-teal-500/30 bg-teal-950/40",
+                descRising: "Late-morning rising tide carries you smoothly back to your launch ramp.",
+                descGoingOut: "Early afternoon outgoing tide assists your return leg north to Coleman."
+            },
+            {
+                weatherIcon: "fa-sun",
+                high: 68, low: 52,
+                wind: "2-6 mph W",
+                tides: [
+                    { type: "Low", time: "5:24 AM", minutes: 324, height: "2.5ft" },
+                    { type: "High", time: "12:04 PM", minutes: 724, height: "4.6ft" },
+                    { type: "Low", time: "8:06 PM", minutes: 1206, height: "0.1ft" }
+                ],
+                optimalWindowRising: "10:00 AM - 11:30 AM",
+                optimalWindowGoingOut: "12:15 PM - 1:45 PM",
+                rating: "Excellent",
+                ratingColor: "text-emerald-400 border-emerald-500/30 bg-emerald-950/40",
+                descRising: "Late-morning incoming tide fills the bay with glassy conditions.",
+                descGoingOut: "Early afternoon outgoing tide pushes your kayak smoothly north to Coleman."
+            },
+            {
+                weatherIcon: "fa-wind",
+                high: 64, low: 50,
+                wind: "5-11 mph NW",
+                tides: [
+                    { type: "Low", time: "6:10 AM", minutes: 370, height: "2.6ft" },
+                    { type: "High", time: "12:52 PM", minutes: 772, height: "4.5ft" },
+                    { type: "Low", time: "8:50 PM", minutes: 1250, height: "0.2ft" }
+                ],
+                optimalWindowRising: "10:30 AM - 12:00 PM",
+                optimalWindowGoingOut: "1:00 PM - 2:30 PM",
+                rating: "Good",
+                ratingColor: "text-cyan-400 border-cyan-500/30 bg-cyan-950/40",
+                descRising: "Late-morning rising tide helps push you south back to the ramp.",
+                descGoingOut: "Afternoon outgoing tide carries you north toward Coleman Park."
+            }
+        ];
+
+        function formatMinutesToTime(totalMins) {
+            const minsClamped = ((totalMins % 1440) + 1440) % 1440;
+            let hrs = Math.floor(minsClamped / 60);
+            const mins = minsClamped % 60;
+            const ampm = hrs >= 12 ? 'PM' : 'AM';
+            hrs = hrs % 12;
+            if (hrs === 0) hrs = 12;
+            return `${hrs}:${mins < 10 ? '0' + mins : mins} ${ampm}`;
+        }
+
+        function getCurrentMinutesOfDay() {
+            const now = new Date();
+            return now.getHours() * 60 + now.getMinutes();
+        }
+
+        function buildDynamicForecastDays() {
+            const now = new Date();
+            const shortWeekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const fullWeekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            return baseForecastTemplates.map((tpl, idx) => {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + idx);
+                const dayNameFull = fullWeekdays[d.getDay()];
+                const dayNameShort = shortWeekdays[d.getDay()];
+                const monthShort = shortMonths[d.getMonth()];
+                const dateNum = d.getDate();
+
+                const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + idx + 1);
+                const nextDayShort = shortWeekdays[nextDate.getDay()];
+                const nextTpl = baseForecastTemplates[(idx + 1) % baseForecastTemplates.length];
+
+                return {
+                    ...tpl,
+                    dateObj: d,
+                    day: idx === 0 ? "Today" : dayNameFull,
+                    date: idx === 0 ? `${dayNameShort}, ${monthShort} ${dateNum}` : `${monthShort} ${dateNum}`,
+                    plannerOptionLabel: idx === 0
+                        ? `Today (${dayNameShort}, ${monthShort} ${dateNum})`
+                        : `${dayNameFull}, ${monthShort} ${dateNum}`,
+                    nextDayFloodNote: `${nextDayShort} ${nextTpl.optimalWindowRising}`,
+                    nextDayEbbNote: `${nextDayShort} ${nextTpl.optimalWindowGoingOut}`
+                };
+            });
+        }
+
+        let forecastDays = buildDynamicForecastDays();
+
+        function populatePlannerDayDropdown() {
+            forecastDays = buildDynamicForecastDays();
+            const daySelect = document.getElementById('plan-day-select');
+            if (!daySelect) return;
+            const currentVal = daySelect.value || "0";
+            daySelect.innerHTML = forecastDays.map((d, idx) =>
+                `<option value="${idx}" class="bg-slate-900">${d.plannerOptionLabel}</option>`
+            ).join('');
+            daySelect.value = currentVal;
+        }
+
+        let currentSite = 'statepark';
+        let tideSimMode = 'live';
+
+        function getTideStateAtTime(dayIndex, targetMinutes, siteKeyForLag = currentSite, launchMinutes = null) {
+            const dayObj = forecastDays[dayIndex] || forecastDays[0];
+            const tides = dayObj.tides;
+            const lag = siteKeyForLag === 'statepark' ? 12 : 0;
+            const sun = getMorroBaySunTimes(dayObj.dateObj || new Date());
+
+            let nextEvent = null;
+            for (let i = 0; i < tides.length; i++) {
+                const eventMins = tides[i].minutes + lag;
+                if (targetMinutes < eventMins) {
+                    nextEvent = { ...tides[i], adjustedMinutes: eventMins };
+                    break;
+                }
+            }
+
+            let direction;
+            if (nextEvent) {
+                direction = nextEvent.type === "High" ? "Rising" : "Going Out";
+            } else {
+                const lastEvent = tides[tides.length - 1];
+                direction = lastEvent.type === "Low" ? "Rising" : "Going Out";
+            }
+
+            const siteInfo = launchData[siteKeyForLag] || launchData.statepark;
+            const effectiveLaunchMins = launchMinutes !== null ? launchMinutes : targetMinutes;
+            const finishMins = launchMinutes !== null
+                ? (launchMinutes + (siteInfo.minTripDurationMins || 45))
+                : (targetMinutes + 20);
+
+            const isBeforeSunrise = effectiveLaunchMins < sun.sunriseMins - 15;
+            const isAfterSunset = effectiveLaunchMins >= sun.sunsetMins || targetMinutes >= sun.sunsetMins;
+            const isReturnAfterSunset = !isAfterSunset && !isBeforeSunrise && (finishMins > sun.sunsetMins + 10);
+            const isDaylight = !isBeforeSunrise && !isAfterSunset && !isReturnAfterSunset;
+
+            let darkPhase = null;
+            if (isBeforeSunrise) darkPhase = 'pre-dawn';
+            else if (isAfterSunset) darkPhase = 'after-sunset';
+            else if (isReturnAfterSunset) darkPhase = 'sunset-cutoff';
+
+            return {
+                direction,
+                label: direction === "Rising" ? "Tide is Rising" : "Tide is going out",
+                isDaylight,
+                isBeforeSunrise,
+                isAfterSunset,
+                isReturnAfterSunset,
+                darkPhase,
+                sun,
+                nextEvent
+            };
+        }
+
+        function getLiveTideState(siteKeyForLag = currentSite) {
+            const nowMins = getCurrentMinutesOfDay();
+            return getTideStateAtTime(0, nowMins, siteKeyForLag, nowMins);
+        }
+
+        function getEffectiveTideState(siteKey = currentSite) {
+            if (tideSimMode === 'custom') {
+                const daySelect = document.getElementById('plan-day-select');
+                const timeSelect = document.getElementById('plan-time-select');
+                const dayIdx = daySelect ? parseInt(daySelect.value, 10) : 0;
+                const startMins = timeSelect ? parseInt(timeSelect.value, 10) : 540;
+                const siteOffset = (launchData[siteKey] && launchData[siteKey].turnaroundOffsetMins) ? launchData[siteKey].turnaroundOffsetMins : 35;
+                return getTideStateAtTime(dayIdx, startMins + siteOffset, siteKey, startMins);
+            }
+            return getLiveTideState(siteKey);
+        }
+
+        function updateSkyCardForDaylight() {
+            const nowMins = getCurrentMinutesOfDay();
+            const sun = getMorroBaySunTimes(new Date());
+            const isDarkNow = nowMins < sun.sunriseMins - 15 || nowMins >= sun.sunsetMins;
+
+            const skyIconWrap = document.getElementById('sky-icon-wrap');
+            const skyIcon = document.getElementById('sky-icon');
+            const skyTitle = document.getElementById('telemetry-sky');
+            const skySub = document.getElementById('telemetry-sky-sub');
+            const dlPill = document.getElementById('daylight-hours-pill');
+
+            if (dlPill) {
+                dlPill.innerHTML = `🌅 Sunrise ${sun.sunriseStr} &bull; 🌇 Sunset ${sun.sunsetStr}`;
+            }
+
+            if (liveSkyState) {
+                const desc = describeWeatherCode(liveSkyState.weatherCode, isDarkNow);
+                if (skyIconWrap) skyIconWrap.className = `${desc.color} text-3xl drop-shadow-md`;
+                if (skyIcon) skyIcon.className = `fa-solid ${desc.icon}`;
+                if (skyTitle) skyTitle.innerText = desc.label;
+                if (skySub) {
+                    skySub.className = `text-[11px] ${isDarkNow ? 'text-indigo-300' : 'text-cyan-400'} block mt-0.5`;
+                    skySub.innerHTML = `<span class="${isDarkNow ? 'text-indigo-400' : 'text-cyan-400'}">●</span> ${liveSkyState.cloudCover}% cloud cover`;
+                }
+            } else if (isDarkNow) {
+                if (skyIconWrap) skyIconWrap.className = "text-indigo-300 text-3xl drop-shadow-md";
+                if (skyIcon) skyIcon.className = "fa-solid fa-moon";
+                if (skyTitle) skyTitle.innerText = "Clear Night";
+                if (skySub) {
+                    const phaseNote = nowMins >= sun.sunsetMins
+                        ? `After Sunset (${sun.sunsetStr})`
+                        : `Before Sunrise (${sun.sunriseStr})`;
+                    skySub.className = "text-[11px] text-indigo-300 block mt-0.5";
+                    skySub.innerHTML = `<span class="text-indigo-400">●</span> ${phaseNote}`;
+                }
+            } else {
+                if (skyIconWrap) skyIconWrap.className = "text-amber-400 text-3xl drop-shadow-md";
+                if (skyIcon) skyIcon.className = "fa-solid fa-sun";
+                if (skyTitle) skyTitle.innerText = "Clear Sky";
+                if (skySub) {
+                    skySub.className = "text-[11px] text-cyan-400 block mt-0.5";
+                    skySub.innerHTML = `<span class="text-cyan-400">●</span> 0% cloud cover`;
+                }
+            }
+        }
+
+        function onPlannerInputChange() {
+            tideSimMode = 'custom';
+            const modeBadge = document.getElementById('planner-mode-badge');
+            if (modeBadge) {
+                modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40";
+                modeBadge.innerText = "Custom Trip Time";
+            }
+            updatePlannerRecommendation();
+            updateTideAlignmentUI();
+        }
+
+        function planDaylightTime(dayIndex, timeMinutes, preferredSite = null) {
+            const daySelect = document.getElementById('plan-day-select');
+            const timeSelect = document.getElementById('plan-time-select');
+            if (daySelect) daySelect.value = String(dayIndex);
+            if (timeSelect) timeSelect.value = String(timeMinutes);
+            if (preferredSite) {
+                currentSite = preferredSite;
+            }
+            tideSimMode = 'custom';
+            const modeBadge = document.getElementById('planner-mode-badge');
+            if (modeBadge) {
+                modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40";
+                modeBadge.innerText = "Planned Daylight Trip";
+            }
+            setLaunchSite(currentSite);
+        }
+
+        function resetPlannerToLive() {
+            tideSimMode = 'live';
+            const daySelect = document.getElementById('plan-day-select');
+            const timeSelect = document.getElementById('plan-time-select');
+            if (daySelect) daySelect.value = "0";
+
+            const nowMins = getCurrentMinutesOfDay();
+            const sun = getMorroBaySunTimes(new Date());
+            const isDarkNow = nowMins < sun.sunriseMins - 15 || nowMins >= sun.sunsetMins;
+
+            const snapped = Math.min(1050, Math.max(360, Math.round(nowMins / 30) * 30));
+            if (timeSelect) timeSelect.value = String(snapped);
+
+            const modeBadge = document.getElementById('planner-mode-badge');
+            if (modeBadge) {
+                if (isDarkNow) {
+                    modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/40";
+                    modeBadge.innerText = "Live Now • After Dark 🌙";
+                } else {
+                    modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30";
+                    modeBadge.innerText = "Live Now Mode";
+                }
+            }
+
+            updateSkyCardForDaylight();
+            updatePlannerRecommendation();
+            updateTideAlignmentUI();
+        }
+
+        function updatePlannerRecommendation() {
+            const box = document.getElementById('planner-recommendation-box');
+            if (!box) return;
+
+            const daySelect = document.getElementById('plan-day-select');
+            const timeSelect = document.getElementById('plan-time-select');
+            const dayIdx = tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0);
+            const nowMins = getCurrentMinutesOfDay();
+            const startMins = tideSimMode === 'live' ? nowMins : (timeSelect ? parseInt(timeSelect.value, 10) : 930);
+
+            const activeSiteData = launchData[currentSite] || launchData.statepark;
+            const offsetMins = activeSiteData.turnaroundOffsetMins || 35;
+            const returnMins = startMins + offsetMins;
+
+            const dayObj = forecastDays[dayIdx] || forecastDays[0];
+            const returnTide = getTideStateAtTime(dayIdx, returnMins, currentSite, startMins);
+            const sun = returnTide.sun;
+            const startStr = formatMinutesToTime(startMins);
+            const spReturnStr = formatMinutesToTime(startMins + launchData.statepark.turnaroundOffsetMins);
+            const pubReturnStr = formatMinutesToTime(startMins + launchData.public.turnaroundOffsetMins);
+            const colReturnStr = formatMinutesToTime(startMins + launchData.coleman.turnaroundOffsetMins);
+
+            // CASE 1: AFTER DARK OR BEFORE SUNRISE (Either Live Now at night, or Custom time in the dark)
+            if (returnTide.isAfterSunset || returnTide.isBeforeSunrise) {
+                const isLiveNight = tideSimMode === 'live';
+                const nextDayIdx = (dayIdx === 0 && startMins >= sun.sunsetMins) ? 1 : dayIdx;
+                const nextDayObj = forecastDays[nextDayIdx] || forecastDays[1] || forecastDays[0];
+                const nextDayLabel = nextDayIdx === 1 ? `Tomorrow (${nextDayObj.day}, ${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`;
+
+                box.className = "bg-indigo-950/50 border border-indigo-500/40 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
+                box.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 uppercase tracking-wide bg-indigo-500/20 border border-indigo-400/30 px-2.5 py-0.5 rounded-md">
+                                <i class="fa-solid fa-moon text-indigo-300"></i> ${isLiveNight ? 'After Dark Now — Do Not Launch' : 'Selected Time is After Dark'}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-300">
+                                ${isLiveNight ? `Current Time: ${startStr} (Sunset was ${sun.sunsetStr})` : `Selected: ${dayObj.day} at ${startStr} (Daylight: ${sun.sunriseStr} – ${sun.sunsetStr})`}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-200 leading-relaxed">
+                            Kayaking in Morro Bay Harbor &amp; Estuary is <strong class="text-indigo-200">not recommended after dark</strong> due to unlit shoals, strong tidal currents, cold <strong class="text-white">58.8°F</strong> water, and commercial boat traffic.
+                            <span class="block mt-1 text-teal-300">
+                                <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Daylight Recommendation for ${nextDayLabel}:</strong>
+                                Launch <strong class="text-white">${nextDayObj.optimalWindowRising}</strong> from <strong class="text-white">State Park or Public Ramp</strong> (rising tide return) or <strong class="text-white">${nextDayObj.optimalWindowGoingOut}</strong> from <strong class="text-white">Coleman Park</strong> (outgoing tide return).
+                            </span>
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button onclick="planDaylightTime(${nextDayIdx}, 480, 'statepark')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 transition-all cursor-pointer shadow-sm">
+                            <i class="fa-solid fa-sun mr-1"></i> Plan ${nextDayIdx === 1 ? 'Tomorrow' : 'Daylight'} 8:00 AM (Rising Tide)
+                        </button>
+                        <button onclick="planDaylightTime(${nextDayIdx}, 600, 'coleman')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition-all cursor-pointer">
+                            Plan 10:00 AM (Coleman)
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // CASE 2: LAUNCH IS BEFORE SUNSET, BUT RETURN TRIP CUTS INTO DARKNESS (Twilight Cutoff Warning)
+            if (returnTide.isReturnAfterSunset) {
+                const finishTimeStr = formatMinutesToTime(startMins + activeSiteData.minTripDurationMins);
+                box.className = "bg-amber-950/40 border border-amber-500/40 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
+                box.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-bold text-amber-300 uppercase tracking-wide bg-amber-500/20 border border-amber-400/30 px-2.5 py-0.5 rounded-md">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> Sunset Cutoff Warning — Return Falls After Dark
+                            </span>
+                            <span class="text-xs font-semibold text-slate-300">
+                                Sunset is at ${sun.sunsetStr} &bull; Est. Return: ~${finishTimeStr}
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-200 leading-relaxed">
+                            Launching at <strong class="text-white">${startStr}</strong> leaves insufficient daylight before <strong class="text-amber-300">${sun.sunsetStr} sunset</strong> — you would be paddling back in the dark.
+                            If you launch earlier (by <strong class="text-teal-300">3:30 PM – 4:00 PM</strong>) or choose the shorter <strong class="text-white">Public Launch Ramp</strong> loop (35–55 mins RT), you can finish before sunset.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        <button onclick="planDaylightTime(${dayIdx}, 930, '${currentSite}')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 transition-all cursor-pointer">
+                            Shift Launch to 3:30 PM
+                        </button>
+                        <button onclick="planDaylightTime(${Math.min(6, dayIdx + 1)}, 480, 'statepark')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition-all cursor-pointer">
+                            Plan Next Morning (8:00 AM)
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // CASE 3: NORMAL DAYLIGHT HOURS — RECOMMEND RAMP BASED ON TURNAROUND TIDE
+            box.className = "bg-slate-900/90 border border-teal-500/30 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
+            const isAfternoonWindy = startMins >= 750;
+            const windWarningHtml = isAfternoonWindy
+                ? `<span class="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-wind text-amber-400"></i> Note: Afternoon NW breeze (${dayObj.wind}) can add chop after 12:30 PM</span>`
+                : `<span class="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-emerald-400"></i> Daylight &amp; calm morning wind (${dayObj.wind})</span>`;
+
+            if (returnTide.direction === "Rising") {
+                box.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-bold text-teal-300 uppercase tracking-wide"><i class="fa-solid fa-thumbs-up mr-1"></i>Recommended Daylight Launch:</span>
+                            <span class="text-sm font-bold text-white">State Park Launch Ramp <span class="text-slate-400 font-normal">or</span> Public Launch Ramp</span>
+                            ${windWarningHtml}
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${pubReturnStr}–${spReturnStr}</strong> (~25–38 mins in) when the <strong class="text-teal-300">Tide is Rising</strong> — incoming water will push you south back to the Public Ramp (35–55m RT) or State Park Ramp (sub-1 hr with tide).
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="setLaunchSite('statepark')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${currentSite === 'statepark' ? 'bg-teal-500 text-slate-950' : 'bg-teal-500/20 text-teal-300 border border-teal-500/40 hover:bg-teal-500/30'} transition-all cursor-pointer">
+                            Select State Park
+                        </button>
+                        <button onclick="setLaunchSite('public')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${currentSite === 'public' ? 'bg-teal-500 text-slate-950' : 'bg-teal-500/20 text-teal-300 border border-teal-500/40 hover:bg-teal-500/30'} transition-all cursor-pointer">
+                            Select Public Ramp
+                        </button>
+                    </div>
+                `;
+            } else {
+                box.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-bold text-teal-300 uppercase tracking-wide"><i class="fa-solid fa-thumbs-up mr-1"></i>Recommended Daylight Launch:</span>
+                            <span class="text-sm font-bold text-white">Coleman Park</span>
+                            ${windWarningHtml}
+                        </div>
+                        <p class="text-xs text-slate-300">
+                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${colReturnStr}</strong> (~30 mins in) when the <strong class="text-teal-300">Tide is going out</strong> — outgoing water carries you north back to Coleman Park (45m–1h 15m RT).
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="setLaunchSite('coleman')" class="px-3 py-1.5 rounded-lg text-xs font-bold ${currentSite === 'coleman' ? 'bg-teal-500 text-slate-950' : 'bg-teal-500/20 text-teal-300 border border-teal-500/40 hover:bg-teal-500/30'} transition-all cursor-pointer">
+                            Select Coleman Park
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function updateTideAlignmentUI() {
+            const headerState = getEffectiveTideState(currentSite);
+            const pillText = document.getElementById('live-tide-pill-text');
+            const pillIcon = document.getElementById('live-tide-pill-icon');
+            if (pillText) {
+                const prefix = tideSimMode === 'custom' ? 'Planned' : 'Now';
+                if (!headerState.isDaylight) {
+                    const darkLabel = headerState.isReturnAfterSunset ? 'Near Sunset Cutoff' : 'After Dark';
+                    pillText.innerText = `${prefix}: ${darkLabel} (${headerState.label})`;
+                    if (pillIcon) pillIcon.className = "fa-solid fa-moon text-indigo-400";
+                } else {
+                    const dayPrefix = tideSimMode === 'custom' ? 'Planned Return' : 'Now';
+                    pillText.innerText = `${dayPrefix}: ${headerState.label}`;
+                    if (pillIcon) pillIcon.className = "fa-solid fa-water text-cyan-400";
+                }
+            }
+
+            ['statepark', 'public', 'coleman'].forEach(key => {
+                const badgeEl = document.getElementById(`badge-${key}`);
+                if (!badgeEl) return;
+                const info = launchData[key];
+                const stateForSite = getEffectiveTideState(key);
+                const isTideAligned = stateForSite.direction === info.idealDirection;
+                const isSiteAligned = isTideAligned && stateForSite.isDaylight;
+                const ruleText = info.idealDirection === 'Rising' ? 'Ideal Return: Tide is Rising' : 'Ideal Return: Tide is going out';
+                const statusWord = tideSimMode === 'custom' ? 'Favorable' : 'Favorable Now';
+                const opposeWord = tideSimMode === 'custom' ? 'Opposing' : 'Opposing Now';
+
+                if (isSiteAligned) {
+                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-teal-200 bg-teal-950/90 border-teal-500/60 shadow-sm shadow-teal-500/10";
+                    badgeEl.innerHTML = `
+                        <span>${ruleText}</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-teal-300 bg-teal-500/20 px-1.5 py-0.5 rounded border border-teal-400/30 shrink-0">
+                            <i class="fa-solid fa-circle-check text-teal-400"></i> ${statusWord}
+                        </span>
+                    `;
+                } else if (!stateForSite.isDaylight) {
+                    const darkTag = stateForSite.isReturnAfterSunset
+                        ? 'Sunset Cutoff'
+                        : (tideSimMode === 'custom' ? 'After Dark • Unsafe' : 'After Dark Now');
+                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-indigo-200 bg-indigo-950/75 border-indigo-500/50 shadow-sm shadow-indigo-500/10";
+                    badgeEl.innerHTML = `
+                        <span>${ruleText}</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-300 bg-indigo-500/20 px-1.5 py-0.5 rounded border border-indigo-400/30 shrink-0">
+                            <i class="fa-solid fa-moon text-indigo-300"></i> ${darkTag}
+                        </span>
+                    `;
+                } else {
+                    badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-amber-200 bg-amber-950/70 border-amber-500/50 shadow-sm shadow-amber-500/10";
+                    badgeEl.innerHTML = `
+                        <span>${ruleText}</span>
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-500/20 px-1.5 py-0.5 rounded border border-amber-400/30 shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> ${opposeWord}
+                        </span>
+                    `;
+                }
+            });
+        }
+
+        function setLaunchSite(siteKey) {
+            currentSite = siteKey;
+            const data = launchData[siteKey];
+
+            document.querySelectorAll('.launch-btn').forEach(btn => {
+                btn.className = "launch-btn text-left p-4 rounded-xl border transition-all relative overflow-hidden bg-slate-800/30 border-slate-800 hover:border-slate-700 cursor-pointer flex flex-col justify-between";
+                const icon = btn.querySelector('.check-icon');
+                if (icon) icon.className = "fa-regular fa-circle text-slate-600 text-lg check-icon";
+                const titleEl = btn.querySelector('.location-title');
+                if (titleEl) titleEl.className = "location-title font-bold text-slate-200 inline-flex items-center gap-1.5";
+            });
+
+            const activeBtn = document.getElementById(`btn-${siteKey}`);
+            if (activeBtn) {
+                activeBtn.className = "launch-btn text-left p-4 rounded-xl border transition-all relative overflow-hidden bg-slate-800/50 border-teal-500/80 shadow-lg shadow-teal-500/10 ring-2 ring-teal-500/50 cursor-pointer flex flex-col justify-between";
+                const activeIcon = activeBtn.querySelector('.check-icon');
+                if (activeIcon) activeIcon.className = "fa-solid fa-circle-check text-teal-400 text-lg check-icon";
+                const activeTitle = activeBtn.querySelector('.location-title');
+                if (activeTitle) activeTitle.className = "location-title font-bold text-white inline-flex items-center gap-1.5";
+            }
+
+            const metricsPill = document.getElementById('profile-metrics-pill');
+            if (metricsPill) {
+                metricsPill.innerHTML = `${data.distance} &bull; ${data.duration}`;
+            }
+
+            const surfaceNote = document.getElementById('route-surface-note');
+            if (surfaceNote) {
+                surfaceNote.innerText = data.surfaceNote;
+            }
+
+            document.getElementById('route-title').innerHTML = data.title;
+            document.getElementById('route-desc').innerText = data.desc;
+            document.getElementById('route-tide-strategy').innerHTML = data.strategy;
+            document.getElementById('forecast-rule-summary').innerText = data.ruleSummary;
+
+            updatePlannerRecommendation();
+            updateTideAlignmentUI();
+            renderForecast();
+        }
+
+        function getTodayOptimalWindow(dayObj, isRisingPreferred) {
+            const nowMins = getCurrentMinutesOfDay();
+            const sun = getMorroBaySunTimes(dayObj.dateObj || new Date());
+
+            if (isRisingPreferred) {
+                if (nowMins < 545) {
+                    return {
+                        windowText: dayObj.morningFloodWindow,
+                        descText: "Morning tide is rising; calm estuary waters assist your return south.",
+                        isAfterDarkToday: false
+                    };
+                }
+                if (nowMins <= sun.lastSafeLaunchMins) {
+                    return {
+                        windowText: dayObj.afternoonFloodWindow,
+                        descText: `Late-afternoon turnaround before ${sun.sunsetStr} sunset; rising tide assists your return south.`,
+                        isAfterDarkToday: false
+                    };
+                }
+                return {
+                    windowText: `Tomorrow: ${dayObj.nextDayFloodNote}`,
+                    descText: `After dark now (Sunset ${sun.sunsetStr}) — daylight windows have ended today; launch tomorrow morning.`,
+                    isAfterDarkToday: true
+                };
+            } else {
+                if (nowMins < 645) {
+                    return {
+                        windowText: dayObj.morningEbbWindow,
+                        descText: "Morning tide is going out toward the harbor entrance, carrying you north.",
+                        isAfterDarkToday: false
+                    };
+                }
+                if (nowMins < 950 && nowMins <= sun.lastSafeLaunchMins) {
+                    return {
+                        windowText: "Now - 4:00 PM",
+                        descText: `Tide is going out until the 4:37 PM low, carrying you north back to Coleman before ${sun.sunsetStr} sunset.`,
+                        isAfterDarkToday: false
+                    };
+                }
+                return {
+                    windowText: `Tomorrow: ${dayObj.nextDayEbbNote}`,
+                    descText: `After dark / past daylight ebb cutoff (Sunset ${sun.sunsetStr}) — next ideal window is tomorrow morning.`,
+                    isAfterDarkToday: true
+                };
+            }
+        }
+
+        function renderForecast() {
+            const container = document.getElementById('forecastGrid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const nowMins = getCurrentMinutesOfDay();
+            const isRisingPreferred = currentSite !== 'coleman';
+
+            forecastDays.forEach((item, index) => {
+                const isToday = index === 0;
+                let optimalTime = isRisingPreferred ? item.optimalWindowRising : item.optimalWindowGoingOut;
+                let descText = isRisingPreferred ? item.descRising : item.descGoingOut;
+                let ratingLabel = item.rating;
+                let ratingClass = item.ratingColor;
+
+                if (isToday) {
+                    const todayPlan = getTodayOptimalWindow(item, isRisingPreferred);
+                    optimalTime = todayPlan.windowText;
+                    descText = todayPlan.descText;
+                    if (todayPlan.isAfterDarkToday) {
+                        ratingLabel = "After Dark";
+                        ratingClass = "text-indigo-300 border-indigo-500/40 bg-indigo-950/60";
+                    }
+                }
+
+                let nextMarked = false;
+                const tideHtml = item.tides.map(t => {
+                    if (!isToday) {
+                        return `<div class="flex items-center justify-between"><span>${t.type} ${t.time}</span><span class="text-slate-400">(${t.height})</span></div>`;
+                    }
+                    const isPassed = nowMins > t.minutes;
+                    if (isPassed) {
+                        return `<div class="flex items-center justify-between text-slate-500 line-through"><span>${t.type} ${t.time} (${t.height})</span><span class="no-underline text-[9px] uppercase tracking-tighter bg-slate-800/90 text-slate-400 px-1 rounded">Passed</span></div>`;
+                    } else if (!nextMarked) {
+                        nextMarked = true;
+                        return `<div class="flex items-center justify-between text-teal-300 font-semibold"><span>${t.type} ${t.time} (${t.height})</span><span class="text-[9px] uppercase tracking-tighter bg-teal-500/20 text-teal-300 border border-teal-500/30 px-1 rounded">Next</span></div>`;
+                    }
+                    return `<div class="flex items-center justify-between text-slate-300"><span>${t.type} ${t.time}</span><span class="text-slate-400">(${t.height})</span></div>`;
+                }).join('');
+
+                const card = document.createElement('div');
+                card.className = isToday
+                    ? "bg-slate-900/90 border-2 border-teal-500/80 rounded-2xl p-4 flex flex-col justify-between shadow-xl shadow-teal-500/10 relative"
+                    : "bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all";
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-white text-sm">${item.day}</span>
+                            <i class="fa-solid ${item.weatherIcon} text-amber-400 text-sm"></i>
+                        </div>
+                        <div class="text-xs text-slate-400 mb-3">${item.date}</div>
+
+                        <div class="text-xs text-slate-400 mb-1">High / Low</div>
+                        <div class="text-sm font-bold text-slate-100 mb-3">${item.high}° / ${item.low}°</div>
+
+                        <div class="text-xs text-slate-400 mb-1">Wind</div>
+                        <div class="text-xs font-semibold text-teal-300 mb-3">${item.wind}</div>
+
+                        <div class="text-xs text-slate-400 mb-1">Tides:</div>
+                        <div class="text-[11px] text-slate-300 space-y-1 mb-4 font-mono">
+                            ${tideHtml}
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800/80">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Optimal Window</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${ratingClass}">${ratingLabel}</span>
+                        </div>
+                        <div class="text-xs font-bold text-white bg-slate-950 p-2 rounded-xl border border-slate-800 mb-2 text-center shadow-inner">
+                            <i class="fa-regular fa-clock text-teal-400 mr-1"></i> ${optimalTime}
+                        </div>
+                        <p class="text-[11px] text-slate-400 leading-tight">${descText}</p>
+                        ${isToday ? `
+                        <button onclick="openIndieBriefing(true)" class="tv-focus mt-3 w-full py-2 px-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-400 hover:to-cyan-300 text-slate-950 transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-md shadow-teal-500/20">
+                            <i class="fa-solid fa-play text-[10px]"></i> Hear Indie's Forecast
+                        </button>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ============================================================================
+        // 805 WEBCAMS ESTUARY PROGRAM SNAPSHOT FETCHER & 5-MINUTE AUTO-REFRESH ENGINE
+        // ============================================================================
+        const SNAPSHOT_INTERVAL_MS = 300000; // 5 minutes (300,000 ms)
+        let snapshotAutoRefreshTimer = null;
+
+        function refreshEstuarySnapshot(resetTimer = true) {
+            const imgEl = document.getElementById('estuary-snapshot-img');
+            const badge = document.getElementById('webcam-status-badge');
+            const cam = window.estuaryWebcamConfig;
+
+            if (resetTimer) {
+                startSnapshotAutoRefreshTimer();
+            }
+
+            if (badge) {
+                badge.innerText = "Syncing 805 Cam...";
+            }
+
+            if (imgEl && cam) {
+                cam.fallbackIndex = 0;
+                const activeUrl = cam.urls[0];
+                imgEl.src = window.buildEstuarySnapshotUrl(activeUrl, Date.now());
+            }
+        }
+
+        // Non-blocking background discovery in case 805 Webcams ever changes the camera image path
+        async function discoverLive805EstuaryCameraUrl() {
+            const pageUrl = window.estuaryWebcamConfig.pageUrl;
+            const cb = Date.now();
+            const proxies = [
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(pageUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(pageUrl)}&_=${cb}`,
+                `https://r.jina.ai/${pageUrl}`
+            ];
+
+            for (const proxyUrl of proxies) {
+                try {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 7500);
+                    const res = await fetch(proxyUrl, { cache: 'no-store', signal: controller.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) continue;
+
+                    const raw = await res.text();
+                    if (!raw || raw.length < 150) continue;
+
+                    const match = raw.match(/(?:https?:\/\/(?:www\.)?805webcams\.com)?(\/cameras\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+\.(?:jpg|jpeg|png|webp))/i);
+                    if (match && match[1]) {
+                        const cleanPath = 'www.805webcams.com' + match[1];
+                        if (cleanPath !== window.estuaryWebcamConfig.directPath) {
+                            window.estuaryWebcamConfig.directPath = cleanPath;
+                            window.estuaryWebcamConfig.urls = [
+                                `https://images.weserv.nl/?url=${cleanPath}`,
+                                `https://wsrv.nl/?url=${cleanPath}`,
+                                `https://${cleanPath}`,
+                                `https://${cleanPath.replace(/^www\./, '')}`
+                            ];
+                            refreshEstuarySnapshot(false);
+                        }
+                        return;
+                    }
+                } catch (e) {
+                    // Continue using verified default camera URL
+                }
+            }
+        }
+
+        function startSnapshotAutoRefreshTimer() {
+            if (snapshotAutoRefreshTimer) {
+                clearInterval(snapshotAutoRefreshTimer);
+            }
+            snapshotAutoRefreshTimer = setInterval(() => {
+                refreshEstuarySnapshot(false);
+            }, SNAPSHOT_INTERVAL_MS);
+        }
+
+        let liveSkyState = null;
+
+        function degreesToCompass(deg) {
+            if (typeof deg !== 'number' || Number.isNaN(deg)) return 'WSW';
+            const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+            return dirs[Math.round(deg / 22.5) % 16];
+        }
+
+        function describeWeatherCode(code, isDark) {
+            if (code >= 95) return { label: 'Thunderstorm', icon: 'fa-cloud-bolt', color: 'text-amber-300' };
+            if (code >= 61 && code <= 67 || code >= 80 && code <= 82) return { label: 'Rain', icon: 'fa-cloud-rain', color: 'text-cyan-300' };
+            if (code >= 51 && code <= 57) return { label: 'Drizzle', icon: 'fa-cloud-rain', color: 'text-cyan-300' };
+            if (code === 45 || code === 48) return { label: 'Coastal Fog', icon: 'fa-smog', color: 'text-slate-300' };
+            if (code === 3) return { label: 'Overcast', icon: 'fa-cloud', color: 'text-slate-300' };
+            if (code === 2) return { label: 'Partly Cloudy', icon: isDark ? 'fa-cloud-moon' : 'fa-cloud-sun', color: isDark ? 'text-indigo-300' : 'text-amber-300' };
+            if (code === 1) return { label: isDark ? 'Mostly Clear' : 'Mostly Sunny', icon: isDark ? 'fa-moon' : 'fa-sun', color: isDark ? 'text-indigo-300' : 'text-amber-400' };
+            return { label: isDark ? 'Clear Night' : 'Clear Sky', icon: isDark ? 'fa-moon' : 'fa-sun', color: isDark ? 'text-indigo-300' : 'text-amber-400' };
+        }
+
+        async function fetchLiveMorroBayConditions() {
+            const nwsObsUrl = 'https://api.weather.gov/stations/KSBP/observations/latest';
+            const noaaWaterUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9412110&product=water_temperature&date=latest&units=english&time_zone=lst_ldt&format=json';
+            const noaaWindUrl = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?station=9412110&product=wind&date=latest&units=english&time_zone=lst_ldt&format=json';
+
+            try {
+                const [nwsRes, waterRes, windRes] = await Promise.allSettled([
+                    fetch(nwsObsUrl, { cache: 'no-store' }),
+                    fetch(noaaWaterUrl, { cache: 'no-store' }),
+                    fetch(noaaWindUrl, { cache: 'no-store' })
+                ]);
+
+                let gotLiveAir = false;
+                let gotLiveWind = false;
+
+                if (nwsRes.status === 'fulfilled' && nwsRes.value.ok) {
+                    const obs = await nwsRes.value.json();
+                    const props = obs && obs.properties ? obs.properties : {};
+
+                    if (props.temperature && typeof props.temperature.value === 'number') {
+                        const tempF = (props.temperature.value * 9 / 5) + 32;
+                        const airEl = document.getElementById('telemetry-airtemp');
+                        if (airEl) airEl.innerText = `${Math.round(tempF)}°F`;
+                        gotLiveAir = true;
+                    }
+
+                    if (props.windSpeed && typeof props.windSpeed.value === 'number') {
+                        // NWS observation windSpeed is in km/h
+                        const mph = props.windSpeed.value * 0.621371;
+                        const gustMph = (props.windGust && typeof props.windGust.value === 'number')
+                            ? props.windGust.value * 0.621371
+                            : mph;
+                        const dir = (props.windDirection && typeof props.windDirection.value === 'number')
+                            ? degreesToCompass(props.windDirection.value)
+                            : 'NW';
+                        const windEl = document.getElementById('telemetry-wind');
+                        const windSubEl = document.getElementById('telemetry-wind-sub');
+                        if (windEl) windEl.innerText = `${mph.toFixed(1)} mph`;
+                        if (windSubEl) windSubEl.innerHTML = `from ${dir} &bull; <span class="text-amber-400">●</span> peak ${gustMph.toFixed(1)} mph`;
+                        gotLiveWind = true;
+                    }
+
+                    if (props.precipitationLastHour && typeof props.precipitationLastHour.value === 'number') {
+                        const precipEl = document.getElementById('telemetry-precip');
+                        if (precipEl) precipEl.innerText = `${props.precipitationLastHour.value.toFixed(1)} mm/h`;
+                    }
+
+                    if (props.textDescription) {
+                        const descText = props.textDescription.toLowerCase();
+                        let code = 0;
+                        let cloud = 0;
+                        if (descText.includes('thunder')) { code = 95; cloud = 90; }
+                        else if (descText.includes('rain') || descText.includes('shower')) { code = 61; cloud = 85; }
+                        else if (descText.includes('drizzle')) { code = 51; cloud = 80; }
+                        else if (descText.includes('fog') || descText.includes('mist') || descText.includes('haze')) { code = 45; cloud = 75; }
+                        else if (descText.includes('overcast')) { code = 3; cloud = 95; }
+                        else if (descText.includes('mostly cloudy') || descText.includes('broken')) { code = 2; cloud = 70; }
+                        else if (descText.includes('partly') || descText.includes('scattered') || descText.includes('few')) { code = 2; cloud = 35; }
+                        liveSkyState = { cloudCover: cloud, weatherCode: code };
+                    }
+                }
+
+                if (!gotLiveWind && windRes.status === 'fulfilled' && windRes.value.ok) {
+                    const w = await windRes.value.json();
+                    const row = w && w.data && w.data[0];
+                    if (row) {
+                        const spdMph = parseFloat(row.s) * 1.15078; // knots -> mph
+                        const gstMph = parseFloat(row.g) * 1.15078;
+                        const dir = row.dr || 'NW';
+                        if (!Number.isNaN(spdMph)) {
+                            const windEl = document.getElementById('telemetry-wind');
+                            const windSubEl = document.getElementById('telemetry-wind-sub');
+                            if (windEl) windEl.innerText = `${spdMph.toFixed(1)} mph`;
+                            if (windSubEl) windSubEl.innerHTML = `from ${dir} &bull; <span class="text-amber-400">●</span> peak ${(Number.isNaN(gstMph) ? spdMph : gstMph).toFixed(1)} mph`;
+                        }
+                    }
+                }
+
+                if (waterRes.status === 'fulfilled' && waterRes.value.ok) {
+                    const n = await waterRes.value.json();
+                    const v = n && n.data && n.data[0] && parseFloat(n.data[0].v);
+                    if (!Number.isNaN(v)) {
+                        const wtEl = document.getElementById('telemetry-watertemp');
+                        if (wtEl) wtEl.innerText = `${v.toFixed(1)}°F`;
+                    }
+                }
+
+                if (gotLiveAir) {
+                    const now = new Date();
+                    const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                    const tsEl = document.getElementById('live-timestamp');
+                    if (tsEl) tsEl.innerHTML = `Updated Live (${timeStr}) &bull; Morro Bay / KSBP`;
+                }
+
+                updateSkyCardForDaylight();
+                renderForecast();
+            } catch (e) {
+                // Keep existing values if offline
+            }
+        }
+
+        async function refreshTelemetry() {
+            const btn = document.getElementById('refresh-btn');
+            const icon = document.getElementById('refresh-icon');
+            const text = document.getElementById('refresh-text');
+
+            btn.disabled = true;
+            icon.classList.add('fa-spin');
+            text.innerText = "Querying Station...";
+
+            // Immediately refresh the 805 Webcams snapshot and reset the 5-minute interval timer
+            refreshEstuarySnapshot(true);
+
+            await fetchLiveMorroBayConditions();
+            populatePlannerDayDropdown();
+            updatePlannerRecommendation();
+            updateTideAlignmentUI();
+
+            icon.classList.remove('fa-spin');
+            text.innerText = "Station Updated!";
+            btn.classList.add('border-teal-500');
+
+            setTimeout(() => {
+                text.innerText = "Refresh Station Data";
+                btn.disabled = false;
+                btn.classList.remove('border-teal-500');
+            }, 1500);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            populatePlannerDayDropdown();
+            resetPlannerToLive();
+            renderForecast();
+            fetchLiveMorroBayConditions();
+            refreshEstuarySnapshot(true);
+            discoverLive805EstuaryCameraUrl();
+            initIndieVoices();
+        });
+
+        // ============================================================================
+        // INDIE BROADCAST PRESENTER & HYBRID LIP-SYNC ENGINE
+        // ============================================================================
+        let indieVoices = [];
+        let indieMouthTimer = null;
+        let indieGestureTimer = null;
+        let indieCurrentScript = '';
+        let indieLastBoundaryAt = 0;
+
+        function scoreIndieVoice(v) {
+            const name = (v.name || '').toLowerCase();
+            const lang = (v.lang || '').toLowerCase();
+            if (!lang.startsWith('en')) return -100;
+            let score = 0;
+            if (lang === 'en-us') score += 20;
+            else if (lang === 'en-gb') score += 16;
+            if (name.includes('natural') || name.includes('online')) score += 45;
+            if (name.includes('ava') || name.includes('emma') || name.includes('aria') || name.includes('jenny') || name.includes('sonia')) score += 35;
+            if (name.includes('samantha') || name.includes('nicky') || name.includes('zira') || name.includes('hazel') || name.includes('female')) score += 28;
+            if (name.includes('google uk english female')) score += 34;
+            if (name.includes('google us english')) score += 26;
+            if (name.includes('david') || name.includes('mark') || name.includes('guy') || name.includes('ryan') || name.includes('male')) score -= 40;
+            return score;
+        }
+
+        function initIndieVoices() {
+            const selectEl = document.getElementById('indie-voice-select');
+            const rateInput = document.getElementById('indie-rate-input');
+            const pitchInput = document.getElementById('indie-pitch-input');
+
+            // Restore saved rate/pitch
+            try {
+                const savedRate = localStorage.getItem('indie_rate');
+                const savedPitch = localStorage.getItem('indie_pitch');
+                if (savedRate && rateInput) rateInput.value = savedRate;
+                if (savedPitch && pitchInput) pitchInput.value = savedPitch;
+            } catch (e) {}
+            updateIndieSliderLabels();
+
+            if (!('speechSynthesis' in window)) {
+                if (selectEl) {
+                    selectEl.innerHTML = '<option value="">Browser speech not supported (captions only)</option>';
+                }
+                return;
+            }
+
+            const loadVoices = () => {
+                const raw = window.speechSynthesis.getVoices() || [];
+                indieVoices = raw
+                    .filter(v => (v.lang || '').toLowerCase().startsWith('en'))
+                    .sort((a, b) => scoreIndieVoice(b) - scoreIndieVoice(a));
+
+                if (!selectEl) return;
+                selectEl.innerHTML = '';
+                if (indieVoices.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'System Default Voice';
+                    selectEl.appendChild(opt);
+                    return;
+                }
+
+                let savedName = '';
+                try { savedName = localStorage.getItem('indie_voice_name') || ''; } catch (e) {}
+
+                indieVoices.forEach((v, idx) => {
+                    const opt = document.createElement('option');
+                    opt.value = String(idx);
+                    opt.textContent = `${v.name} (${v.lang})`;
+                    if (savedName && v.name === savedName) opt.selected = true;
+                    selectEl.appendChild(opt);
+                });
+            };
+
+            loadVoices();
+            if ('onvoiceschanged' in window.speechSynthesis) {
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            }
+        }
+
+        function updateIndieSliderLabels() {
+            const rateInput = document.getElementById('indie-rate-input');
+            const pitchInput = document.getElementById('indie-pitch-input');
+            const rateLabel = document.getElementById('indie-rate-label');
+            const pitchLabel = document.getElementById('indie-pitch-label');
+            if (rateInput && rateLabel) rateLabel.innerText = `${Number(rateInput.value).toFixed(2)}x`;
+            if (pitchInput && pitchLabel) pitchLabel.innerText = Number(pitchInput.value).toFixed(2);
+        }
+
+        function onIndieVoicePrefsChange() {
+            updateIndieSliderLabels();
+            const selectEl = document.getElementById('indie-voice-select');
+            const rateInput = document.getElementById('indie-rate-input');
+            const pitchInput = document.getElementById('indie-pitch-input');
+            try {
+                if (rateInput) localStorage.setItem('indie_rate', rateInput.value);
+                if (pitchInput) localStorage.setItem('indie_pitch', pitchInput.value);
+                if (selectEl && indieVoices[Number(selectEl.value)]) {
+                    localStorage.setItem('indie_voice_name', indieVoices[Number(selectEl.value)].name);
+                }
+            } catch (e) {}
+        }
+
+        function setIndieMouthFrame(frameName) {
+            const closed = document.getElementById('indie-frame-closed');
+            const mid = document.getElementById('indie-frame-mid');
+            const open = document.getElementById('indie-frame-open');
+            if (!closed || !mid || !open) return;
+            closed.style.opacity = frameName === 'closed' ? '1' : '0';
+            mid.style.opacity = frameName === 'mid' ? '1' : '0';
+            open.style.opacity = frameName === 'open' ? '1' : '0';
+        }
+
+        let indieIsSpeaking = false;
+
+        function startIndieMouthAnimation() {
+            stopIndieMouthAnimation();
+            indieIsSpeaking = true;
+            const frames = ['mid', 'open', 'mid', 'open', 'closed', 'mid'];
+            let step = 0;
+
+            const tick = () => {
+                if (!indieIsSpeaking) return;
+                if (Date.now() - indieLastBoundaryAt > 170) {
+                    const next = frames[step % frames.length];
+                    setIndieMouthFrame(next);
+                    step++;
+                }
+                const jitter = 85 + Math.floor(Math.random() * 85);
+                indieMouthTimer = setTimeout(tick, jitter);
+            };
+            indieMouthTimer = setTimeout(tick, 90);
+        }
+
+        function stopIndieMouthAnimation() {
+            indieIsSpeaking = false;
+            if (indieMouthTimer) {
+                clearTimeout(indieMouthTimer);
+                indieMouthTimer = null;
+            }
+            setIndieMouthFrame('closed');
+        }
+
+        function setIndieSpeakingUI(isSpeaking, statusText) {
+            const dot = document.getElementById('indie-onair-dot');
+            const pill = document.getElementById('indie-status-pill');
+            const eq = document.getElementById('indie-eq');
+            const playLabel = document.getElementById('indie-play-label');
+            const stage = document.getElementById('indie-stage');
+
+            if (stage) {
+                stage.classList.toggle('is-speaking', isSpeaking);
+            }
+            if (dot) {
+                dot.className = isSpeaking
+                    ? 'w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse'
+                    : 'w-2.5 h-2.5 rounded-full bg-teal-400';
+            }
+            if (pill && statusText) pill.innerText = statusText;
+            if (eq) {
+                eq.classList.toggle('hidden', !isSpeaking);
+                eq.classList.toggle('flex', isSpeaking);
+            }
+            if (playLabel) playLabel.innerText = isSpeaking ? 'Restart Forecast' : 'Play Forecast';
+        }
+
+        function renderIndieCaptionAt(charIndex) {
+            const box = document.getElementById('indie-captions');
+            if (!box) return;
+            if (charIndex < 0 || charIndex >= indieCurrentScript.length) {
+                box.textContent = indieCurrentScript;
+                return;
+            }
+            const rest = indieCurrentScript.slice(charIndex);
+            const match = rest.match(/^\S+/);
+            const len = match ? match[0].length : 0;
+            const before = indieCurrentScript.slice(0, charIndex);
+            const active = indieCurrentScript.slice(charIndex, charIndex + len);
+            const after = indieCurrentScript.slice(charIndex + len);
+
+            box.innerHTML = '';
+            box.appendChild(document.createTextNode(before));
+            const span = document.createElement('span');
+            span.className = 'text-teal-300 font-semibold underline decoration-teal-400/70 underline-offset-2';
+            span.textContent = active;
+            box.appendChild(span);
+            box.appendChild(document.createTextNode(after));
+        }
+
+        const indieOutfits = [
+            {
+                key: 'onepiece',
+                label: 'One-Piece',
+                closed: 'assets/indie_onepiece_closed.png',
+                mid: 'assets/indie_onepiece_mid.png',
+                open: 'assets/indie_onepiece_open.png'
+            },
+            {
+                key: 'shorts',
+                label: 'Sport Shorts',
+                closed: 'assets/indie_shorts_closed.png',
+                mid: 'assets/indie_shorts_closed.png',
+                open: 'assets/indie_shorts_closed.png'
+            }
+        ];
+        let indieOutfitIdx = -1;
+
+        function applyIndieOutfit(idx) {
+            indieOutfitIdx = ((idx % indieOutfits.length) + indieOutfits.length) % indieOutfits.length;
+            const outfit = indieOutfits[indieOutfitIdx];
+            const closed = document.getElementById('indie-frame-closed');
+            const mid = document.getElementById('indie-frame-mid');
+            const open = document.getElementById('indie-frame-open');
+            const label = document.getElementById('indie-outfit-label');
+            if (closed) closed.src = outfit.closed;
+            if (mid) mid.src = outfit.mid;
+            if (open) open.src = outfit.open;
+            if (label) label.innerText = outfit.label;
+            try { localStorage.setItem('indie_outfit_idx', String(indieOutfitIdx)); } catch (e) {}
+        }
+
+        function rotateIndieOutfit() {
+            let lastIdx = -1;
+            try {
+                const stored = localStorage.getItem('indie_outfit_idx');
+                if (stored !== null && !Number.isNaN(Number(stored))) lastIdx = Number(stored);
+            } catch (e) {}
+            applyIndieOutfit((lastIdx + 1) % indieOutfits.length);
+        }
+
+        function cycleIndieOutfit() {
+            applyIndieOutfit(indieOutfitIdx + 1);
+        }
+
+        function buildTodayBriefingScript() {
+            const today = forecastDays[0];
+            const siteInfo = launchData[currentSite] || launchData.statepark;
+            const isRisingPreferred = currentSite !== 'coleman';
+            const todayPlan = getTodayOptimalWindow(today, isRisingPreferred);
+            const liveTide = getLiveTideState(currentSite);
+
+            const airTemp = (document.getElementById('telemetry-airtemp')?.innerText || `${today.high}°F`).replace('°F', ' degrees');
+            const waterTemp = (document.getElementById('telemetry-watertemp')?.innerText || '58.8°F').replace('°F', ' degrees');
+            const windNow = (document.getElementById('telemetry-wind')?.innerText || '2 mph').replace('mph', 'miles per hour');
+            const rawSky = (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').toLowerCase();
+            const skyPhrase = rawSky.includes('night') ? 'a clear night' : (rawSky.includes('clear') ? 'clear skies' : rawSky);
+
+            const nowMins = getCurrentMinutesOfDay();
+            const timeGreeting = nowMins < 12 * 60
+                ? 'Good morning'
+                : (nowMins < 17 * 60 ? 'Good afternoon' : 'Good evening');
+
+            const formatSpokenWindow = (text) => text
+                .replace(/^Tomorrow:\s*/i, '')
+                .replace(/\s*[–—-]\s*/g, ' to ');
+
+            const tidePhrase = liveTide.direction === 'Rising'
+                ? 'The harbor tide is currently rising'
+                : 'The harbor tide is currently going out';
+
+            const cleanDesc = (todayPlan.descText || '')
+                .replace(/\byour\b/gi, 'his')
+                .replace(/\s*\(Sunset[^)]*\)/gi, '')
+                .replace(/\s*—\s*/g, ', ')
+                .trim();
+
+            const spokenWindow = formatSpokenWindow(todayPlan.windowText);
+            const windowPhrase = todayPlan.isAfterDarkToday
+                ? `Since it's after dark in Morro Bay, his next best launch window from the ${siteInfo.name} is tomorrow from ${spokenWindow}.`
+                : `From the ${siteInfo.name}, his best launch window today is ${spokenWindow.includes('Now') ? spokenWindow.replace('Now', 'now') : 'from ' + spokenWindow}. ${cleanDesc}`;
+
+            const flirtyClosings = [
+                `Don't stay out on the water too long, handsome—I'll be waiting right here on the sand to warm you up.`,
+                `Paddle fast back to shore, Chris—I've got much better plans for us once you're out of that kayak.`,
+                `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
+            ];
+            const closing = flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
+
+            const intro = `${timeGreeting}, I'm Indie, your Morro Bay Alta Court weather girl. I've got Chris's kayak out and ready for him to explore the bay—though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`;
+
+            return `${intro} Right now we have ${skyPhrase} and ${airTemp}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—and light winds around ${windNow}. Today's high is ${today.high} degrees with a low of ${today.low}. ${tidePhrase}. ${windowPhrase} ${closing}`;
+        }
+
+        function openIndieBriefing(autoSpeak = true) {
+            const modal = document.getElementById('indie-modal');
+            if (!modal) return;
+            rotateIndieOutfit();
+            indieCurrentScript = buildTodayBriefingScript();
+            renderIndieCaptionAt(-1);
+            modal.classList.remove('hidden');
+
+            if (autoSpeak) {
+                speakIndieForecast();
+            } else {
+                setIndieSpeakingUI(false, 'Ready');
+                document.getElementById('indie-play-btn')?.focus();
+            }
+        }
+
+        function closeIndieBriefing() {
+            stopIndieForecast();
+            const modal = document.getElementById('indie-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function toggleIndieSettings() {
+            const panel = document.getElementById('indie-settings-panel');
+            if (panel) panel.classList.toggle('hidden');
+        }
+
+        function speakIndieForecast(forceLocalFallback = false) {
+            indieCurrentScript = buildTodayBriefingScript();
+            renderIndieCaptionAt(-1);
+
+            if (!('speechSynthesis' in window)) {
+                setIndieSpeakingUI(false, 'Captions Only');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(indieCurrentScript);
+            const selectEl = document.getElementById('indie-voice-select');
+            const rateInput = document.getElementById('indie-rate-input');
+            const pitchInput = document.getElementById('indie-pitch-input');
+
+            let chosenVoice = null;
+            if (forceLocalFallback) {
+                chosenVoice = indieVoices.find(v => v.localService) || null;
+            } else {
+                chosenVoice = selectEl && selectEl.value !== '' ? indieVoices[Number(selectEl.value)] : indieVoices[0];
+            }
+            if (chosenVoice) utter.voice = chosenVoice;
+            utter.rate = rateInput ? Number(rateInput.value) : 0.95;
+            utter.pitch = pitchInput ? Number(pitchInput.value) : 0.98;
+
+            utter.onstart = () => {
+                setIndieSpeakingUI(true, 'Speaking');
+                startIndieMouthAnimation();
+            };
+
+            utter.onboundary = (e) => {
+                indieLastBoundaryAt = Date.now();
+                if (typeof e.charIndex === 'number') {
+                    renderIndieCaptionAt(e.charIndex);
+                    const wordMatch = indieCurrentScript.slice(e.charIndex).match(/^\S+/);
+                    const word = wordMatch ? wordMatch[0].toLowerCase() : '';
+                    if (/[aou]/.test(word) && word.length > 3) {
+                        setIndieMouthFrame('open');
+                    } else if (word.length > 0) {
+                        setIndieMouthFrame('mid');
+                    } else {
+                        setIndieMouthFrame('closed');
+                    }
+                }
+            };
+
+            utter.onend = () => {
+                stopIndieMouthAnimation();
+                renderIndieCaptionAt(-1);
+                setIndieSpeakingUI(false, 'Done');
+            };
+
+            utter.onerror = (e) => {
+                const errType = e && e.error ? e.error : 'error';
+                if (errType === 'canceled' || errType === 'interrupted') {
+                    return;
+                }
+                if (!forceLocalFallback) {
+                    // Online/cloud browser voices can fail on file://; retry with local OS voice
+                    setTimeout(() => speakIndieForecast(true), 60);
+                    return;
+                }
+                stopIndieMouthAnimation();
+                renderIndieCaptionAt(-1);
+                setIndieSpeakingUI(false, `Audio: ${errType}`);
+            };
+
+            setTimeout(() => window.speechSynthesis.speak(utter), 40);
+        }
+
+        function stopIndieForecast() {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            stopIndieMouthAnimation();
+            renderIndieCaptionAt(-1);
+            setIndieSpeakingUI(false, 'Ready');
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('indie-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    closeIndieBriefing();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
