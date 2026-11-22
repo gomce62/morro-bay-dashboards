@@ -14,20 +14,20 @@
             50% { transform: scaleX(1.005) scaleY(1.009) translateY(-1px); }
         }
         @keyframes indieSpeakBody {
-            0%   { transform: scaleX(1.0) scaleY(1.0) translateY(0px); }
-            35%  { transform: scaleX(1.007) scaleY(1.013) translateY(-1.5px); }
-            65%  { transform: scaleX(1.003) scaleY(1.006) translateY(-0.5px); }
-            100% { transform: scaleX(1.0) scaleY(1.0) translateY(0px); }
+            0%   { transform: scaleX(1.0) scaleY(1.0) translateY(0px) rotate(0deg); }
+            30%  { transform: scaleX(1.005) scaleY(1.010) translateY(-1.2px) rotate(0.35deg); }
+            65%  { transform: scaleX(1.002) scaleY(1.005) translateY(-0.5px) rotate(-0.25deg); }
+            100% { transform: scaleX(1.0) scaleY(1.0) translateY(0px) rotate(0deg); }
         }
         .indie-live-motion {
             transform-origin: 50% 38%;
             animation: indieBreathe 3.8s ease-in-out infinite;
         }
         .indie-live-motion.is-speaking {
-            animation: indieSpeakBody 2.6s ease-in-out infinite;
+            animation: indieSpeakBody 2.8s ease-in-out infinite;
         }
         .indie-frame-img {
-            transition: opacity 75ms ease-in-out;
+            transition: opacity 90ms ease-in-out;
         }
         @keyframes barPulse {
             0%, 100% { transform: scaleY(0.35); }
@@ -585,6 +585,7 @@
                     <img id="indie-frame-closed" src="assets/indie_v2_closed.png" alt="Indie standing head-to-toe beside her kayak at Morro Bay" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-100" />
                     <img id="indie-frame-mid" src="assets/indie_v2_mid.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
                     <img id="indie-frame-open" src="assets/indie_v2_open.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
+                    <img id="indie-frame-blink" src="assets/indie_v2_blink.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 w-full h-full object-contain opacity-0" />
                 </div>
             </div>
 
@@ -1765,14 +1766,66 @@
             } catch (e) {}
         }
 
+        let indieCurrentMouthFrame = 'closed';
+        let indieIsBlinking = false;
+        let indieBlinkTimer = null;
+        let indieBlinkRestoreTimer = null;
+
         function setIndieMouthFrame(frameName) {
+            indieCurrentMouthFrame = frameName;
             const closed = document.getElementById('indie-frame-closed');
             const mid = document.getElementById('indie-frame-mid');
             const open = document.getElementById('indie-frame-open');
+            const blink = document.getElementById('indie-frame-blink');
             if (!closed || !mid || !open) return;
+
+            if (indieIsBlinking && blink) {
+                closed.style.opacity = '0';
+                mid.style.opacity = '0';
+                open.style.opacity = '0';
+                blink.style.opacity = '1';
+                return;
+            }
+            if (blink) blink.style.opacity = '0';
             closed.style.opacity = frameName === 'closed' ? '1' : '0';
             mid.style.opacity = frameName === 'mid' ? '1' : '0';
             open.style.opacity = frameName === 'open' ? '1' : '0';
+        }
+
+        function triggerIndieBlink() {
+            const modal = document.getElementById('indie-modal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            indieIsBlinking = true;
+            setIndieMouthFrame(indieCurrentMouthFrame);
+            if (indieBlinkRestoreTimer) clearTimeout(indieBlinkRestoreTimer);
+            indieBlinkRestoreTimer = setTimeout(() => {
+                indieIsBlinking = false;
+                setIndieMouthFrame(indieCurrentMouthFrame);
+            }, 135);
+        }
+
+        function startIndieBlinkLoop() {
+            stopIndieBlinkLoop();
+            const scheduleNext = () => {
+                const waitMs = 2600 + Math.floor(Math.random() * 2400);
+                indieBlinkTimer = setTimeout(() => {
+                    triggerIndieBlink();
+                    scheduleNext();
+                }, waitMs);
+            };
+            scheduleNext();
+        }
+
+        function stopIndieBlinkLoop() {
+            indieIsBlinking = false;
+            if (indieBlinkTimer) {
+                clearTimeout(indieBlinkTimer);
+                indieBlinkTimer = null;
+            }
+            if (indieBlinkRestoreTimer) {
+                clearTimeout(indieBlinkRestoreTimer);
+                indieBlinkRestoreTimer = null;
+            }
         }
 
         let indieIsSpeaking = false;
@@ -1780,20 +1833,21 @@
         function startIndieMouthAnimation() {
             stopIndieMouthAnimation();
             indieIsSpeaking = true;
-            const frames = ['mid', 'open', 'mid', 'open', 'closed', 'mid'];
+            // Conversational cadence: mostly mid/closed with occasional soft open
+            const frames = ['mid', 'closed', 'mid', 'open', 'mid', 'closed'];
             let step = 0;
 
             const tick = () => {
                 if (!indieIsSpeaking) return;
-                if (Date.now() - indieLastBoundaryAt > 170) {
+                if (Date.now() - indieLastBoundaryAt > 180) {
                     const next = frames[step % frames.length];
                     setIndieMouthFrame(next);
                     step++;
                 }
-                const jitter = 85 + Math.floor(Math.random() * 85);
+                const jitter = 95 + Math.floor(Math.random() * 75);
                 indieMouthTimer = setTimeout(tick, jitter);
             };
-            indieMouthTimer = setTimeout(tick, 90);
+            indieMouthTimer = setTimeout(tick, 95);
         }
 
         function stopIndieMouthAnimation() {
@@ -1857,14 +1911,24 @@
                 label: 'One-Piece',
                 closed: 'assets/indie_onepiece_closed.png',
                 mid: 'assets/indie_onepiece_mid.png',
-                open: 'assets/indie_onepiece_open.png'
+                open: 'assets/indie_onepiece_open.png',
+                blink: 'assets/indie_onepiece_blink.png'
             },
             {
                 key: 'shorts',
                 label: 'Sport Shorts',
                 closed: 'assets/indie_shorts_closed.png',
-                mid: 'assets/indie_shorts_closed.png',
-                open: 'assets/indie_shorts_closed.png'
+                mid: 'assets/indie_shorts_mid.png',
+                open: 'assets/indie_shorts_open.png',
+                blink: 'assets/indie_shorts_blink.png'
+            },
+            {
+                key: 'bikini',
+                label: 'Bikini',
+                closed: 'assets/indie_v2_closed.png',
+                mid: 'assets/indie_v2_mid.png',
+                open: 'assets/indie_v2_open.png',
+                blink: 'assets/indie_v2_blink.png'
             }
         ];
         let indieOutfitIdx = -1;
@@ -1875,10 +1939,12 @@
             const closed = document.getElementById('indie-frame-closed');
             const mid = document.getElementById('indie-frame-mid');
             const open = document.getElementById('indie-frame-open');
+            const blink = document.getElementById('indie-frame-blink');
             const label = document.getElementById('indie-outfit-label');
             if (closed) closed.src = outfit.closed;
             if (mid) mid.src = outfit.mid;
             if (open) open.src = outfit.open;
+            if (blink) blink.src = outfit.blink;
             if (label) label.innerText = outfit.label;
             try { localStorage.setItem('indie_outfit_idx', String(indieOutfitIdx)); } catch (e) {}
         }
@@ -1905,9 +1971,20 @@
 
             const airTemp = (document.getElementById('telemetry-airtemp')?.innerText || `${today.high}°F`).replace('°F', ' degrees');
             const waterTemp = (document.getElementById('telemetry-watertemp')?.innerText || '58.8°F').replace('°F', ' degrees');
-            const windNow = (document.getElementById('telemetry-wind')?.innerText || '2 mph').replace('mph', 'miles per hour');
-            const rawSky = (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').toLowerCase();
-            const skyPhrase = rawSky.includes('night') ? 'a clear night' : (rawSky.includes('clear') ? 'clear skies' : rawSky);
+            const windNow = (document.getElementById('telemetry-wind')?.innerText || '2 mph')
+                .replace(/\bmph\b/i, 'miles per hour');
+            const rawSky = (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').trim().toLowerCase();
+
+            let skySentence = 'clear skies and';
+            if (rawSky.includes('night')) {
+                skySentence = 'a clear night with';
+            } else if (rawSky.includes('clear')) {
+                skySentence = 'clear skies and';
+            } else if (rawSky.includes('sky') || rawSky.includes('skies')) {
+                skySentence = `${rawSky} and`;
+            } else {
+                skySentence = `${rawSky} skies and`;
+            }
 
             const nowMins = getCurrentMinutesOfDay();
             const timeGreeting = nowMins < 12 * 60
@@ -1916,39 +1993,52 @@
 
             const formatSpokenWindow = (text) => text
                 .replace(/^Tomorrow:\s*/i, '')
-                .replace(/\s*[–—-]\s*/g, ' to ');
+                .replace(/\s*[–—-]\s*/g, ' to ')
+                .replace(/\bNow\b/g, 'now');
+
+            const sitePrep = currentSite === 'coleman'
+                ? `From ${siteInfo.name}`
+                : `From the ${siteInfo.name}`;
 
             const tidePhrase = liveTide.direction === 'Rising'
-                ? 'The harbor tide is currently rising'
-                : 'The harbor tide is currently going out';
+                ? 'The harbor tide is currently rising.'
+                : 'The harbor tide is currently going out.';
 
-            const cleanDesc = (todayPlan.descText || '')
-                .replace(/\byour\b/gi, 'his')
-                .replace(/\s*\(Sunset[^)]*\)/gi, '')
-                .replace(/\s*—\s*/g, ', ')
-                .trim();
-
+            const sun = getMorroBaySunTimes(today.dateObj || new Date());
             const spokenWindow = formatSpokenWindow(todayPlan.windowText);
-            const windowPhrase = todayPlan.isAfterDarkToday
-                ? `Since it's after dark in Morro Bay, his next best launch window from the ${siteInfo.name} is tomorrow from ${spokenWindow}.`
-                : `From the ${siteInfo.name}, his best launch window today is ${spokenWindow.includes('Now') ? spokenWindow.replace('Now', 'now') : 'from ' + spokenWindow}. ${cleanDesc}`;
+
+            let windowPhrase = '';
+            if (todayPlan.isAfterDarkToday) {
+                windowPhrase = `Since it's already after dark in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is tomorrow from ${spokenWindow}.`;
+            } else {
+                const windowClause = spokenWindow.includes('now')
+                    ? `is ${spokenWindow}`
+                    : `is from ${spokenWindow}`;
+                const tideAssist = isRisingPreferred
+                    ? `That gives him a smooth turnaround before the ${sun.sunsetStr} sunset, with a rising tide helping carry him back south.`
+                    : `That gives him an outgoing tide to carry him smoothly north back to Coleman Park before the ${sun.sunsetStr} sunset.`;
+                windowPhrase = `${sitePrep}, his best launch window today ${windowClause}. ${tideAssist}`;
+            }
 
             const flirtyClosings = [
-                `Don't stay out on the water too long, handsome—I'll be waiting right here on the sand to warm you up.`,
-                `Paddle fast back to shore, Chris—I've got much better plans for us once you're out of that kayak.`,
+                `Don't stay out on the water too long, handsome. I'll be waiting right here on the sand to warm you up.`,
+                `Paddle fast back to shore, Chris. I've got much better plans for us once you're out of that kayak.`,
                 `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
             ];
             const closing = flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
 
-            const intro = `${timeGreeting}, I'm Indie, your Morro Bay Alta Court weather girl. I've got Chris's kayak out and ready for him to explore the bay—though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`;
+            const intro = `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I've got Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here's what he can expect.`;
 
-            return `${intro} Right now we have ${skyPhrase} and ${airTemp}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—and light winds around ${windNow}. Today's high is ${today.high} degrees with a low of ${today.low}. ${tidePhrase}. ${windowPhrase} ${closing}`;
+            const weatherSummary = `Right now we have ${skySentence} ${airTemp}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—and light winds around ${windNow}. Today's high will reach ${today.high} degrees, with a low of ${today.low}.`;
+
+            return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
 
         function openIndieBriefing(autoSpeak = true) {
             const modal = document.getElementById('indie-modal');
             if (!modal) return;
             rotateIndieOutfit();
+            startIndieBlinkLoop();
             indieCurrentScript = buildTodayBriefingScript();
             renderIndieCaptionAt(-1);
             modal.classList.remove('hidden');
@@ -1963,6 +2053,7 @@
 
         function closeIndieBriefing() {
             stopIndieForecast();
+            stopIndieBlinkLoop();
             const modal = document.getElementById('indie-modal');
             if (modal) modal.classList.add('hidden');
         }
@@ -2008,7 +2099,7 @@
                     renderIndieCaptionAt(e.charIndex);
                     const wordMatch = indieCurrentScript.slice(e.charIndex).match(/^\S+/);
                     const word = wordMatch ? wordMatch[0].toLowerCase() : '';
-                    if (/[aou]/.test(word) && word.length > 3) {
+                    if (/[ao]/.test(word) && word.length > 4) {
                         setIndieMouthFrame('open');
                     } else if (word.length > 0) {
                         setIndieMouthFrame('mid');
