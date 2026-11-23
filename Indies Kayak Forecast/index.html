@@ -3553,24 +3553,29 @@
             const isHighWindOrWaves = activeWindMph >= 15 || activeWaveFt >= 6;
 
             let windowPhrase = '';
+            const nextDayObj = forecastDays[Math.min(forecastDays.length - 1, activeDayIdx + 1)];
+            const nextDaySpoken = activeDayIdx === 0 ? 'tomorrow' : (nextDayObj ? `on ${nextDayObj.day}` : 'the next day');
+
             if (todayPlan.isAfterDarkToday || !liveTide.isDaylight) {
-                const nextWindow = findNextDryDaylightWindow(activeDayIdx, nowMins, recommendedSiteKey);
-                const nextSiteKey = nextWindow.preferredSite || recommendedSiteKey;
-                const nextSitePrep = nextSiteKey === 'coleman'
-                    ? `from ${launchData[nextSiteKey].name}`
-                    : `from the ${launchData[nextSiteKey].name}`;
+                const nextWindow = findNextDryDaylightWindow(activeDayIdx, nowMins, 'statepark');
+                const nextSiteKey = nextWindow.preferredSite || 'statepark';
                 const nextDayLabel = nextWindow.dayIdx === activeDayIdx
                     ? 'later this morning'
                     : (nextWindow.dayIdx === 1 ? 'tomorrow' : `on ${nextWindow.dayObj.day}`);
-                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch is ${nextDayLabel} around ${formatMinutesToTime(nextWindow.startMins)} ${nextSitePrep}.`;
+                if (nextSiteKey === 'coleman') {
+                    windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch is ${nextDayLabel} at ${formatMinutesToTime(nextWindow.startMins)} from Coleman Park when the tide will be going out.`;
+                } else {
+                    windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDayLabel} at ${formatMinutesToTime(nextWindow.startMins)} when the tide will be coming in.`;
+                }
             } else if (activeRain.isRaining) {
-                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, recommendedSiteKey);
-                const nextSiteKey = nextDry.preferredSite || recommendedSiteKey;
-                const nextSitePrep = nextSiteKey === 'coleman'
-                    ? `from ${launchData[nextSiteKey].name}`
-                    : `from the ${launchData[nextSiteKey].name}`;
+                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, 'statepark');
+                const nextSiteKey = nextDry.preferredSite || 'statepark';
                 const nextDayLabel = nextDry.dayIdx === activeDayIdx ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
-                windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next dry daylight launch is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)} ${nextSitePrep}.`;
+                if (nextSiteKey === 'coleman') {
+                    windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next dry daylight launch is ${nextDayLabel} at ${formatMinutesToTime(nextDry.startMins)} from Coleman Park when the tide will be going out.`;
+                } else {
+                    windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDayLabel} at ${formatMinutesToTime(nextDry.startMins)} when the tide will be coming in.`;
+                }
             } else {
                 const roughNote = isHighWindOrWaves
                     ? ` However, with ${Math.round(activeWindMph)} mile per hour winds and ${activeWaveFt.toFixed(1)} foot entrance waves, he should stay inside the sheltered back bay and avoid the harbor mouth.`
@@ -3580,13 +3585,23 @@
                     : `With the tide going out, the best place to depart ${simState.enabled ? 'then' : 'right now'} is Coleman Park, so the outgoing current carries him smoothly north back to shore before the ${sun.sunsetStr} sunset.`;
 
                 let timingFollowup = '';
-                if (!todayPlan.isNextDay && !todayPlan.isLaterToday && spokenWindow.includes('now to ')) {
-                    const endTime = spokenWindow.split('now to ')[1];
-                    timingFollowup = ` That favorable window runs through ${endTime}.`;
-                } else if (todayPlan.isNextDay) {
-                    const nextDayObj = forecastDays[Math.min(forecastDays.length - 1, activeDayIdx + 1)];
-                    const nextDaySpoken = activeDayIdx === 0 ? 'tomorrow' : (nextDayObj ? `on ${nextDayObj.day}` : 'the next day');
-                    timingFollowup = ` For a full ${isCurrentTideRising ? 'rising-tide' : 'outgoing-tide'} session, the next optimal window ${sitePrep} is ${nextDaySpoken} from ${spokenWindow}.`;
+                if (isCurrentTideRising) {
+                    if (!todayPlan.isNextDay && !todayPlan.isLaterToday && spokenWindow.includes('now to ')) {
+                        const endTime = spokenWindow.split('now to ')[1];
+                        timingFollowup = ` That favorable rising-tide window runs through ${endTime}.`;
+                    } else if (todayPlan.isNextDay) {
+                        const nextRisingStart = spokenWindow.split(' to ')[0];
+                        timingFollowup = ` Since it's getting close to sunset, his next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDaySpoken} at ${nextRisingStart} when the tide will be coming in.`;
+                    }
+                } else {
+                    const risingPlan = getTodayOptimalWindow(today, true);
+                    const risingSpoken = formatSpokenWindow(risingPlan.windowText);
+                    const risingStart = risingSpoken.split(' to ')[0];
+                    if (risingPlan.isNextDay) {
+                        timingFollowup = ` His next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDaySpoken} at ${risingStart} when the tide will be coming in.`;
+                    } else if (risingStart && risingStart.toLowerCase() !== 'now') {
+                        timingFollowup = ` His next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is later today at ${risingStart} when the tide will be coming in.`;
+                    }
                 }
                 windowPhrase = `${departRec}${timingFollowup}${roughNote}`;
             }
