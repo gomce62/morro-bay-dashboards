@@ -2663,7 +2663,7 @@
             if (open) open.src = outfit.open;
             if (blink) blink.src = outfit.blink;
             if (bgImg) {
-                bgImg.src = (outfit.key === 'rainy' || isIndieRainingNow())
+                bgImg.src = outfit.key === 'rainy'
                     ? 'assets/bg_morro_bay_rainy.jpg'
                     : 'assets/bg_morro_bay.jpg';
             }
@@ -2771,7 +2771,7 @@
                 `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
             ];
             const closing = liveRainState.isRaining
-                ? `Stay dry inside with me today, handsome—we can head out on the bay as soon as the rain clears.`
+                ? `Hey Chris, stay dry inside with me today; you can head out on the bay as soon as the rain clears.`
                 : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
 
             const intro = liveRainState.isRaining
