@@ -3490,7 +3490,28 @@
             applyIndieOutfit(indieOutfitIdx + 1);
         }
 
-        function buildTodayBriefingScript() {
+        // Optional Google Apps Script Web App URL for AI-generated dynamic Indie lines
+        const INDIE_AI_PROXY_URL = '';
+
+        async function fetchIndieDynamicLines(ctx) {
+            if (!INDIE_AI_PROXY_URL) return null;
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 2800);
+            try {
+                const payload = encodeURIComponent(JSON.stringify({ ...ctx, nonce: Math.random().toString(36).slice(2) }));
+                const res = await fetch(`${INDIE_AI_PROXY_URL}?payload=${payload}`, { signal: controller.signal });
+                if (!res.ok) return null;
+                const data = await res.json();
+                if (!data || !data.ok || !data.intro || !data.closing) return null;
+                return data;
+            } catch (e) {
+                return null;
+            } finally {
+                clearTimeout(timer);
+            }
+        }
+
+        function buildTodayBriefingScript(aiLines = null) {
             const activeDayIdx = getActiveDayIndex();
             const today = forecastDays[activeDayIdx] || forecastDays[0];
             const liveTide = simState.enabled ? getEffectiveTideState(currentSite) : getLiveTideState(currentSite);
@@ -3646,11 +3667,12 @@
                 `Keep the kayak parked for tonight, Chris—let's save the paddling for daylight and put the rest of this evening to much better use.`,
                 `No night paddles on my watch, handsome—come inside with me tonight and we'll let the bay wait until morning.`
             ];
-            const closing = activeRain.isRaining
+            const fallbackClosing = activeRain.isRaining
                 ? pickIndieLine(rainyClosings, 'indie_last_rain_close')
                 : (isAfterDark
                     ? pickIndieLine(afterDarkClosings, 'indie_last_dark_close')
                     : pickIndieLine(flirtyClosings, 'indie_last_clear_close'));
+            const closing = (aiLines && aiLines.closing) ? aiLines.closing : fallbackClosing;
 
             const studioTag = isAfterDark
                 ? `, reporting from my studio in Morro Bay`
@@ -3677,11 +3699,12 @@
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. The bay is calling Chris's name today, and I have his kayak waiting right behind me on the shore. Let's check the conditions.`
             ];
 
-            const intro = activeRain.isRaining
+            const fallbackIntro = activeRain.isRaining
                 ? pickIndieLine(rainyIntros, 'indie_last_rain_intro')
                 : (isAfterDark
                     ? pickIndieLine(afterDarkIntros, 'indie_last_dark_intro')
                     : pickIndieLine(clearIntros, 'indie_last_clear_intro'));
+            const intro = (aiLines && aiLines.intro && /indie/i.test(aiLines.intro)) ? aiLines.intro : fallbackIntro;
 
             const waterQuips = [
                 `—just cool enough to give him a great excuse to let me warm him up later—`,
@@ -3692,9 +3715,15 @@
                 `—nice and brisk, which means extra hugs are definitely waiting on the beach—`,
                 `—chilly enough that he'll deserve a warm welcome when he gets back—`
             ];
-            const waterQuip = canKayakNow
+            let waterQuip = canKayakNow
                 ? pickIndieLine(waterQuips, 'indie_last_water_quip')
                 : ', ';
+            if (canKayakNow && aiLines && aiLines.waterQuip) {
+                const q = String(aiLines.waterQuip).trim();
+                if (q.length >= 10) {
+                    waterQuip = (q.startsWith('—') ? '' : '—') + q + (q.endsWith('—') ? '' : '—');
+                }
+            }
 
             const effectivePrecipProb = simState.enabled ? activeRain.precipProb : today.precipProb;
             const rainNote = (!activeRain.isRaining && effectivePrecipProb >= 30)
@@ -3725,7 +3754,7 @@
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
 
-        function openIndieBriefing(autoSpeak = true) {
+        async function openIndieBriefing(autoSpeak = true) {
             const modal = document.getElementById('indie-modal');
             if (!modal) return;
             preloadIndieOutfits();
@@ -3734,6 +3763,33 @@
             indieCurrentScript = buildTodayBriefingScript();
             renderIndieCaptionAt(-1);
             modal.classList.remove('hidden');
+
+            if (INDIE_AI_PROXY_URL) {
+                setIndieSpeakingUI(false, 'Writing fresh forecast...');
+                const activeDayIdx = getActiveDayIndex();
+                const today = forecastDays[activeDayIdx] || forecastDays[0];
+                const liveTide = simState.enabled ? getEffectiveTideState(currentSite) : getLiveTideState(currentSite);
+                const activeRain = getActiveRainState();
+                const nowMins = getActiveMinutesOfDay();
+                const timeGreeting = nowMins < 12 * 60 ? 'Good morning' : (nowMins < 17 * 60 ? 'Good afternoon' : 'Good evening');
+                const todayPlan = getTodayOptimalWindow(today, liveTide.direction === 'Rising');
+                const isAfterDark = todayPlan.isAfterDarkToday || !liveTide.isDaylight;
+                const aiLines = await fetchIndieDynamicLines({
+                    timeGreeting,
+                    airTemp: (document.getElementById('telemetry-airtemp')?.innerText || `${today.high}°F`).replace('°F', ' degrees'),
+                    waterTemp: getActiveWaterTempStr().replace('°F', ' degrees'),
+                    windNow: (document.getElementById('telemetry-wind')?.innerText || 'light winds').trim().replace(/\bmph\b/i, 'miles per hour'),
+                    skyCondition: (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').trim().toLowerCase(),
+                    tideDirection: liveTide.direction,
+                    isRaining: activeRain.isRaining,
+                    isAfterDark,
+                    recommendedSite: liveTide.direction === 'Rising' ? 'State Park Launch Ramp or Public Launch Ramp' : 'Coleman Park'
+                });
+                if (aiLines) {
+                    indieCurrentScript = buildTodayBriefingScript(aiLines);
+                    renderIndieCaptionAt(-1);
+                }
+            }
 
             if (autoSpeak) {
                 speakIndieForecast();
