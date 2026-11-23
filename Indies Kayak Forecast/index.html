@@ -1253,6 +1253,9 @@
             const bestRise = riseCandidates[0] || { start: sun.sunriseMins + 60, end: sun.sunriseMins + 150 };
             const bestEbb = ebbCandidates[0] || { start: sun.sunriseMins + 120, end: sun.sunriseMins + 210 };
 
+            const riseWindows = [...riseCandidates].sort((a, b) => a.start - b.start);
+            const ebbWindows = [...ebbCandidates].sort((a, b) => a.start - b.start);
+
             return {
                 optimalWindowRising: `${formatMinutesToTime(bestRise.start)} - ${formatMinutesToTime(bestRise.end)}`,
                 optimalWindowRisingStart: bestRise.start,
@@ -1260,6 +1263,8 @@
                 optimalWindowGoingOut: `${formatMinutesToTime(bestEbb.start)} - ${formatMinutesToTime(bestEbb.end)}`,
                 optimalWindowGoingOutStart: bestEbb.start,
                 optimalWindowGoingOutEnd: bestEbb.end,
+                riseWindows,
+                ebbWindows,
                 morningFloodWindow: `${formatMinutesToTime(bestRise.start)} - ${formatMinutesToTime(bestRise.end)}`,
                 afternoonFloodWindow: `${formatMinutesToTime((riseCandidates[1] || bestRise).start)} - ${formatMinutesToTime((riseCandidates[1] || bestRise).end)}`,
                 morningEbbWindow: `${formatMinutesToTime(bestEbb.start)} - ${formatMinutesToTime(bestEbb.end)}`,
@@ -2023,58 +2028,54 @@
                 };
             }
 
-            if (isRisingPreferred) {
-                const winEnd = dayObj.optimalWindowRisingEnd || (sun.lastSafeLaunchMins);
-                const winStart = dayObj.optimalWindowRisingStart || sun.sunriseMins;
-                if (nowMins <= winEnd && nowMins >= winStart - 30) {
+            const windowsList = isRisingPreferred
+                ? (dayObj.riseWindows && dayObj.riseWindows.length > 0
+                    ? dayObj.riseWindows
+                    : [{ start: dayObj.optimalWindowRisingStart || sun.sunriseMins, end: dayObj.optimalWindowRisingEnd || sun.lastSafeLaunchMins }])
+                : (dayObj.ebbWindows && dayObj.ebbWindows.length > 0
+                    ? dayObj.ebbWindows
+                    : [{ start: dayObj.optimalWindowGoingOutStart || sun.sunriseMins, end: dayObj.optimalWindowGoingOutEnd || sun.lastSafeLaunchMins }]);
+
+            const nextLow = !isRisingPreferred && dayObj.nextLowAfterNow ? dayObj.nextLowAfterNow(nowMins) : null;
+
+            for (let i = 0; i < windowsList.length; i++) {
+                const w = windowsList[i];
+                if (nowMins <= w.end && nowMins >= w.start - 30) {
                     return {
-                        windowText: `${simState.enabled ? formatMinutesToTime(nowMins) : 'Now'} - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
-                        descText: `Tide is rising; bay conditions assist your return south before ${sun.sunsetStr} sunset.`,
+                        windowText: `${simState.enabled ? formatMinutesToTime(nowMins) : 'Now'} - ${formatMinutesToTime(Math.min(w.end, sun.lastSafeLaunchMins))}`,
+                        descText: isRisingPreferred
+                            ? `Tide is rising; bay conditions assist your return south before ${sun.sunsetStr} sunset.`
+                            : `Tide is going out${nextLow ? ` until the ${nextLow.time} low` : ''}, carrying you north to Coleman before ${sun.sunsetStr} sunset.`,
                         isAfterDarkToday: false,
-                        isRainingNow: false
+                        isRainingNow: false,
+                        isNextDay: false,
+                        isLaterToday: false
                     };
                 }
-                if (nowMins < winStart) {
+                if (nowMins < w.start) {
                     return {
-                        windowText: dayObj.optimalWindowRising,
-                        descText: "Tide is rising during this window to assist your return paddle south.",
+                        windowText: `${formatMinutesToTime(w.start)} - ${formatMinutesToTime(w.end)}`,
+                        descText: isRisingPreferred
+                            ? "Tide is rising during this window to assist your return paddle south."
+                            : "Outgoing tide during this window carries you north back to Coleman Park.",
                         isAfterDarkToday: false,
-                        isRainingNow: false
+                        isRainingNow: false,
+                        isNextDay: false,
+                        isLaterToday: i > 0
                     };
                 }
-                return {
-                    windowText: `Next Day: ${dayObj.nextDayFloodNote}`,
-                    descText: `Best rising-tide daylight window has passed; next ideal window is tomorrow.`,
-                    isAfterDarkToday: false,
-                    isRainingNow: false
-                };
-            } else {
-                const winEnd = dayObj.optimalWindowGoingOutEnd || sun.lastSafeLaunchMins;
-                const winStart = dayObj.optimalWindowGoingOutStart || sun.sunriseMins;
-                const nextLow = dayObj.nextLowAfterNow ? dayObj.nextLowAfterNow(nowMins) : null;
-                if (nowMins <= winEnd && nowMins >= winStart - 30) {
-                    return {
-                        windowText: `${simState.enabled ? formatMinutesToTime(nowMins) : 'Now'} - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
-                        descText: `Tide is going out${nextLow ? ` until the ${nextLow.time} low` : ''}, carrying you north to Coleman before ${sun.sunsetStr} sunset.`,
-                        isAfterDarkToday: false,
-                        isRainingNow: false
-                    };
-                }
-                if (nowMins < winStart) {
-                    return {
-                        windowText: dayObj.optimalWindowGoingOut,
-                        descText: "Outgoing tide during this window carries you north back to Coleman Park.",
-                        isAfterDarkToday: false,
-                        isRainingNow: false
-                    };
-                }
-                return {
-                    windowText: `Next Day: ${dayObj.nextDayEbbNote}`,
-                    descText: `Best outgoing-tide daylight window has passed; next ideal window is tomorrow.`,
-                    isAfterDarkToday: false,
-                    isRainingNow: false
-                };
             }
+
+            return {
+                windowText: `Next Day: ${isRisingPreferred ? dayObj.nextDayFloodNote : dayObj.nextDayEbbNote}`,
+                descText: isRisingPreferred
+                    ? `Best rising-tide daylight window has passed; next ideal window is tomorrow.`
+                    : `Best outgoing-tide daylight window has passed; next ideal window is tomorrow.`,
+                isAfterDarkToday: false,
+                isRainingNow: false,
+                isNextDay: true,
+                isLaterToday: false
+            };
         }
 
         function renderForecast() {
@@ -3552,7 +3553,8 @@
 
             let windowPhrase = '';
             if (todayPlan.isAfterDarkToday || !liveTide.isDaylight) {
-                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is tomorrow from ${spokenWindow}.`;
+                const timingPhrase = liveTide.isBeforeSunrise ? 'later this morning' : 'tomorrow';
+                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is ${timingPhrase} from ${spokenWindow}.`;
             } else if (activeRain.isRaining) {
                 const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, currentSite);
                 const nextDayLabel = nextDry.dayIdx === activeDayIdx ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
@@ -3567,7 +3569,17 @@
                 const roughNote = isHighWindOrWaves
                     ? ` However, with ${Math.round(activeWindMph)} mile per hour winds and ${activeWaveFt.toFixed(1)} foot entrance waves, he should stay inside the sheltered back bay and avoid the harbor mouth.`
                     : '';
-                windowPhrase = `${sitePrep}, his best launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
+                if (todayPlan.isNextDay) {
+                    const nextDayObj = forecastDays[Math.min(forecastDays.length - 1, activeDayIdx + 1)];
+                    const nextDaySpoken = activeDayIdx === 0 ? 'tomorrow' : (nextDayObj ? `on ${nextDayObj.day}` : 'the next day');
+                    const dayLabel = activeDayIdx === 0 ? "today's" : `${today.day}'s`;
+                    const tideTypeLabel = isRisingPreferred ? 'rising-tide' : 'outgoing-tide';
+                    windowPhrase = `Since ${dayLabel} best ${tideTypeLabel} window has already passed, his next optimal launch window ${sitePrep.toLowerCase()} is ${nextDaySpoken} from ${spokenWindow}. ${tideAssist}${roughNote}`;
+                } else if (todayPlan.isLaterToday) {
+                    windowPhrase = `${sitePrep}, his next optimal launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
+                } else {
+                    windowPhrase = `${sitePrep}, his best launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
+                }
             }
 
             const pickIndieLine = (pool, storageKey) => {
@@ -3634,7 +3646,7 @@
 
             const clearIntros = [
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I have Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`,
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I pulled Chris's red Pelican down to the shore for him—mostly because I love any excuse to see him out on the water. Here's today's forecast.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I pulled Chris's red kayak down to the shore for him—mostly because I love any excuse to see him out on the water. Here's today's forecast.`,
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl, and I've got Chris's kayak lined up on the beach. Between Morro Rock and watching him paddle, it's hard to pick the better view. Here's what's on tap.`,
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is ready to launch, and I'm already looking forward to his victory hug when he paddles back in. Here's the scoop.`,
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I dusted off Chris's kayak and checked the harbor just for him—anything for my favorite paddler. Here is what he can expect today.`,
