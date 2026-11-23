@@ -2063,7 +2063,7 @@
                     }
                 }
 
-                // 2. NWS Hourly Forecast for Morro Bay Harbor (LOX/72,119)
+                // 2. NWS Hourly Forecast for Morro Bay Harbor (LOX/72,119) — used for PoP% & future hourly rain checks
                 if (nwsHourlyRes.status === 'fulfilled' && nwsHourlyRes.value.ok) {
                     const nh = await nwsHourlyRes.value.json();
                     const periods = nh?.properties?.periods || [];
@@ -2072,12 +2072,6 @@
                         const curP = periods[0];
                         const pop = curP.probabilityOfPrecipitation?.value;
                         if (typeof pop === 'number') currentPrecipProb = Math.max(currentPrecipProb, pop);
-                        if (isRainText(curP.shortForecast)) {
-                            currentIsRaining = true;
-                            currentRainLabel = curP.shortForecast;
-                            skyLabelOverride = curP.shortForecast.includes('Thunder') ? 'Thunderstorm' : (curP.shortForecast.includes('Showers') ? 'Rain Showers' : 'Rain');
-                            if (skyCode < 51) skyCode = curP.shortForecast.includes('Thunder') ? 95 : 61;
-                        }
                         if (airTempF === null && typeof curP.temperature === 'number') {
                             airTempF = curP.temperature;
                         }
@@ -2120,7 +2114,7 @@
                     });
                 }
 
-                // 4. NWS KSBP Observation (live local airport sensor for rain/temp/wind)
+                // 4. NWS KSBP Observation (live local sensor for drizzle/rain/temp/wind)
                 if (nwsObsRes.status === 'fulfilled' && nwsObsRes.value.ok) {
                     const obs = await nwsObsRes.value.json();
                     const props = obs?.properties || {};
@@ -2129,16 +2123,23 @@
                     if (typeof props.precipitationLastHour?.value === 'number' && props.precipitationLastHour.value > 0) {
                         precipMmh = Math.max(precipMmh, props.precipitationLastHour.value);
                         currentIsRaining = true;
-                        currentRainLabel = 'Rain';
                     }
                     if (props.textDescription) {
                         const descText = props.textDescription.toLowerCase();
                         if (isRainText(descText)) {
                             currentIsRaining = true;
-                            currentRainLabel = props.textDescription;
-                            if (descText.includes('thunder')) { skyCode = 95; cloudCover = Math.max(cloudCover, 90); }
-                            else if (descText.includes('drizzle')) { skyCode = Math.max(skyCode, 51); cloudCover = Math.max(cloudCover, 80); }
-                            else { skyCode = Math.max(skyCode, 61); cloudCover = Math.max(cloudCover, 85); }
+                            if (descText.includes('thunder')) {
+                                skyCode = 95; cloudCover = Math.max(cloudCover, 90);
+                                currentRainLabel = 'Thunderstorm';
+                            } else if (descText.includes('drizzle') || (descText.includes('light') && precipMmh < 0.2)) {
+                                skyCode = Math.max(skyCode, 51); cloudCover = Math.max(cloudCover, 80);
+                                currentRainLabel = 'Light Drizzle';
+                                skyLabelOverride = 'Light Drizzle';
+                            } else {
+                                skyCode = Math.max(skyCode, 61); cloudCover = Math.max(cloudCover, 85);
+                                currentRainLabel = props.textDescription;
+                                skyLabelOverride = props.textDescription;
+                            }
                         } else if (skyCode === 0) {
                             if (descText.includes('fog') || descText.includes('mist')) { skyCode = 45; cloudCover = Math.max(cloudCover, 75); }
                             else if (descText.includes('overcast')) { skyCode = 3; cloudCover = Math.max(cloudCover, 95); }
@@ -2154,6 +2155,15 @@
                         gustMph = typeof props.windGust?.value === 'number' ? props.windGust.value * 0.621371 : windMph;
                         if (typeof props.windDirection?.value === 'number') windDir = degreesToCompass(props.windDirection.value);
                     }
+                }
+
+                // Classify rain intensity from measured mm/h when available
+                if (precipMmh > 0) {
+                    currentIsRaining = true;
+                    if (precipMmh < 0.5) currentRainLabel = 'Light Drizzle';
+                    else if (precipMmh < 2.5) currentRainLabel = 'Light Rain';
+                    else if (precipMmh < 7.5) currentRainLabel = 'Moderate Rain';
+                    else currentRainLabel = 'Heavy Rain';
                 }
 
                 // 5. NOAA CO-OPS 9412110 Water Temp & Wind fallback
@@ -2255,30 +2265,26 @@
                 const precipEl = document.getElementById('telemetry-precip');
                 const precipSubEl = document.getElementById('telemetry-precip-sub');
                 if (precipEl) {
-                    if (precipMmh > 0) {
-                        precipEl.innerText = `${precipMmh.toFixed(1)} mm/h`;
-                        precipEl.className = "text-2xl font-bold text-sky-300";
-                    } else if (currentIsRaining) {
-                        precipEl.innerText = currentRainLabel.includes('Thunder') ? 'Storm' : 'Raining';
-                        precipEl.className = "text-2xl font-bold text-sky-300";
-                    } else {
-                        precipEl.innerText = '0.0 mm/h';
-                        precipEl.className = "text-2xl font-bold text-white";
-                    }
+                    precipEl.innerText = `${precipMmh.toFixed(1)} mm/h`;
+                    precipEl.className = currentIsRaining
+                        ? "text-2xl font-bold text-sky-300"
+                        : "text-2xl font-bold text-white";
                 }
                 if (precipSubEl) {
                     if (currentIsRaining) {
                         precipSubEl.className = "text-[11px] text-sky-300 block mt-0.5 font-medium";
-                        precipSubEl.innerText = `${currentPrecipProb > 0 ? currentPrecipProb + '% chance • ' : ''}Stay Ashore`;
+                        const ratePrefix = precipMmh === 0 ? 'Trace • ' : '';
+                        const probSuffix = currentPrecipProb > 0 ? ` • ${currentPrecipProb}% chance` : '';
+                        precipSubEl.innerText = `${ratePrefix}${currentRainLabel}${probSuffix}`;
                     } else if (currentPrecipProb >= 20) {
                         precipSubEl.className = "text-[11px] text-cyan-400 block mt-0.5";
-                        precipSubEl.innerText = `${currentPrecipProb}% chance today`;
+                        precipSubEl.innerText = `Dry Now • ${currentPrecipProb}% chance`;
                     } else {
                         precipSubEl.className = "text-[11px] text-emerald-400 block mt-0.5";
                         precipSubEl.innerText = 'Dry • Morro Bay Estuary';
                     }
                 }
-                const precipFrac = precipMmh > 0 ? Math.min(0.95, 0.2 + precipMmh / 8) : (currentIsRaining ? 0.38 : 0.04);
+                const precipFrac = precipMmh > 0 ? Math.min(0.95, 0.15 + precipMmh / 8) : (currentIsRaining ? 0.12 : 0.04);
                 setGaugeVisual('precip-needle', 'precip-arc', precipFrac);
 
                 liveSkyState = {
