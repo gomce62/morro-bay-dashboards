@@ -3616,16 +3616,20 @@
                     ? pickIndieLine(afterDarkClosings, 'indie_last_dark_close')
                     : pickIndieLine(flirtyClosings, 'indie_last_clear_close'));
 
+            const studioTag = isAfterDark
+                ? `, reporting from my studio in Morro Bay`
+                : '';
+
             const rainyIntros = [
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`,
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Since it's raining, I tucked Chris's kayak away indoors—plus, I'd rather have him all to myself inside today anyway. Here's the latest forecast.`,
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. No paddling in this rain—Chris's kayak is staying dry inside, and honestly, a cozy indoor day with him sounds much better. Here's how the bay looks.`
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl${studioTag}. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl${studioTag}. Since it's raining, I tucked Chris's kayak away indoors—plus, I'd rather have him all to myself inside today anyway. Here's the latest forecast.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl${studioTag}. No paddling in this rain—Chris's kayak is staying dry inside, and honestly, a cozy indoor day with him sounds much better. Here's how the bay looks.`
             ];
 
             const afterDarkIntros = [
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. It is now too dark for Chris to go kayaking, which means I get him all to myself tonight—let's check the current bay conditions and see when he should head out next.`,
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Since it's past sunset and too dark to paddle, Chris's kayak is staying put for the night, and I have much better ways to keep him busy. Here are the current conditions and his next best launch window.`,
-                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. It's officially too dark for Chris to hit the water tonight, so let's take a quick look at the bay conditions before we find something much more fun to do indoors.`
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl, reporting from my studio in Morro Bay. It is now too dark for Chris to go kayaking, which means I get him all to myself tonight—let's check the current bay conditions and see when he should head out next.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl, live from my studio in Morro Bay. Since it's past sunset and too dark to paddle, Chris's kayak is staying put for the night, and I have much better ways to keep him busy. Here are the current conditions and his next best launch window.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl, reporting from my Morro Bay studio. It's officially too dark for Chris to hit the water tonight, so let's take a quick look at the bay conditions before we find something much more fun to do indoors.`
             ];
 
             const clearIntros = [
@@ -3658,7 +3662,7 @@
 
             const effectivePrecipProb = simState.enabled ? activeRain.precipProb : today.precipProb;
             const rainNote = (!activeRain.isRaining && effectivePrecipProb >= 30)
-                ? ` There is also a ${effectivePrecipProb} percent chance of rain, so keep an eye on the sky.`
+                ? ` There is also a ${effectivePrecipProb} percent chance of rain ${isAfterDark ? 'tonight' : 'today'}, so keep an eye on the sky.`
                 : '';
 
             const windClause = (!rawWind || rawWind === '--' || /n\/a/i.test(rawWind))
@@ -3673,7 +3677,14 @@
                 ? ` with ${activeWaveFt.toFixed(1)} foot waves at the harbor entrance`
                 : '';
 
-            const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}${waterQuip}${windClause}${waveNote}. ${activeDayIdx === 0 ? "Today's" : `${today.day}'s`} high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
+            let highLowSentence = '';
+            if (activeDayIdx === 0 && !liveTide.isBeforeSunrise && (isAfterDark || nowMins >= 16 * 60)) {
+                highLowSentence = `Earlier today, the high reached ${today.high} degrees, and tonight's low will dip to ${today.low}.`;
+            } else {
+                highLowSentence = `${activeDayIdx === 0 ? "Today's" : `${today.day}'s`} high will reach ${today.high} degrees, with a low of ${today.low}.`;
+            }
+
+            const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}${waterQuip}${windClause}${waveNote}. ${highLowSentence}${rainNote}`;
 
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
