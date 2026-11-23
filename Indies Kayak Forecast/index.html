@@ -3493,10 +3493,11 @@
         function buildTodayBriefingScript() {
             const activeDayIdx = getActiveDayIndex();
             const today = forecastDays[activeDayIdx] || forecastDays[0];
-            const siteInfo = launchData[currentSite] || launchData.statepark;
-            const isRisingPreferred = currentSite !== 'coleman';
-            const todayPlan = getTodayOptimalWindow(today, isRisingPreferred);
             const liveTide = simState.enabled ? getEffectiveTideState(currentSite) : getLiveTideState(currentSite);
+            const isCurrentTideRising = liveTide.direction === 'Rising';
+            const recommendedSiteKey = isCurrentTideRising ? 'statepark' : 'coleman';
+            const recommendedSiteInfo = launchData[recommendedSiteKey] || launchData.statepark;
+            const todayPlan = getTodayOptimalWindow(today, isCurrentTideRising);
             const activeRain = getActiveRainState();
             const activeWindMph = getActiveWindMph();
             const activeWaveFt = getActiveWaveHeightFt();
@@ -3539,11 +3540,11 @@
                 .replace(/\s*[–—-]\s*/g, ' to ')
                 .replace(/\bNow\b/g, 'now');
 
-            const sitePrep = currentSite === 'coleman'
-                ? `From ${siteInfo.name}`
-                : `From the ${siteInfo.name}`;
+            const sitePrep = recommendedSiteKey === 'coleman'
+                ? `from ${recommendedSiteInfo.name}`
+                : `from the ${recommendedSiteInfo.name}`;
 
-            const tidePhrase = liveTide.direction === 'Rising'
+            const tidePhrase = isCurrentTideRising
                 ? (simState.enabled ? 'The harbor tide will be rising.' : 'The harbor tide is currently rising.')
                 : (simState.enabled ? 'The harbor tide will be going out.' : 'The harbor tide is currently going out.');
 
@@ -3553,33 +3554,41 @@
 
             let windowPhrase = '';
             if (todayPlan.isAfterDarkToday || !liveTide.isDaylight) {
-                const timingPhrase = liveTide.isBeforeSunrise ? 'later this morning' : 'tomorrow';
-                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is ${timingPhrase} from ${spokenWindow}.`;
+                const nextWindow = findNextDryDaylightWindow(activeDayIdx, nowMins, recommendedSiteKey);
+                const nextSiteKey = nextWindow.preferredSite || recommendedSiteKey;
+                const nextSitePrep = nextSiteKey === 'coleman'
+                    ? `from ${launchData[nextSiteKey].name}`
+                    : `from the ${launchData[nextSiteKey].name}`;
+                const nextDayLabel = nextWindow.dayIdx === activeDayIdx
+                    ? 'later this morning'
+                    : (nextWindow.dayIdx === 1 ? 'tomorrow' : `on ${nextWindow.dayObj.day}`);
+                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch is ${nextDayLabel} around ${formatMinutesToTime(nextWindow.startMins)} ${nextSitePrep}.`;
             } else if (activeRain.isRaining) {
-                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, currentSite);
+                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, recommendedSiteKey);
+                const nextSiteKey = nextDry.preferredSite || recommendedSiteKey;
+                const nextSitePrep = nextSiteKey === 'coleman'
+                    ? `from ${launchData[nextSiteKey].name}`
+                    : `from the ${launchData[nextSiteKey].name}`;
                 const nextDayLabel = nextDry.dayIdx === activeDayIdx ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
-                windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next dry daylight launch window ${sitePrep.toLowerCase()} is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)}.`;
+                windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next dry daylight launch is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)} ${nextSitePrep}.`;
             } else {
-                const windowClause = spokenWindow.includes('now')
-                    ? `is ${spokenWindow}`
-                    : `is from ${spokenWindow}`;
-                const tideAssist = isRisingPreferred
-                    ? `That gives him a smooth turnaround before the ${sun.sunsetStr} sunset, with a rising tide helping carry him back south.`
-                    : `That gives him an outgoing tide to carry him smoothly north back to Coleman Park before the ${sun.sunsetStr} sunset.`;
                 const roughNote = isHighWindOrWaves
                     ? ` However, with ${Math.round(activeWindMph)} mile per hour winds and ${activeWaveFt.toFixed(1)} foot entrance waves, he should stay inside the sheltered back bay and avoid the harbor mouth.`
                     : '';
-                if (todayPlan.isNextDay) {
+                const departRec = isCurrentTideRising
+                    ? `With the tide rising, the best place to depart ${simState.enabled ? 'then' : 'right now'} is the State Park Launch Ramp, or the Public Launch Ramp on the Embarcadero for a shorter loop, so the incoming water helps push him back south before the ${sun.sunsetStr} sunset.`
+                    : `With the tide going out, the best place to depart ${simState.enabled ? 'then' : 'right now'} is Coleman Park, so the outgoing current carries him smoothly north back to shore before the ${sun.sunsetStr} sunset.`;
+
+                let timingFollowup = '';
+                if (!todayPlan.isNextDay && !todayPlan.isLaterToday && spokenWindow.includes('now to ')) {
+                    const endTime = spokenWindow.split('now to ')[1];
+                    timingFollowup = ` That favorable window runs through ${endTime}.`;
+                } else if (todayPlan.isNextDay) {
                     const nextDayObj = forecastDays[Math.min(forecastDays.length - 1, activeDayIdx + 1)];
                     const nextDaySpoken = activeDayIdx === 0 ? 'tomorrow' : (nextDayObj ? `on ${nextDayObj.day}` : 'the next day');
-                    const dayLabel = activeDayIdx === 0 ? "today's" : `${today.day}'s`;
-                    const tideTypeLabel = isRisingPreferred ? 'rising-tide' : 'outgoing-tide';
-                    windowPhrase = `Since ${dayLabel} best ${tideTypeLabel} window has already passed, his next optimal launch window ${sitePrep.toLowerCase()} is ${nextDaySpoken} from ${spokenWindow}. ${tideAssist}${roughNote}`;
-                } else if (todayPlan.isLaterToday) {
-                    windowPhrase = `${sitePrep}, his next optimal launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
-                } else {
-                    windowPhrase = `${sitePrep}, his best launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
+                    timingFollowup = ` For a full ${isCurrentTideRising ? 'rising-tide' : 'outgoing-tide'} session, the next optimal window ${sitePrep} is ${nextDaySpoken} from ${spokenWindow}.`;
                 }
+                windowPhrase = `${departRec}${timingFollowup}${roughNote}`;
             }
 
             const pickIndieLine = (pool, storageKey) => {
