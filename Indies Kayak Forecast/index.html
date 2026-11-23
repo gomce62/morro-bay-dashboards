@@ -3499,20 +3499,78 @@
                 windowPhrase = `${sitePrep}, his best launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
             }
 
+            const pickIndieLine = (pool, storageKey) => {
+                if (!pool || pool.length === 0) return '';
+                if (pool.length === 1) return pool[0];
+                let lastIdx = -1;
+                try {
+                    const saved = localStorage.getItem(storageKey);
+                    if (saved !== null && !Number.isNaN(Number(saved))) lastIdx = Number(saved);
+                } catch (e) {}
+                let nextIdx = Math.floor(Math.random() * pool.length);
+                if (nextIdx === lastIdx) {
+                    nextIdx = (nextIdx + 1 + Math.floor(Math.random() * (pool.length - 1))) % pool.length;
+                }
+                try { localStorage.setItem(storageKey, String(nextIdx)); } catch (e) {}
+                return pool[nextIdx];
+            };
+
+            const rainyClosings = [
+                `Hey Chris, stay dry inside with me today; you can head out on the bay as soon as the rain clears.`,
+                `Forget the paddle today, handsome—come curl up inside with me and let the rain pass.`,
+                `The bay can wait until it dries out, babe; I've got much cozier plans for us indoors today.`,
+                `No sense getting soaked out there, Chris—stay in with me and I'll make sure a rainy day is still your favorite part of the week.`
+            ];
+
             const flirtyClosings = [
                 `Don't stay out on the water too long, handsome—I'll be waiting right here on the sand to warm you up.`,
                 `Paddle back to shore quickly, Chris—I have much better plans for us once you're out of that kayak.`,
-                `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
+                `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`,
+                `Try not to distract the sea lions too much out there, Chris—and hurry back to me when you're done.`,
+                `I'll keep an eye on Morro Rock for you, handsome, just promise you'll save some energy for me later.`,
+                `Have a gorgeous paddle out on the bay, Chris—just don't forget who's cheering for you back on shore.`,
+                `Go catch some smooth water, babe; I'll be right here waiting with a towel and a big smile when you get back.`,
+                `Make sure you wave from the water, Chris—you already know you're my favorite view in Morro Bay.`
+            ];
+            const afterDarkClosings = [
+                `Keep the kayak parked for tonight, Chris—let's save the paddling for daylight and enjoy the evening together.`,
+                `No night paddles on my watch, handsome—stay on shore with me tonight and we'll hit the water in the morning.`
             ];
             const closing = activeRain.isRaining
-                ? `Hey Chris, stay dry inside with me today; you can head out on the bay as soon as the rain clears.`
+                ? pickIndieLine(rainyClosings, 'indie_last_rain_close')
                 : ((todayPlan.isAfterDarkToday || !liveTide.isDaylight)
-                    ? `Keep the kayak parked for tonight, Chris—let's save the paddling for daylight.`
-                    : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length]);
+                    ? pickIndieLine(afterDarkClosings, 'indie_last_dark_close')
+                    : pickIndieLine(flirtyClosings, 'indie_last_clear_close'));
+
+            const rainyIntros = [
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`,
+                `${timeGreeting}! It's Indie, your Morro Bay Alta Court weather girl. Since it's raining, I tucked Chris's kayak away indoors—plus, I'd rather have him all to myself inside today anyway. Here's the latest forecast.`,
+                `${timeGreeting}! I'm Indie from Morro Bay Alta Court. No paddling in this rain—Chris's kayak is staying dry inside, and honestly, a cozy indoor day with him sounds much better. Here's how the bay looks.`
+            ];
+
+            const clearIntros = [
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I have Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`,
+                `${timeGreeting}! It's Indie, your Morro Bay Alta Court weather girl. I pulled Chris's red Pelican down to the shore for him—mostly because I love any excuse to see him out on the water. Here's today's forecast.`,
+                `${timeGreeting}! I'm Indie from Morro Bay Alta Court, and I've got Chris's kayak lined up on the beach. Between Morro Rock and watching him paddle, it's hard to pick the better view. Here's what's on tap.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is ready to launch, and I'm already looking forward to his victory hug when he paddles back in. Here's the scoop.`,
+                `${timeGreeting}! It's Indie from Morro Bay Alta Court. I dusted off Chris's kayak and checked the harbor just for him—anything for my favorite paddler. Here is what he can expect today.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. The bay is calling Chris's name today, and I have his kayak waiting right behind me on the shore. Let's check the conditions.`
+            ];
 
             const intro = activeRain.isRaining
-                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`
-                : `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I have Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`;
+                ? pickIndieLine(rainyIntros, 'indie_last_rain_intro')
+                : pickIndieLine(clearIntros, 'indie_last_clear_intro');
+
+            const waterQuips = [
+                `—just cool enough to give him a great excuse to let me warm him up later—`,
+                `—refreshing on the bay, though I'm happy to help him thaw out afterward—`,
+                `—crisp enough to keep him paddling fast back to shore—`,
+                `—classic Morro Bay chill, so don't fall in unless you want me playing lifeguard—`,
+                `—cool and glassy, perfect for a smooth cruise past Morro Rock—`,
+                `—nice and brisk, which means extra hugs are definitely waiting on the beach—`,
+                `—chilly enough that he'll deserve a warm welcome when he gets back—`
+            ];
+            const waterQuip = pickIndieLine(waterQuips, 'indie_last_water_quip');
 
             const effectivePrecipProb = simState.enabled ? activeRain.precipProb : today.precipProb;
             const rainNote = (!activeRain.isRaining && effectivePrecipProb >= 30)
@@ -3531,7 +3589,7 @@
                 ? ` with ${activeWaveFt.toFixed(1)} foot waves at the harbor entrance`
                 : '';
 
-            const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—${windClause}${waveNote}. ${activeDayIdx === 0 ? "Today's" : `${today.day}'s`} high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
+            const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}${waterQuip}${windClause}${waveNote}. ${activeDayIdx === 0 ? "Today's" : `${today.day}'s`} high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
 
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
