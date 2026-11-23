@@ -17,7 +17,7 @@
  * 5. Hard-code that Web app URL into INDIE_AI_PROXY_URL in Indies Kayak Forecast/index.html.
  */
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash'];
 
 function getGeminiApiKey_() {
   const keys = ['GEMINI_API_KEY', 'GOOGLE_AI_API_KEY', 'AI_API_KEY'];
@@ -107,7 +107,6 @@ function handleIndieRequest_(ctx) {
     'Return ONLY valid JSON with keys: "intro", "waterQuip", "closing".'
   ].join('\n');
 
-  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODEL + ':generateContent?key=' + encodeURIComponent(apiKey);
   var payload = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
@@ -118,15 +117,22 @@ function handleIndieRequest_(ctx) {
     }
   };
 
-  var res = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true
-  });
+  var code = 0;
+  var body = '';
+  for (var m = 0; m < GEMINI_MODELS.length; m++) {
+    var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + GEMINI_MODELS[m] + ':generateContent?key=' + encodeURIComponent(apiKey);
+    var res = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+    code = res.getResponseCode();
+    body = res.getContentText();
+    if (code >= 200 && code < 300) break;
+    if (code !== 404) break;
+  }
 
-  var code = res.getResponseCode();
-  var body = res.getContentText();
   if (code < 200 || code >= 300) {
     return jsonOutput_({ ok: false, status: code, error: body.slice(0, 300) });
   }

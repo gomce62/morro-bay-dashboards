@@ -3490,13 +3490,13 @@
             applyIndieOutfit(indieOutfitIdx + 1);
         }
 
-        // Optional Google Apps Script Web App URL for AI-generated dynamic Indie lines
-        const INDIE_AI_PROXY_URL = '';
+        // Google Apps Script Web App URL for AI-generated dynamic Indie lines
+        const INDIE_AI_PROXY_URL = 'https://script.google.com/macros/s/AKfycbxwn4AaHf1mrh0v8pN-R8f9IMjKnUyllZdu5f2FA_rqus8Y82oKjkebH-k_tpZi6htg/exec';
 
         async function fetchIndieDynamicLines(ctx) {
             if (!INDIE_AI_PROXY_URL) return null;
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 2800);
+            const timer = setTimeout(() => controller.abort(), 4500);
             try {
                 const payload = encodeURIComponent(JSON.stringify({ ...ctx, nonce: Math.random().toString(36).slice(2) }));
                 const res = await fetch(`${INDIE_AI_PROXY_URL}?payload=${payload}`, { signal: controller.signal });
