@@ -114,11 +114,15 @@
                     </p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2.5 self-end sm:self-center shrink-0">
+            <div class="flex flex-wrap items-center gap-2 self-end sm:self-center shrink-0">
                 <button onclick="openIndieBriefing(true)" id="header-indie-btn" class="tv-focus flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-xl text-xs font-semibold bg-teal-500/15 text-teal-200 border border-teal-500/40 hover:bg-teal-500/25 transition-all cursor-pointer shadow-sm">
                     <img src="assets/indie_closed.jpg" alt="Indie" class="w-6 h-6 rounded-lg object-cover object-top border border-teal-400/50">
                     <span>Hear Indie's Kayak Forecast</span>
                     <i class="fa-solid fa-volume-high text-[10px] text-teal-300"></i>
+                </button>
+                <button onclick="toggleSimulatorPanel()" id="sim-toggle-btn" class="tv-focus flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer shadow-sm">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span id="sim-toggle-label">Simulator</span>
                 </button>
                 <button onclick="refreshTelemetry()" id="refresh-btn" class="tv-focus flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-teal-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer shadow-sm">
                     <i id="refresh-icon" class="fa-solid fa-rotate"></i>
@@ -134,6 +138,177 @@
 
     <!-- Main Content Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow space-y-8 w-full">
+
+        <!-- Conditions & Time-of-Day Simulator Drawer -->
+        <section id="simulator-panel" class="hidden bg-slate-900/95 border border-amber-500/40 rounded-2xl p-5 shadow-2xl shadow-amber-500/5 backdrop-blur space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div class="flex items-start sm:items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-300 shrink-0">
+                        <i class="fa-solid fa-sliders text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-sm sm:text-base font-bold text-white">Conditions &amp; Time-of-Day Simulator</h2>
+                            <span id="sim-status-pill" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">Standby</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Adjust day, time, weather, wind, waves, or tide to preview how launch recommendations &amp; Indie's forecast respond.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <button onclick="openIndieBriefing(true)" class="tv-focus px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-400 hover:to-cyan-300 text-slate-950 transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-volume-high text-[11px]"></i> Hear Indie's Forecast
+                    </button>
+                    <button onclick="resetSimulatorToLive()" class="tv-focus px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-[10px]"></i> Reset to Live
+                    </button>
+                    <button onclick="toggleSimulatorPanel(false)" aria-label="Close Simulator" class="tv-focus w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Scenario Presets -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Presets:</span>
+                <button onclick="applySimulatorPreset('calm_morning')" class="px-2.5 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 font-semibold transition-colors cursor-pointer">
+                    <i class="fa-solid fa-sun mr-1"></i> Calm Morning
+                </button>
+                <button onclick="applySimulatorPreset('windy_afternoon')" class="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 font-semibold transition-colors cursor-pointer">
+                    <i class="fa-solid fa-wind mr-1"></i> Windy Afternoon
+                </button>
+                <button onclick="applySimulatorPreset('rainy_day')" class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 border border-sky-500/30 font-semibold transition-colors cursor-pointer">
+                    <i class="fa-solid fa-cloud-rain mr-1"></i> Rainy Day
+                </button>
+                <button onclick="applySimulatorPreset('after_dark')" class="px-2.5 py-1 rounded-lg bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 font-semibold transition-colors cursor-pointer">
+                    <i class="fa-solid fa-moon mr-1"></i> After Dark
+                </button>
+            </div>
+
+            <!-- Controls Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                <!-- Group 1: Day & Time of Day -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-3">
+                    <div class="font-bold text-teal-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-regular fa-clock"></i> Day &amp; Time of Day
+                    </div>
+                    <div class="space-y-1">
+                        <label for="sim-day-select" class="text-[11px] text-slate-400 block">Forecast Day</label>
+                        <select id="sim-day-select" onchange="onSimulatorInputChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-semibold focus:outline-none cursor-pointer"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Time of Day</span>
+                            <span id="sim-time-readout" class="font-mono font-bold text-amber-300">9:30 AM</span>
+                        </div>
+                        <input id="sim-time-slider" type="range" min="0" max="1425" step="15" value="570" oninput="onSimulatorInputChange()" class="w-full accent-amber-400 cursor-pointer" />
+                    </div>
+                </div>
+
+                <!-- Group 2: Water & Air Temp -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-3">
+                    <div class="font-bold text-cyan-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-temperature-half"></i> Temperatures
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Water Temp</span>
+                            <span id="sim-watertemp-readout" class="font-mono font-bold text-white">59.0°F</span>
+                        </div>
+                        <input id="sim-watertemp-slider" type="range" min="45" max="75" step="0.5" value="59" oninput="onSimulatorInputChange()" class="w-full accent-teal-400 cursor-pointer" />
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Air Temp</span>
+                            <span id="sim-airtemp-readout" class="font-mono font-bold text-white">64°F</span>
+                        </div>
+                        <input id="sim-airtemp-slider" type="range" min="35" max="95" step="1" value="64" oninput="onSimulatorInputChange()" class="w-full accent-teal-400 cursor-pointer" />
+                    </div>
+                </div>
+
+                <!-- Group 3: Wind & Waves -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+                    <div class="font-bold text-amber-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-wind"></i> Wind &amp; Waves
+                    </div>
+                    <div class="space-y-1">
+                        <div class="flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">Wind Speed / Gusts</span>
+                            <span id="sim-wind-readout" class="font-mono font-bold text-white">6 mph (gust 9)</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="sim-wind-slider" type="range" min="0" max="35" step="1" value="6" oninput="onSimulatorWindChange()" class="w-full accent-amber-400 cursor-pointer" title="Sustained Wind (mph)" />
+                            <input id="sim-gust-slider" type="range" min="0" max="45" step="1" value="9" oninput="onSimulatorInputChange()" class="w-full accent-orange-400 cursor-pointer" title="Peak Gusts (mph)" />
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 items-end">
+                        <div>
+                            <label for="sim-winddir-select" class="text-[11px] text-slate-400 block mb-1">Wind Dir</label>
+                            <select id="sim-winddir-select" onchange="onSimulatorInputChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-semibold focus:outline-none cursor-pointer">
+                                <option value="NW">NW</option>
+                                <option value="W">W</option>
+                                <option value="SW">SW</option>
+                                <option value="S">S</option>
+                                <option value="SE">SE</option>
+                                <option value="E">E</option>
+                                <option value="NE">NE</option>
+                                <option value="N">N</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between text-[11px] mb-1">
+                                <span class="text-slate-400">Waves</span>
+                                <span id="sim-waves-readout" class="font-mono font-bold text-white">2.5 ft</span>
+                            </div>
+                            <input id="sim-waves-slider" type="range" min="0" max="12" step="0.5" value="2.5" oninput="onSimulatorInputChange()" class="w-full accent-sky-400 cursor-pointer" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Group 4: Sky, Rain & Tide -->
+                <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3.5 space-y-2.5">
+                    <div class="font-bold text-sky-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-sun-rain"></i> Sky, Rain &amp; Tide
+                    </div>
+                    <div>
+                        <label for="sim-sky-select" class="text-[11px] text-slate-400 block mb-1">Sky Condition</label>
+                        <select id="sim-sky-select" onchange="onSimulatorSkyChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-semibold focus:outline-none cursor-pointer">
+                            <option value="clear">Clear Sky (0% clouds)</option>
+                            <option value="mostly_clear">Mostly Clear (20% clouds)</option>
+                            <option value="partly_cloudy">Partly Cloudy (45% clouds)</option>
+                            <option value="overcast">Overcast (95% clouds)</option>
+                            <option value="fog">Coastal Fog (80% clouds)</option>
+                            <option value="light_drizzle">Light Drizzle</option>
+                            <option value="rain">Rain</option>
+                            <option value="thunderstorm">Thunderstorm</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="text-slate-400">Precip</span>
+                                <span id="sim-precip-readout" class="font-mono font-bold text-white">0.0 mm/h</span>
+                            </div>
+                            <input id="sim-precip-slider" type="range" min="0" max="10" step="0.5" value="0" oninput="onSimulatorPrecipChange()" class="w-full accent-sky-400 cursor-pointer" />
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="text-slate-400">Rain %</span>
+                                <span id="sim-precipprob-readout" class="font-mono font-bold text-white">0%</span>
+                            </div>
+                            <input id="sim-precipprob-slider" type="range" min="0" max="100" step="5" value="0" oninput="onSimulatorInputChange()" class="w-full accent-sky-400 cursor-pointer" />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="sim-tide-select" class="text-[11px] text-slate-400 block mb-1">Tide Direction</label>
+                        <select id="sim-tide-select" onchange="onSimulatorInputChange()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-semibold focus:outline-none cursor-pointer">
+                            <option value="auto">Auto (From Tide Chart)</option>
+                            <option value="rising">Force Rising Tide</option>
+                            <option value="outgoing">Force Going Out Tide</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- Section 1: Current Conditions / 6-Card Gauge Layout -->
         <section class="space-y-4">
@@ -553,8 +728,9 @@
         <div class="flex items-center justify-between px-4 py-3 bg-slate-950/90 border-b border-slate-800">
             <div class="flex items-center gap-2.5">
                 <span id="indie-onair-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
-                <span class="text-sm font-bold text-white tracking-wide">Indie &bull; Today's Forecast</span>
+                <span id="indie-modal-title" class="text-sm font-bold text-white tracking-wide">Indie &bull; Today's Forecast</span>
                 <span id="indie-status-pill" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700">Ready</span>
+                <span id="indie-sim-badge" class="hidden text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40">Simulated</span>
             </div>
             <div class="flex items-center gap-1.5">
                 <button onclick="cycleIndieOutfit()" id="indie-outfit-btn" title="Switch Indie's Outfit" aria-label="Switch Indie's Outfit" class="tv-focus px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 hover:text-white text-[11px] font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700">
@@ -654,6 +830,106 @@
         let liveTidesByDate = {};   // keyed by YYYY-MM-DD
         let liveHourlyByDate = {};  // keyed by YYYY-MM-DD -> array of { mins, precipMm, precipProb, weatherCode, shortForecast }
         let liveDailyWeatherByDate = {}; // keyed by YYYY-MM-DD
+
+        // Conditions & Time-of-Day Simulator State
+        let liveSnapshot = {
+            waterTempF: 59.0,
+            airTempF: 64,
+            windMph: 6.0,
+            gustMph: 9.0,
+            windDir: 'NW',
+            waveHeightFt: 2.5,
+            waveDir: 'W',
+            wavePeriod: 11,
+            precipMmh: 0,
+            precipProb: 0,
+            isRaining: false,
+            rainLabel: 'Dry',
+            skyCode: 0,
+            cloudCover: 0,
+            skyLabelOverride: null,
+            timestampHtml: 'Updated Live &bull; Morro Bay, CA'
+        };
+
+        let simState = {
+            enabled: false,
+            dayIndex: 0,
+            timeMinutes: 570,
+            waterTempF: 59.0,
+            airTempF: 64,
+            windMph: 6,
+            gustMph: 9,
+            windDir: 'NW',
+            waveHeightFt: 2.5,
+            skyType: 'clear',
+            precipMmh: 0,
+            precipProb: 0,
+            tideOverride: 'auto'
+        };
+
+        const SIM_SKY_MAP = {
+            clear:         { weatherCode: 0,  cloudCover: 0,  isRaining: false, labelOverride: null },
+            mostly_clear:  { weatherCode: 1,  cloudCover: 20, isRaining: false, labelOverride: null },
+            partly_cloudy: { weatherCode: 2,  cloudCover: 45, isRaining: false, labelOverride: null },
+            overcast:      { weatherCode: 3,  cloudCover: 95, isRaining: false, labelOverride: null },
+            fog:           { weatherCode: 45, cloudCover: 80, isRaining: false, labelOverride: 'Coastal Fog' },
+            light_drizzle: { weatherCode: 51, cloudCover: 85, isRaining: true,  labelOverride: 'Light Drizzle' },
+            rain:          { weatherCode: 61, cloudCover: 90, isRaining: true,  labelOverride: 'Rain' },
+            thunderstorm:  { weatherCode: 95, cloudCover: 95, isRaining: true,  labelOverride: 'Thunderstorm' }
+        };
+
+        function getActiveDayIndex() {
+            return simState.enabled ? simState.dayIndex : 0;
+        }
+
+        function getActiveMinutesOfDay() {
+            return simState.enabled ? simState.timeMinutes : getCurrentMinutesOfDay();
+        }
+
+        function getActiveWaterTempStr() {
+            return simState.enabled ? `${Number(simState.waterTempF).toFixed(1)}°F` : liveWaterTempStr;
+        }
+
+        function getActiveWindMph() {
+            return simState.enabled ? Number(simState.windMph) : (liveSnapshot.windMph ?? 6);
+        }
+
+        function getActiveWaveHeightFt() {
+            return simState.enabled ? Number(simState.waveHeightFt) : (liveSnapshot.waveHeightFt ?? 2.5);
+        }
+
+        function getActiveRainState() {
+            if (!simState.enabled) return liveRainState;
+            const skyCfg = SIM_SKY_MAP[simState.skyType] || SIM_SKY_MAP.clear;
+            const rate = Number(simState.precipMmh) || 0;
+            const prob = Number(simState.precipProb) || 0;
+            const isRaining = rate > 0 || skyCfg.isRaining;
+            let label = 'Dry';
+            if (isRaining) {
+                if (simState.skyType === 'thunderstorm') label = 'Thunderstorm';
+                else if (rate >= 7.5) label = 'Heavy Rain';
+                else if (rate >= 2.5) label = 'Moderate Rain';
+                else if (rate >= 0.5 || simState.skyType === 'rain') label = 'Light Rain';
+                else label = 'Light Drizzle';
+            }
+            return {
+                isRaining,
+                rateMmh: rate,
+                precipProb: prob,
+                label,
+                summary: isRaining ? `${label} (${prob}% chance)` : 'Dry'
+            };
+        }
+
+        function getActiveSkyState() {
+            if (!simState.enabled) return liveSkyState;
+            const skyCfg = SIM_SKY_MAP[simState.skyType] || SIM_SKY_MAP.clear;
+            return {
+                cloudCover: skyCfg.cloudCover,
+                weatherCode: skyCfg.weatherCode,
+                labelOverride: skyCfg.labelOverride
+            };
+        }
 
         function getMorroBayDateKey(dateObj = new Date()) {
             return dateObj.toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
@@ -1103,13 +1379,21 @@
 
         function populatePlannerDayDropdown() {
             forecastDays = buildDynamicForecastDays();
-            const daySelect = document.getElementById('plan-day-select');
-            if (!daySelect) return;
-            const currentVal = daySelect.value || "0";
-            daySelect.innerHTML = forecastDays.map((d, idx) =>
+            const optionsHtml = forecastDays.map((d, idx) =>
                 `<option value="${idx}" class="bg-slate-900">${d.plannerOptionLabel}</option>`
             ).join('');
-            daySelect.value = currentVal;
+            const daySelect = document.getElementById('plan-day-select');
+            if (daySelect) {
+                const currentVal = daySelect.value || "0";
+                daySelect.innerHTML = optionsHtml;
+                daySelect.value = currentVal;
+            }
+            const simDaySelect = document.getElementById('sim-day-select');
+            if (simDaySelect) {
+                const currentSimVal = simDaySelect.value || String(simState.dayIndex || 0);
+                simDaySelect.innerHTML = optionsHtml;
+                simDaySelect.value = currentSimVal;
+            }
         }
 
         let currentSite = 'statepark';
@@ -1117,13 +1401,22 @@
 
         function getRainStatusForWindow(dayIndex, startMins, durationMins = 60) {
             const dayObj = forecastDays[dayIndex] || forecastDays[0];
-            const nowMins = getCurrentMinutesOfDay();
+            const activeMins = getActiveMinutesOfDay();
+            const activeDay = getActiveDayIndex();
+            const activeRain = getActiveRainState();
 
-            if (dayIndex === 0 && Math.abs(startMins - nowMins) <= 30 && liveRainState.isRaining) {
+            if (dayIndex === activeDay && Math.abs(startMins - activeMins) <= 30 && activeRain.isRaining) {
                 return {
                     isRainy: true,
-                    prob: Math.max(liveRainState.precipProb, dayObj.precipProb || 70),
-                    reason: liveRainState.label || 'Active Rain'
+                    prob: Math.max(activeRain.precipProb, dayObj.precipProb || 70),
+                    reason: activeRain.label || 'Active Rain'
+                };
+            }
+            if (simState.enabled && dayIndex === activeDay && Math.abs(startMins - activeMins) <= 30 && !activeRain.isRaining) {
+                return {
+                    isRainy: false,
+                    prob: activeRain.precipProb,
+                    reason: 'Dry'
                 };
             }
 
@@ -1209,7 +1502,9 @@
             }
 
             let direction;
-            if (nextEvent) {
+            if (simState.enabled && simState.tideOverride !== 'auto') {
+                direction = simState.tideOverride === 'rising' ? 'Rising' : 'Going Out';
+            } else if (nextEvent) {
                 direction = nextEvent.type === "High" ? "Rising" : "Going Out";
             } else {
                 const lastEvent = tides[tides.length - 1];
@@ -1246,11 +1541,16 @@
         }
 
         function getLiveTideState(siteKeyForLag = currentSite) {
-            const nowMins = getCurrentMinutesOfDay();
-            return getTideStateAtTime(0, nowMins, siteKeyForLag, nowMins);
+            const activeDay = getActiveDayIndex();
+            const activeMins = getActiveMinutesOfDay();
+            return getTideStateAtTime(activeDay, activeMins, siteKeyForLag, activeMins);
         }
 
         function getEffectiveTideState(siteKey = currentSite) {
+            if (simState.enabled) {
+                const siteOffset = (launchData[siteKey] && launchData[siteKey].turnaroundOffsetMins) ? launchData[siteKey].turnaroundOffsetMins : 35;
+                return getTideStateAtTime(simState.dayIndex, simState.timeMinutes + siteOffset, siteKey, simState.timeMinutes);
+            }
             if (tideSimMode === 'custom') {
                 const daySelect = document.getElementById('plan-day-select');
                 const timeSelect = document.getElementById('plan-time-select');
@@ -1263,9 +1563,11 @@
         }
 
         function updateSkyCardForDaylight() {
-            const nowMins = getCurrentMinutesOfDay();
-            const sun = getMorroBaySunTimes(new Date());
+            const nowMins = getActiveMinutesOfDay();
+            const dayObj = forecastDays[getActiveDayIndex()] || forecastDays[0];
+            const sun = getMorroBaySunTimes((dayObj && dayObj.dateObj) ? dayObj.dateObj : new Date());
             const isDarkNow = nowMins < sun.sunriseMins - 15 || nowMins >= sun.sunsetMins;
+            const activeSky = getActiveSkyState();
 
             const skyIconWrap = document.getElementById('sky-icon-wrap');
             const skyIcon = document.getElementById('sky-icon');
@@ -1277,14 +1579,14 @@
                 dlPill.innerHTML = `🌅 Sunrise ${sun.sunriseStr} &bull; 🌇 Sunset ${sun.sunsetStr}`;
             }
 
-            if (liveSkyState) {
-                const desc = describeWeatherCode(liveSkyState.weatherCode, isDarkNow);
+            if (activeSky) {
+                const desc = describeWeatherCode(activeSky.weatherCode, isDarkNow);
                 if (skyIconWrap) skyIconWrap.className = `${desc.color} text-3xl drop-shadow-md`;
                 if (skyIcon) skyIcon.className = `fa-solid ${desc.icon}`;
-                if (skyTitle) skyTitle.innerText = liveSkyState.labelOverride || desc.label;
+                if (skyTitle) skyTitle.innerText = activeSky.labelOverride || desc.label;
                 if (skySub) {
                     skySub.className = `text-[11px] ${isDarkNow ? 'text-indigo-300' : 'text-cyan-400'} block mt-0.5`;
-                    skySub.innerHTML = `<span class="${isDarkNow ? 'text-indigo-400' : 'text-cyan-400'}">●</span> ${liveSkyState.cloudCover}% cloud cover`;
+                    skySub.innerHTML = `<span class="${isDarkNow ? 'text-indigo-400' : 'text-cyan-400'}">●</span> ${activeSky.cloudCover}% cloud cover`;
                 }
             } else if (isDarkNow) {
                 if (skyIconWrap) skyIconWrap.className = "text-indigo-300 text-3xl drop-shadow-md";
@@ -1340,6 +1642,10 @@
         }
 
         function resetPlannerToLive() {
+            if (simState.enabled) {
+                resetSimulatorToLive(false);
+                return;
+            }
             tideSimMode = 'live';
             const daySelect = document.getElementById('plan-day-select');
             const timeSelect = document.getElementById('plan-time-select');
@@ -1377,9 +1683,13 @@
 
             const daySelect = document.getElementById('plan-day-select');
             const timeSelect = document.getElementById('plan-time-select');
-            const dayIdx = tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0);
-            const nowMins = getCurrentMinutesOfDay();
-            const startMins = tideSimMode === 'live' ? nowMins : (timeSelect ? parseInt(timeSelect.value, 10) : 930);
+            const dayIdx = simState.enabled
+                ? simState.dayIndex
+                : (tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0));
+            const nowMins = getActiveMinutesOfDay();
+            const startMins = simState.enabled
+                ? simState.timeMinutes
+                : (tideSimMode === 'live' ? nowMins : (timeSelect ? parseInt(timeSelect.value, 10) : 930));
 
             const activeSiteData = launchData[currentSite] || launchData.statepark;
             const offsetMins = activeSiteData.turnaroundOffsetMins || 35;
@@ -1388,6 +1698,10 @@
             const dayObj = forecastDays[dayIdx] || forecastDays[0];
             const returnTide = getTideStateAtTime(dayIdx, returnMins, currentSite, startMins);
             const rainCheck = getRainStatusForWindow(dayIdx, startMins, activeSiteData.minTripDurationMins || 50);
+            const activeRain = getActiveRainState();
+            const waterTempStr = getActiveWaterTempStr();
+            const activeWindMph = getActiveWindMph();
+            const activeWaveFt = getActiveWaveHeightFt();
             const sun = returnTide.sun;
             const startStr = formatMinutesToTime(startMins);
             const spReturnStr = formatMinutesToTime(startMins + launchData.statepark.turnaroundOffsetMins);
@@ -1396,7 +1710,7 @@
 
             // CASE 1: AFTER DARK OR BEFORE SUNRISE
             if (returnTide.isAfterSunset || returnTide.isBeforeSunrise) {
-                const isLiveNight = tideSimMode === 'live';
+                const isLiveNight = tideSimMode === 'live' && !simState.enabled;
                 const nextDry = findNextDryDaylightWindow(dayIdx, startMins, currentSite);
                 const nextDayObj = nextDry.dayObj || forecastDays[1] || forecastDays[0];
                 const nextDayLabel = nextDry.dayIdx === 1 ? `Tomorrow (${nextDayObj.day}, ${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`;
@@ -1406,14 +1720,14 @@
                     <div class="space-y-1.5">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 uppercase tracking-wide bg-indigo-500/20 border border-indigo-400/30 px-2.5 py-0.5 rounded-md">
-                                <i class="fa-solid fa-moon text-indigo-300"></i> ${isLiveNight ? 'After Dark Now — Do Not Launch' : 'Selected Time is After Dark'}
+                                <i class="fa-solid fa-moon text-indigo-300"></i> ${isLiveNight ? 'After Dark Now — Do Not Launch' : (simState.enabled ? 'Simulated Time is After Dark — Do Not Launch' : 'Selected Time is After Dark')}
                             </span>
                             <span class="text-xs font-semibold text-slate-300">
-                                ${isLiveNight ? `Current Time: ${startStr} (Sunset was ${sun.sunsetStr})` : `Selected: ${dayObj.day} at ${startStr} (Daylight: ${sun.sunriseStr} – ${sun.sunsetStr})`}
+                                ${isLiveNight ? `Current Time: ${startStr} (Sunset was ${sun.sunsetStr})` : `${simState.enabled ? 'Simulated' : 'Selected'}: ${dayObj.day} at ${startStr} (Daylight: ${sun.sunriseStr} – ${sun.sunsetStr})`}
                             </span>
                         </div>
                         <p class="text-xs text-slate-200 leading-relaxed">
-                            Kayaking in Morro Bay Harbor &amp; Estuary is <strong class="text-indigo-200">not recommended after dark</strong> due to unlit shoals, strong tidal currents, cold <strong class="text-white">${liveWaterTempStr}</strong> water, and commercial boat traffic.${liveRainState.isRaining && isLiveNight ? ' Plus, it is currently raining in Morro Bay.' : ''}
+                            Kayaking in Morro Bay Harbor &amp; Estuary is <strong class="text-indigo-200">not recommended after dark</strong> due to unlit shoals, strong tidal currents, cold <strong class="text-white">${waterTempStr}</strong> water, and commercial boat traffic.${activeRain.isRaining && (isLiveNight || simState.enabled) ? ' Plus, rain is active in Morro Bay.' : ''}
                             <span class="block mt-1 text-teal-300">
                                 <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Dry Daylight Recommendation for ${nextDayLabel}:</strong>
                                 Launch around <strong class="text-white">${formatMinutesToTime(nextDry.startMins)}</strong> from <strong class="text-white">${launchData[nextDry.preferredSite].name}</strong>.
@@ -1431,7 +1745,7 @@
 
             // CASE 2: RAINING NOW OR RAIN FORECAST DURING LAUNCH WINDOW
             if (rainCheck.isRainy) {
-                const isLiveRain = tideSimMode === 'live' && dayIdx === 0;
+                const isLiveRain = (tideSimMode === 'live' && dayIdx === 0) || simState.enabled;
                 const nextDry = findNextDryDaylightWindow(dayIdx, startMins, currentSite);
                 const nextDayObj = nextDry.dayObj || forecastDays[1] || forecastDays[0];
                 const nextDayLabel = nextDry.dayIdx === 0 ? 'Later Today' : (nextDry.dayIdx === 1 ? `Tomorrow (${nextDayObj.date})` : `${nextDayObj.day} (${nextDayObj.date})`);
@@ -1441,14 +1755,14 @@
                     <div class="space-y-1.5">
                         <div class="flex flex-wrap items-center gap-2">
                             <span class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-200 uppercase tracking-wide bg-sky-500/25 border border-sky-400/40 px-2.5 py-0.5 rounded-md">
-                                <i class="fa-solid fa-cloud-rain text-sky-300"></i> ${isLiveRain ? 'Raining Now — Stay Off the Water' : 'Rain Expected — Do Not Launch'}
+                                <i class="fa-solid fa-cloud-rain text-sky-300"></i> ${simState.enabled ? 'Simulated Rain — Stay Off the Water' : (isLiveRain ? 'Raining Now — Stay Off the Water' : 'Rain Expected — Do Not Launch')}
                             </span>
                             <span class="text-xs font-semibold text-slate-300">
-                                ${rainCheck.reason} (${rainCheck.prob}% chance) &bull; ${isLiveRain ? `Current Time: ${startStr}` : `${dayObj.day} at ${startStr}`}
+                                ${rainCheck.reason} (${rainCheck.prob}% chance) &bull; ${isLiveRain ? `${dayObj.day} at ${startStr}` : `${dayObj.day} at ${startStr}`}
                             </span>
                         </div>
                         <p class="text-xs text-slate-200 leading-relaxed">
-                            Paddling during rain reduces visibility, brings gusty squalls, and chills you quickly over <strong class="text-white">${liveWaterTempStr}</strong> water. Stay dry ashore until the rain clears.
+                            Paddling during rain reduces visibility, brings gusty squalls, and chills you quickly over <strong class="text-white">${waterTempStr}</strong> water. Stay dry ashore until the rain clears.
                             <span class="block mt-1 text-teal-300">
                                 <i class="fa-solid fa-sun text-amber-400 mr-1"></i><strong>Next Dry Daylight Window (${nextDayLabel}):</strong>
                                 Launch around <strong class="text-white">${formatMinutesToTime(nextDry.startMins)}</strong> from <strong class="text-white">${launchData[nextDry.preferredSite].name}</strong>.
@@ -1497,11 +1811,19 @@
             }
 
             // CASE 4: NORMAL DRY DAYLIGHT HOURS — RECOMMEND RAMP BASED ON TURNAROUND TIDE
-            box.className = "bg-slate-900/90 border border-teal-500/30 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
-            const isAfternoonWindy = startMins >= 750;
-            const windWarningHtml = isAfternoonWindy
-                ? `<span class="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-wind text-amber-400"></i> Afternoon breeze (${dayObj.wind})</span>`
-                : `<span class="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-emerald-400"></i> Dry &amp; calm (${dayObj.wind})</span>`;
+            const isHighWindOrWaves = activeWindMph >= 15 || activeWaveFt >= 6;
+            box.className = isHighWindOrWaves
+                ? "bg-amber-950/35 border border-amber-500/40 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3"
+                : "bg-slate-900/90 border border-teal-500/30 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3";
+            const windLabel = simState.enabled
+                ? `${Math.round(simState.windMph)} mph ${simState.windDir} (gusts ${Math.round(Math.max(simState.windMph, simState.gustMph))})`
+                : dayObj.wind;
+            const isAfternoonWindy = startMins >= 750 || activeWindMph >= 12;
+            const windWarningHtml = isHighWindOrWaves
+                ? `<span class="inline-flex items-center gap-1 text-[10px] text-rose-200 bg-rose-950/70 border border-rose-500/40 px-2 py-0.5 rounded-md"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> High Wind/Swell Caution (${windLabel} &bull; ${activeWaveFt.toFixed(1)} ft)</span>`
+                : (isAfternoonWindy
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-950/60 border border-amber-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-wind text-amber-400"></i> Breeze (${windLabel})</span>`
+                    : `<span class="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-950/50 border border-emerald-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-check text-emerald-400"></i> Dry &amp; calm (${windLabel})</span>`);
             const rainRiskPill = rainCheck.prob >= 25
                 ? `<span class="inline-flex items-center gap-1 text-[10px] text-sky-300 bg-sky-950/60 border border-sky-500/30 px-2 py-0.5 rounded-md"><i class="fa-solid fa-droplet text-sky-400"></i> ${rainCheck.prob}% rain chance</span>`
                 : '';
@@ -1516,7 +1838,7 @@
                             ${rainRiskPill}
                         </div>
                         <p class="text-xs text-slate-300">
-                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${pubReturnStr}–${spReturnStr}</strong> (~25–38 mins in) when the <strong class="text-teal-300">Tide is Rising</strong> — incoming water will push you south back to the Public Ramp (35–55m RT) or State Park Ramp (sub-1 hr with tide).
+                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${pubReturnStr}–${spReturnStr}</strong> (~25–38 mins in) when the <strong class="text-teal-300">Tide is Rising</strong> — incoming water will push you south back to the Public Ramp (35–55m RT) or State Park Ramp (sub-1 hr with tide).${isHighWindOrWaves ? ' <strong class="text-amber-300">Stay inside the sheltered back bay and avoid the Morro Rock entrance due to elevated wind/swell.</strong>' : ''}
                         </p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
@@ -1538,7 +1860,7 @@
                             ${rainRiskPill}
                         </div>
                         <p class="text-xs text-slate-300">
-                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${colReturnStr}</strong> (~30 mins in) when the <strong class="text-teal-300">Tide is going out</strong> — outgoing water carries you north back to Coleman Park (45m–1h 15m RT).
+                            Launching <strong class="text-white">${dayObj.day} (${dayObj.date}) at ${startStr}</strong> (well before ${sun.sunsetStr} sunset) puts your turnaround leg around <strong class="text-teal-300">${colReturnStr}</strong> (~30 mins in) when the <strong class="text-teal-300">Tide is going out</strong> — outgoing water carries you north back to Coleman Park (45m–1h 15m RT).${isHighWindOrWaves ? ' <strong class="text-amber-300">Keep close to the Embarcadero shoreline and stay clear of the harbor mouth in rough conditions.</strong>' : ''}
                         </p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
@@ -1554,14 +1876,18 @@
             const headerState = getEffectiveTideState(currentSite);
             const daySelect = document.getElementById('plan-day-select');
             const timeSelect = document.getElementById('plan-time-select');
-            const dayIdx = tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0);
-            const startMins = tideSimMode === 'live' ? getCurrentMinutesOfDay() : (timeSelect ? parseInt(timeSelect.value, 10) : 930);
+            const dayIdx = simState.enabled
+                ? simState.dayIndex
+                : (tideSimMode === 'live' ? 0 : (daySelect ? parseInt(daySelect.value, 10) : 0));
+            const startMins = simState.enabled
+                ? simState.timeMinutes
+                : (tideSimMode === 'live' ? getCurrentMinutesOfDay() : (timeSelect ? parseInt(timeSelect.value, 10) : 930));
             const rainCheck = getRainStatusForWindow(dayIdx, startMins, 50);
 
             const pillText = document.getElementById('live-tide-pill-text');
             const pillIcon = document.getElementById('live-tide-pill-icon');
             if (pillText) {
-                const prefix = tideSimMode === 'custom' ? 'Planned' : 'Now';
+                const prefix = simState.enabled ? 'Simulated' : (tideSimMode === 'custom' ? 'Planned' : 'Now');
                 if (!headerState.isDaylight) {
                     const darkLabel = headerState.isReturnAfterSunset ? 'Near Sunset Cutoff' : 'After Dark';
                     pillText.innerText = `${prefix}: ${darkLabel} (${headerState.label})`;
@@ -1570,7 +1896,7 @@
                     pillText.innerText = `${prefix}: Rain Hold (${headerState.label})`;
                     if (pillIcon) pillIcon.className = "fa-solid fa-cloud-rain text-sky-400";
                 } else {
-                    const dayPrefix = tideSimMode === 'custom' ? 'Planned Return' : 'Now';
+                    const dayPrefix = simState.enabled ? 'Sim Return' : (tideSimMode === 'custom' ? 'Planned Return' : 'Now');
                     pillText.innerText = `${dayPrefix}: ${headerState.label}`;
                     if (pillIcon) pillIcon.className = "fa-solid fa-water text-cyan-400";
                 }
@@ -1584,13 +1910,14 @@
                 const isTideAligned = stateForSite.direction === info.idealDirection;
                 const isSiteAligned = isTideAligned && stateForSite.isDaylight && !rainCheck.isRainy;
                 const ruleText = info.idealDirection === 'Rising' ? 'Ideal Return: Tide is Rising' : 'Ideal Return: Tide is going out';
-                const statusWord = tideSimMode === 'custom' ? 'Favorable' : 'Favorable Now';
-                const opposeWord = tideSimMode === 'custom' ? 'Opposing' : 'Opposing Now';
+                const isCustomOrSim = tideSimMode === 'custom' || simState.enabled;
+                const statusWord = isCustomOrSim ? 'Favorable' : 'Favorable Now';
+                const opposeWord = isCustomOrSim ? 'Opposing' : 'Opposing Now';
 
                 if (!stateForSite.isDaylight) {
                     const darkTag = stateForSite.isReturnAfterSunset
                         ? 'Sunset Cutoff'
-                        : (tideSimMode === 'custom' ? 'After Dark • Unsafe' : 'After Dark Now');
+                        : (isCustomOrSim ? 'After Dark • Unsafe' : 'After Dark Now');
                     badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-indigo-200 bg-indigo-950/75 border-indigo-500/50 shadow-sm shadow-indigo-500/10";
                     badgeEl.innerHTML = `
                         <span>${ruleText}</span>
@@ -1599,7 +1926,7 @@
                         </span>
                     `;
                 } else if (rainCheck.isRainy) {
-                    const rainTag = tideSimMode === 'custom' ? 'Rain Expected • Hold' : 'Raining • Hold';
+                    const rainTag = isCustomOrSim ? 'Rain • Hold' : 'Raining • Hold';
                     badgeEl.className = "mt-3 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg border flex items-center justify-between gap-1 transition-all text-sky-200 bg-sky-950/80 border-sky-400/50 shadow-sm shadow-sky-500/10";
                     badgeEl.innerHTML = `
                         <span>${ruleText}</span>
@@ -1669,26 +1996,28 @@
         }
 
         function getTodayOptimalWindow(dayObj, isRisingPreferred) {
-            const nowMins = getCurrentMinutesOfDay();
+            const nowMins = getActiveMinutesOfDay();
+            const activeDayIdx = getActiveDayIndex();
+            const activeRain = getActiveRainState();
             const sun = getMorroBaySunTimes(dayObj.dateObj || new Date());
 
             if (nowMins > sun.lastSafeLaunchMins) {
                 return {
                     windowText: `Tomorrow: ${isRisingPreferred ? dayObj.nextDayFloodNote : dayObj.nextDayEbbNote}`,
-                    descText: `After dark / past sunset cutoff (${sun.sunsetStr}) — next ideal window is tomorrow morning.`,
+                    descText: `After dark / past sunset cutoff (${sun.sunsetStr}) — next ideal window is the next morning.`,
                     isAfterDarkToday: true,
-                    isRainingNow: liveRainState.isRaining
+                    isRainingNow: activeRain.isRaining
                 };
             }
 
-            if (liveRainState.isRaining) {
-                const nextDry = findNextDryDaylightWindow(0, nowMins, currentSite);
-                const nextLabel = nextDry.dayIdx === 0
+            if (activeRain.isRaining) {
+                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, currentSite);
+                const nextLabel = nextDry.dayIdx === activeDayIdx
                     ? `Dry ~${formatMinutesToTime(nextDry.startMins)}`
-                    : `Tomorrow: ${formatMinutesToTime(nextDry.startMins)}`;
+                    : `${nextDry.dayObj?.day || 'Tomorrow'}: ${formatMinutesToTime(nextDry.startMins)}`;
                 return {
                     windowText: `Hold (Rain) • ${nextLabel}`,
-                    descText: `Currently raining in Morro Bay (${liveRainState.label}) — stay off the water until dry.`,
+                    descText: `Raining in Morro Bay (${activeRain.label}) — stay off the water until dry.`,
                     isAfterDarkToday: false,
                     isRainingNow: true
                 };
@@ -1699,8 +2028,8 @@
                 const winStart = dayObj.optimalWindowRisingStart || sun.sunriseMins;
                 if (nowMins <= winEnd && nowMins >= winStart - 30) {
                     return {
-                        windowText: `Now - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
-                        descText: `Tide is rising now; calm bay conditions assist your return south before ${sun.sunsetStr} sunset.`,
+                        windowText: `${simState.enabled ? formatMinutesToTime(nowMins) : 'Now'} - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
+                        descText: `Tide is rising; bay conditions assist your return south before ${sun.sunsetStr} sunset.`,
                         isAfterDarkToday: false,
                         isRainingNow: false
                     };
@@ -1714,8 +2043,8 @@
                     };
                 }
                 return {
-                    windowText: `Tomorrow: ${dayObj.nextDayFloodNote}`,
-                    descText: `Today's best rising-tide daylight window has passed; next ideal window is tomorrow.`,
+                    windowText: `Next Day: ${dayObj.nextDayFloodNote}`,
+                    descText: `Best rising-tide daylight window has passed; next ideal window is tomorrow.`,
                     isAfterDarkToday: false,
                     isRainingNow: false
                 };
@@ -1725,7 +2054,7 @@
                 const nextLow = dayObj.nextLowAfterNow ? dayObj.nextLowAfterNow(nowMins) : null;
                 if (nowMins <= winEnd && nowMins >= winStart - 30) {
                     return {
-                        windowText: `Now - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
+                        windowText: `${simState.enabled ? formatMinutesToTime(nowMins) : 'Now'} - ${formatMinutesToTime(Math.min(winEnd, sun.lastSafeLaunchMins))}`,
                         descText: `Tide is going out${nextLow ? ` until the ${nextLow.time} low` : ''}, carrying you north to Coleman before ${sun.sunsetStr} sunset.`,
                         isAfterDarkToday: false,
                         isRainingNow: false
@@ -1740,8 +2069,8 @@
                     };
                 }
                 return {
-                    windowText: `Tomorrow: ${dayObj.nextDayEbbNote}`,
-                    descText: `Today's best outgoing-tide daylight window has passed; next ideal window is tomorrow.`,
+                    windowText: `Next Day: ${dayObj.nextDayEbbNote}`,
+                    descText: `Best outgoing-tide daylight window has passed; next ideal window is tomorrow.`,
                     isAfterDarkToday: false,
                     isRainingNow: false
                 };
@@ -1753,11 +2082,14 @@
             if (!container) return;
             container.innerHTML = '';
 
-            const nowMins = getCurrentMinutesOfDay();
+            const nowMins = getActiveMinutesOfDay();
+            const activeDayIdx = getActiveDayIndex();
+            const activeWindMph = getActiveWindMph();
+            const activeWaveFt = getActiveWaveHeightFt();
             const isRisingPreferred = currentSite !== 'coleman';
 
             forecastDays.forEach((item, index) => {
-                const isToday = index === 0;
+                const isToday = index === activeDayIdx;
                 let optimalTime = isRisingPreferred ? item.optimalWindowRising : item.optimalWindowGoingOut;
                 let descText = isRisingPreferred ? item.descRising : item.descGoingOut;
                 let ratingLabel = item.rating;
@@ -1773,6 +2105,9 @@
                     } else if (todayPlan.isAfterDarkToday) {
                         ratingLabel = "After Dark";
                         ratingClass = "text-indigo-300 border-indigo-500/40 bg-indigo-950/60";
+                    } else if (simState.enabled && (activeWindMph >= 15 || activeWaveFt >= 6)) {
+                        ratingLabel = "Rough • Caution";
+                        ratingClass = "text-rose-200 border-rose-500/40 bg-rose-950/60";
                     }
                 }
 
@@ -2293,21 +2628,48 @@
                     labelOverride: skyLabelOverride
                 };
 
+                // Save live snapshot for Simulator reset
+                const waterElVal = parseFloat((document.getElementById('telemetry-watertemp')?.innerText || liveWaterTempStr).replace(/[^\d.]/g, ''));
+                if (!Number.isNaN(waterElVal)) liveSnapshot.waterTempF = waterElVal;
+                if (airTempF !== null) liveSnapshot.airTempF = Math.round(airTempF);
+                if (windMph !== null) {
+                    liveSnapshot.windMph = windMph;
+                    liveSnapshot.gustMph = gustMph !== null ? Math.max(windMph, gustMph) : windMph;
+                    liveSnapshot.windDir = windDir;
+                }
+                const waveMatch = (document.getElementById('telemetry-waves')?.innerText || '').match(/([\d.]+)/);
+                if (waveMatch) liveSnapshot.waveHeightFt = parseFloat(waveMatch[1]);
+                liveSnapshot.precipMmh = precipMmh;
+                liveSnapshot.precipProb = currentPrecipProb;
+                liveSnapshot.isRaining = currentIsRaining;
+                liveSnapshot.rainLabel = currentRainLabel;
+                liveSnapshot.skyCode = skyCode;
+                liveSnapshot.cloudCover = cloudCover;
+                liveSnapshot.skyLabelOverride = skyLabelOverride;
+
                 if (gotLiveAny) {
                     const timeStr = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' });
-                    const tsEl = document.getElementById('live-timestamp');
-                    if (tsEl) tsEl.innerHTML = `Updated Live (${timeStr}) &bull; Morro Bay Harbor`;
+                    liveSnapshot.timestampHtml = `Updated Live (${timeStr}) &bull; Morro Bay Harbor`;
+                    if (!simState.enabled) {
+                        const tsEl = document.getElementById('live-timestamp');
+                        if (tsEl) tsEl.innerHTML = liveSnapshot.timestampHtml;
+                    }
                 }
 
                 populatePlannerDayDropdown();
-                if (tideSimMode === 'live') {
-                    resetPlannerToLive();
+                if (simState.enabled) {
+                    applySimulation();
                 } else {
-                    updateSkyCardForDaylight();
-                    updatePlannerRecommendation();
-                    updateTideAlignmentUI();
+                    syncSimulatorInputsFromLive();
+                    if (tideSimMode === 'live') {
+                        resetPlannerToLive();
+                    } else {
+                        updateSkyCardForDaylight();
+                        updatePlannerRecommendation();
+                        updateTideAlignmentUI();
+                    }
+                    renderForecast();
                 }
-                renderForecast();
             } catch (e) {
                 // Keep fallback values if offline
             }
@@ -2334,6 +2696,348 @@
                 btn.disabled = false;
                 btn.classList.remove('border-teal-500');
             }, 1500);
+        }
+
+        // ============================================================================
+        // CONDITIONS & TIME-OF-DAY SIMULATOR CONTROLLER
+        // ============================================================================
+        function inferSimSkyKeyFromLive() {
+            if (liveSnapshot.isRaining) {
+                if (liveSnapshot.skyCode >= 95) return 'thunderstorm';
+                if ((liveSnapshot.rainLabel || '').toLowerCase().includes('drizzle')) return 'light_drizzle';
+                return 'rain';
+            }
+            const c = liveSnapshot.skyCode;
+            if (c === 45 || c === 48) return 'fog';
+            if (c === 3) return 'overcast';
+            if (c === 2) return 'partly_cloudy';
+            if (c === 1) return 'mostly_clear';
+            return 'clear';
+        }
+
+        function updateSimulatorReadouts() {
+            const dayObj = forecastDays[simState.dayIndex] || forecastDays[0];
+            const sun = getMorroBaySunTimes((dayObj && dayObj.dateObj) ? dayObj.dateObj : new Date());
+            const isDark = simState.timeMinutes < sun.sunriseMins - 15 || simState.timeMinutes >= sun.sunsetMins;
+            const timeEl = document.getElementById('sim-time-readout');
+            if (timeEl) {
+                timeEl.innerText = `${formatMinutesToTime(simState.timeMinutes)} (${isDark ? 'Dark' : 'Daylight'})`;
+                timeEl.className = `font-mono font-bold ${isDark ? 'text-indigo-300' : 'text-amber-300'}`;
+            }
+            const wtEl = document.getElementById('sim-watertemp-readout');
+            if (wtEl) wtEl.innerText = `${Number(simState.waterTempF).toFixed(1)}°F`;
+            const atEl = document.getElementById('sim-airtemp-readout');
+            if (atEl) atEl.innerText = `${Math.round(simState.airTempF)}°F`;
+            const wEl = document.getElementById('sim-wind-readout');
+            if (wEl) wEl.innerText = `${Math.round(simState.windMph)} mph (gust ${Math.round(Math.max(simState.windMph, simState.gustMph))})`;
+            const wvEl = document.getElementById('sim-waves-readout');
+            if (wvEl) wvEl.innerText = `${Number(simState.waveHeightFt).toFixed(1)} ft`;
+            const prEl = document.getElementById('sim-precip-readout');
+            if (prEl) prEl.innerText = `${Number(simState.precipMmh).toFixed(1)} mm/h`;
+            const ppEl = document.getElementById('sim-precipprob-readout');
+            if (ppEl) ppEl.innerText = `${Math.round(simState.precipProb)}%`;
+        }
+
+        function writeSimStateToInputs() {
+            const setVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.value = String(val);
+            };
+            setVal('sim-day-select', simState.dayIndex);
+            setVal('sim-time-slider', simState.timeMinutes);
+            setVal('sim-watertemp-slider', simState.waterTempF);
+            setVal('sim-airtemp-slider', simState.airTempF);
+            setVal('sim-wind-slider', simState.windMph);
+            setVal('sim-gust-slider', simState.gustMph);
+            setVal('sim-winddir-select', simState.windDir);
+            setVal('sim-waves-slider', simState.waveHeightFt);
+            setVal('sim-sky-select', simState.skyType);
+            setVal('sim-precip-slider', simState.precipMmh);
+            setVal('sim-precipprob-slider', simState.precipProb);
+            setVal('sim-tide-select', simState.tideOverride);
+            updateSimulatorReadouts();
+        }
+
+        function syncSimulatorInputsFromLive() {
+            if (simState.enabled) return;
+            const nowMins = getCurrentMinutesOfDay();
+            const snapped15 = Math.min(1425, Math.max(0, Math.round(nowMins / 15) * 15));
+            simState = {
+                enabled: false,
+                dayIndex: 0,
+                timeMinutes: snapped15,
+                waterTempF: liveSnapshot.waterTempF,
+                airTempF: liveSnapshot.airTempF,
+                windMph: Math.round(liveSnapshot.windMph),
+                gustMph: Math.round(liveSnapshot.gustMph),
+                windDir: liveSnapshot.windDir || 'NW',
+                waveHeightFt: Number((liveSnapshot.waveHeightFt || 2.5).toFixed(1)),
+                skyType: inferSimSkyKeyFromLive(),
+                precipMmh: Number((liveSnapshot.precipMmh || 0).toFixed(1)),
+                precipProb: Math.round(liveSnapshot.precipProb || 0),
+                tideOverride: 'auto'
+            };
+            writeSimStateToInputs();
+        }
+
+        function toggleSimulatorPanel(forceOpen = null) {
+            const panel = document.getElementById('simulator-panel');
+            if (!panel) return;
+            const shouldOpen = forceOpen !== null ? forceOpen : panel.classList.contains('hidden');
+            if (shouldOpen) {
+                if (!simState.enabled) syncSimulatorInputsFromLive();
+                panel.classList.remove('hidden');
+            } else {
+                panel.classList.add('hidden');
+            }
+        }
+
+        function readSimInputsToState() {
+            const getNum = (id, fallback) => {
+                const el = document.getElementById(id);
+                return el ? Number(el.value) : fallback;
+            };
+            const getStr = (id, fallback) => {
+                const el = document.getElementById(id);
+                return el ? el.value : fallback;
+            };
+            simState.dayIndex = getNum('sim-day-select', 0);
+            simState.timeMinutes = getNum('sim-time-slider', 570);
+            simState.waterTempF = getNum('sim-watertemp-slider', 59);
+            simState.airTempF = getNum('sim-airtemp-slider', 64);
+            simState.windMph = getNum('sim-wind-slider', 6);
+            simState.gustMph = Math.max(simState.windMph, getNum('sim-gust-slider', 9));
+            simState.windDir = getStr('sim-winddir-select', 'NW');
+            simState.waveHeightFt = getNum('sim-waves-slider', 2.5);
+            simState.skyType = getStr('sim-sky-select', 'clear');
+            simState.precipMmh = getNum('sim-precip-slider', 0);
+            simState.precipProb = getNum('sim-precipprob-slider', 0);
+            simState.tideOverride = getStr('sim-tide-select', 'auto');
+        }
+
+        function onSimulatorWindChange() {
+            const windEl = document.getElementById('sim-wind-slider');
+            const gustEl = document.getElementById('sim-gust-slider');
+            if (windEl && gustEl && Number(gustEl.value) < Number(windEl.value)) {
+                gustEl.value = String(Math.min(45, Number(windEl.value) + 3));
+            }
+            onSimulatorInputChange();
+        }
+
+        function onSimulatorSkyChange() {
+            const skyEl = document.getElementById('sim-sky-select');
+            const precipEl = document.getElementById('sim-precip-slider');
+            const probEl = document.getElementById('sim-precipprob-slider');
+            if (skyEl && precipEl && probEl) {
+                const v = skyEl.value;
+                if (v === 'light_drizzle') {
+                    if (Number(precipEl.value) === 0) precipEl.value = '0.5';
+                    if (Number(probEl.value) < 60) probEl.value = '70';
+                } else if (v === 'rain') {
+                    if (Number(precipEl.value) < 2) precipEl.value = '3.0';
+                    if (Number(probEl.value) < 80) probEl.value = '90';
+                } else if (v === 'thunderstorm') {
+                    if (Number(precipEl.value) < 5) precipEl.value = '6.5';
+                    probEl.value = '95';
+                } else {
+                    precipEl.value = '0';
+                    probEl.value = v === 'overcast' ? '20' : '0';
+                }
+            }
+            onSimulatorInputChange();
+        }
+
+        function onSimulatorPrecipChange() {
+            const precipEl = document.getElementById('sim-precip-slider');
+            const skyEl = document.getElementById('sim-sky-select');
+            const probEl = document.getElementById('sim-precipprob-slider');
+            if (precipEl && skyEl) {
+                const rate = Number(precipEl.value);
+                if (rate > 0 && !['light_drizzle', 'rain', 'thunderstorm'].includes(skyEl.value)) {
+                    skyEl.value = rate < 1 ? 'light_drizzle' : 'rain';
+                    if (probEl && Number(probEl.value) < 60) probEl.value = '80';
+                } else if (rate === 0 && ['light_drizzle', 'rain', 'thunderstorm'].includes(skyEl.value)) {
+                    skyEl.value = 'partly_cloudy';
+                }
+            }
+            onSimulatorInputChange();
+        }
+
+        function onSimulatorInputChange() {
+            readSimInputsToState();
+            simState.enabled = true;
+            applySimulation();
+        }
+
+        function applySimulatorPreset(presetName) {
+            if (presetName === 'calm_morning') {
+                simState = { ...simState, enabled: true, timeMinutes: 450, waterTempF: 60.0, airTempF: 64, windMph: 3, gustMph: 5, windDir: 'NW', waveHeightFt: 1.5, skyType: 'clear', precipMmh: 0, precipProb: 0 };
+            } else if (presetName === 'windy_afternoon') {
+                simState = { ...simState, enabled: true, timeMinutes: 870, waterTempF: 58.0, airTempF: 67, windMph: 18, gustMph: 26, windDir: 'NW', waveHeightFt: 6.0, skyType: 'partly_cloudy', precipMmh: 0, precipProb: 10 };
+            } else if (presetName === 'rainy_day') {
+                simState = { ...simState, enabled: true, timeMinutes: 600, waterTempF: 56.0, airTempF: 55, windMph: 14, gustMph: 21, windDir: 'S', waveHeightFt: 4.5, skyType: 'rain', precipMmh: 3.5, precipProb: 90 };
+            } else if (presetName === 'after_dark') {
+                simState = { ...simState, enabled: true, timeMinutes: 1230, waterTempF: 57.5, airTempF: 52, windMph: 4, gustMph: 6, windDir: 'NW', waveHeightFt: 2.0, skyType: 'clear', precipMmh: 0, precipProb: 0 };
+            }
+            writeSimStateToInputs();
+            applySimulation();
+        }
+
+        function updateSimulatorBadgesUI() {
+            const toggleBtn = document.getElementById('sim-toggle-btn');
+            const toggleLabel = document.getElementById('sim-toggle-label');
+            const statusPill = document.getElementById('sim-status-pill');
+            const indieSimBadge = document.getElementById('indie-sim-badge');
+            const indieModalTitle = document.getElementById('indie-modal-title');
+
+            if (simState.enabled) {
+                if (toggleBtn) toggleBtn.className = "tv-focus flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/60 hover:bg-amber-500/30 transition-all cursor-pointer shadow-sm shadow-amber-500/15";
+                if (toggleLabel) toggleLabel.innerText = "Simulator: ON";
+                if (statusPill) {
+                    statusPill.className = "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/50";
+                    statusPill.innerText = "Active • Simulated";
+                }
+                if (indieSimBadge) indieSimBadge.classList.remove('hidden');
+                if (indieModalTitle) indieModalTitle.innerHTML = "Indie &bull; Simulated Forecast";
+            } else {
+                if (toggleBtn) toggleBtn.className = "tv-focus flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-amber-300 border border-slate-700 hover:bg-slate-700 transition-all cursor-pointer shadow-sm";
+                if (toggleLabel) toggleLabel.innerText = "Simulator";
+                if (statusPill) {
+                    statusPill.className = "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700";
+                    statusPill.innerText = "Standby";
+                }
+                if (indieSimBadge) indieSimBadge.classList.add('hidden');
+                if (indieModalTitle) indieModalTitle.innerHTML = "Indie &bull; Today's Forecast";
+            }
+        }
+
+        function applyConditionsToGauges(data) {
+            const wtEl = document.getElementById('telemetry-watertemp');
+            if (wtEl) wtEl.innerText = `${Number(data.waterTempF).toFixed(1)}°F`;
+            setGaugeVisual('water-needle', 'water-arc', (data.waterTempF - 45) / 30);
+
+            const airEl = document.getElementById('telemetry-airtemp');
+            if (airEl) airEl.innerText = `${Math.round(data.airTempF)}°F`;
+            setGaugeVisual('air-needle', 'air-arc', (data.airTempF - 35) / 55);
+
+            const gst = Math.max(data.windMph, data.gustMph);
+            const windEl = document.getElementById('telemetry-wind');
+            const windSubEl = document.getElementById('telemetry-wind-sub');
+            if (windEl) windEl.innerText = `${Number(data.windMph).toFixed(1)} mph`;
+            if (windSubEl) windSubEl.innerHTML = `from ${data.windDir} &bull; <span class="text-amber-400">●</span> peak ${Number(gst).toFixed(1)} mph`;
+            setGaugeVisual('wind-needle', 'wind-arc', data.windMph / 25, 'wind-peak-dot', gst / 25);
+
+            const wavesEl = document.getElementById('telemetry-waves');
+            const wavesSubEl = document.getElementById('telemetry-waves-sub');
+            if (wavesEl) wavesEl.innerText = `${Number(data.waveHeightFt).toFixed(1)} ft`;
+            if (wavesSubEl) {
+                wavesSubEl.innerText = simState.enabled
+                    ? `Simulated Entrance Swell`
+                    : `Entrance Swell • ${data.waveDir || 'W'}${data.wavePeriod ? ' @ ' + Math.round(data.wavePeriod) + 's' : ''}`;
+            }
+            setGaugeVisual('waves-needle', 'waves-arc', data.waveHeightFt / 12);
+
+            const precipEl = document.getElementById('telemetry-precip');
+            const precipSubEl = document.getElementById('telemetry-precip-sub');
+            if (precipEl) {
+                precipEl.innerText = `${Number(data.precipMmh).toFixed(1)} mm/h`;
+                precipEl.className = data.isRaining
+                    ? "text-2xl font-bold text-sky-300"
+                    : "text-2xl font-bold text-white";
+            }
+            if (precipSubEl) {
+                if (data.isRaining) {
+                    precipSubEl.className = "text-[11px] text-sky-300 block mt-0.5 font-medium";
+                    const ratePrefix = data.precipMmh === 0 ? 'Trace • ' : '';
+                    const probSuffix = data.precipProb > 0 ? ` • ${data.precipProb}% chance` : '';
+                    precipSubEl.innerText = `${ratePrefix}${data.rainLabel}${probSuffix}`;
+                } else if (data.precipProb >= 20) {
+                    precipSubEl.className = "text-[11px] text-cyan-400 block mt-0.5";
+                    precipSubEl.innerText = `Dry Now • ${data.precipProb}% chance`;
+                } else {
+                    precipSubEl.className = "text-[11px] text-emerald-400 block mt-0.5";
+                    precipSubEl.innerText = 'Dry • Morro Bay Estuary';
+                }
+            }
+            const precipFrac = data.precipMmh > 0 ? Math.min(0.95, 0.15 + data.precipMmh / 8) : (data.isRaining ? 0.12 : 0.04);
+            setGaugeVisual('precip-needle', 'precip-arc', precipFrac);
+        }
+
+        function applySimulation() {
+            updateSimulatorReadouts();
+            updateSimulatorBadgesUI();
+
+            const activeRain = getActiveRainState();
+            applyConditionsToGauges({
+                waterTempF: simState.waterTempF,
+                airTempF: simState.airTempF,
+                windMph: simState.windMph,
+                gustMph: simState.gustMph,
+                windDir: simState.windDir,
+                waveHeightFt: simState.waveHeightFt,
+                precipMmh: activeRain.rateMmh,
+                precipProb: activeRain.precipProb,
+                isRaining: activeRain.isRaining,
+                rainLabel: activeRain.label
+            });
+
+            const dayObj = forecastDays[simState.dayIndex] || forecastDays[0];
+            const tsEl = document.getElementById('live-timestamp');
+            if (tsEl) {
+                tsEl.innerHTML = `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40 font-semibold"><i class="fa-solid fa-sliders text-[10px]"></i> Simulated: ${dayObj.day} (${dayObj.date}) at ${formatMinutesToTime(simState.timeMinutes)}</span>`;
+            }
+
+            // Sync planner dropdowns visually
+            const planDay = document.getElementById('plan-day-select');
+            const planTime = document.getElementById('plan-time-select');
+            if (planDay) planDay.value = String(simState.dayIndex);
+            if (planTime) {
+                const snapped30 = Math.min(1050, Math.max(360, Math.round(simState.timeMinutes / 30) * 30));
+                planTime.value = String(snapped30);
+            }
+
+            const modeBadge = document.getElementById('planner-mode-badge');
+            if (modeBadge) {
+                modeBadge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40";
+                modeBadge.innerText = "Simulator Active";
+            }
+
+            updateSkyCardForDaylight();
+            updatePlannerRecommendation();
+            updateTideAlignmentUI();
+            renderForecast();
+        }
+
+        function resetSimulatorToLive(keepPanelOpen = true) {
+            simState.enabled = false;
+            syncSimulatorInputsFromLive();
+            updateSimulatorBadgesUI();
+
+            applyConditionsToGauges({
+                waterTempF: liveSnapshot.waterTempF,
+                airTempF: liveSnapshot.airTempF,
+                windMph: liveSnapshot.windMph,
+                gustMph: liveSnapshot.gustMph,
+                windDir: liveSnapshot.windDir,
+                waveHeightFt: liveSnapshot.waveHeightFt,
+                waveDir: liveSnapshot.waveDir,
+                wavePeriod: liveSnapshot.wavePeriod,
+                precipMmh: liveSnapshot.precipMmh,
+                precipProb: liveSnapshot.precipProb,
+                isRaining: liveSnapshot.isRaining,
+                rainLabel: liveSnapshot.rainLabel
+            });
+
+            const tsEl = document.getElementById('live-timestamp');
+            if (tsEl) tsEl.innerHTML = liveSnapshot.timestampHtml;
+
+            resetPlannerToLive();
+            renderForecast();
+
+            if (!keepPanelOpen) {
+                const panel = document.getElementById('simulator-panel');
+                if (panel) panel.classList.add('hidden');
+            }
         }
 
         // Initialize on load
@@ -2652,7 +3356,7 @@
 
         function isIndieRainingNow() {
             const rawSky = (document.getElementById('telemetry-sky')?.innerText || '').toLowerCase();
-            return Boolean((typeof liveRainState !== 'undefined' && liveRainState.isRaining) || /rain|drizzle|shower|storm|thunder/.test(rawSky));
+            return Boolean(getActiveRainState().isRaining || /rain|drizzle|shower|storm|thunder/.test(rawSky));
         }
 
         function applyIndieOutfit(idx) {
@@ -2715,14 +3419,18 @@
         }
 
         function buildTodayBriefingScript() {
-            const today = forecastDays[0];
+            const activeDayIdx = getActiveDayIndex();
+            const today = forecastDays[activeDayIdx] || forecastDays[0];
             const siteInfo = launchData[currentSite] || launchData.statepark;
             const isRisingPreferred = currentSite !== 'coleman';
             const todayPlan = getTodayOptimalWindow(today, isRisingPreferred);
-            const liveTide = getLiveTideState(currentSite);
+            const liveTide = simState.enabled ? getEffectiveTideState(currentSite) : getLiveTideState(currentSite);
+            const activeRain = getActiveRainState();
+            const activeWindMph = getActiveWindMph();
+            const activeWaveFt = getActiveWaveHeightFt();
 
             const airTemp = (document.getElementById('telemetry-airtemp')?.innerText || `${today.high}°F`).replace('°F', ' degrees');
-            const waterTemp = (document.getElementById('telemetry-watertemp')?.innerText || '58.8°F').replace('°F', ' degrees');
+            const waterTemp = getActiveWaterTempStr().replace('°F', ' degrees');
             const rawWind = (document.getElementById('telemetry-wind')?.innerText || '2 mph').trim();
             const windNow = rawWind.replace(/\bmph\b/i, 'miles per hour');
             const rawSky = (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').trim().toLowerCase();
@@ -2748,13 +3456,13 @@
                 skyCondition = 'under a clear night sky';
             }
 
-            const nowMins = getCurrentMinutesOfDay();
+            const nowMins = getActiveMinutesOfDay();
             const timeGreeting = nowMins < 12 * 60
                 ? 'Good morning'
                 : (nowMins < 17 * 60 ? 'Good afternoon' : 'Good evening');
 
             const formatSpokenWindow = (text) => text
-                .replace(/^Tomorrow:\s*/i, '')
+                .replace(/^(Tomorrow|Next Day):\s*/i, '')
                 .replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+/i, '')
                 .replace(/\s*[–—-]\s*/g, ' to ')
                 .replace(/\bNow\b/g, 'now');
@@ -2764,19 +3472,20 @@
                 : `From the ${siteInfo.name}`;
 
             const tidePhrase = liveTide.direction === 'Rising'
-                ? 'The harbor tide is currently rising.'
-                : 'The harbor tide is currently going out.';
+                ? (simState.enabled ? 'The harbor tide will be rising.' : 'The harbor tide is currently rising.')
+                : (simState.enabled ? 'The harbor tide will be going out.' : 'The harbor tide is currently going out.');
 
             const sun = getMorroBaySunTimes(today.dateObj || new Date());
             const spokenWindow = formatSpokenWindow(todayPlan.windowText);
+            const isHighWindOrWaves = activeWindMph >= 15 || activeWaveFt >= 6;
 
             let windowPhrase = '';
-            if (todayPlan.isAfterDarkToday) {
-                windowPhrase = `Since it's already after dark in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is tomorrow from ${spokenWindow}.`;
-            } else if (liveRainState.isRaining) {
-                const nextDry = findNextDryDaylightWindow(0, nowMins, currentSite);
-                const nextDayLabel = nextDry.dayIdx === 0 ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
-                windowPhrase = `Since it's raining right now, I'm advising him to stay ashore. His next dry daylight launch window ${sitePrep.toLowerCase()} is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)}.`;
+            if (todayPlan.isAfterDarkToday || !liveTide.isDaylight) {
+                windowPhrase = `Since it's ${liveTide.isBeforeSunrise ? 'before sunrise' : 'after dark'} in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is tomorrow from ${spokenWindow}.`;
+            } else if (activeRain.isRaining) {
+                const nextDry = findNextDryDaylightWindow(activeDayIdx, nowMins, currentSite);
+                const nextDayLabel = nextDry.dayIdx === activeDayIdx ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
+                windowPhrase = `Since it's raining, I'm advising him to stay ashore. His next dry daylight launch window ${sitePrep.toLowerCase()} is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)}.`;
             } else {
                 const windowClause = spokenWindow.includes('now')
                     ? `is ${spokenWindow}`
@@ -2784,7 +3493,10 @@
                 const tideAssist = isRisingPreferred
                     ? `That gives him a smooth turnaround before the ${sun.sunsetStr} sunset, with a rising tide helping carry him back south.`
                     : `That gives him an outgoing tide to carry him smoothly north back to Coleman Park before the ${sun.sunsetStr} sunset.`;
-                windowPhrase = `${sitePrep}, his best launch window today ${windowClause}. ${tideAssist}`;
+                const roughNote = isHighWindOrWaves
+                    ? ` However, with ${Math.round(activeWindMph)} mile per hour winds and ${activeWaveFt.toFixed(1)} foot entrance waves, he should stay inside the sheltered back bay and avoid the harbor mouth.`
+                    : '';
+                windowPhrase = `${sitePrep}, his best launch window ${activeDayIdx === 0 ? 'today' : `on ${today.day}`} ${windowClause}. ${tideAssist}${roughNote}`;
             }
 
             const flirtyClosings = [
@@ -2792,23 +3504,34 @@
                 `Paddle back to shore quickly, Chris—I have much better plans for us once you're out of that kayak.`,
                 `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
             ];
-            const closing = liveRainState.isRaining
+            const closing = activeRain.isRaining
                 ? `Hey Chris, stay dry inside with me today; you can head out on the bay as soon as the rain clears.`
-                : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
+                : ((todayPlan.isAfterDarkToday || !liveTide.isDaylight)
+                    ? `Keep the kayak parked for tonight, Chris—let's save the paddling for daylight.`
+                    : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length]);
 
-            const intro = liveRainState.isRaining
-                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors today because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`
+            const intro = activeRain.isRaining
+                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`
                 : `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I have Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`;
 
-            const rainNote = (!liveRainState.isRaining && today.precipProb >= 30)
-                ? ` There is also a ${today.precipProb} percent chance of rain today, so keep an eye on the sky.`
+            const effectivePrecipProb = simState.enabled ? activeRain.precipProb : today.precipProb;
+            const rainNote = (!activeRain.isRaining && effectivePrecipProb >= 30)
+                ? ` There is also a ${effectivePrecipProb} percent chance of rain, so keep an eye on the sky.`
                 : '';
 
             const windClause = (!rawWind || rawWind === '--' || /n\/a/i.test(rawWind))
                 ? 'and light winds'
                 : `and winds around ${windNow}`;
 
-            const weatherSummary = `Right now, it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—${windClause}. Today's high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
+            const timeContext = simState.enabled
+                ? `In this simulated forecast for ${today.day} at ${formatMinutesToTime(nowMins)},`
+                : `Right now,`;
+
+            const waveNote = simState.enabled || activeWaveFt >= 5
+                ? ` with ${activeWaveFt.toFixed(1)} foot waves at the harbor entrance`
+                : '';
+
+            const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—${windClause}${waveNote}. ${activeDayIdx === 0 ? "Today's" : `${today.day}'s`} high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
 
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
