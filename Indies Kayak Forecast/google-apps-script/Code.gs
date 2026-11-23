@@ -138,13 +138,21 @@ function handleIndieRequest_(ctx) {
   }
 
   var parsed = JSON.parse(body);
-  var text = parsed &&
+  var parts = (parsed &&
     parsed.candidates &&
     parsed.candidates[0] &&
     parsed.candidates[0].content &&
-    parsed.candidates[0].content.parts &&
-    parsed.candidates[0].content.parts[0] &&
-    parsed.candidates[0].content.parts[0].text;
+    parsed.candidates[0].content.parts) || [];
+
+  var text = '';
+  for (var p = 0; p < parts.length; p++) {
+    if (parts[p] && !parts[p].thought && parts[p].text) {
+      text += parts[p].text;
+    }
+  }
+  if (!text && parts[0] && parts[0].text) {
+    text = parts[0].text;
+  }
 
   if (!text) {
     return jsonOutput_({ ok: false, error: 'Empty Gemini response' });
@@ -154,6 +162,11 @@ function handleIndieRequest_(ctx) {
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/i, '')
     .trim();
+  var firstBrace = cleaned.indexOf('{');
+  var lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.slice(firstBrace, lastBrace + 1);
+  }
   var lines = JSON.parse(cleaned);
   return jsonOutput_({
     ok: true,
