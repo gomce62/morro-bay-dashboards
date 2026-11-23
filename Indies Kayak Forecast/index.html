@@ -27,7 +27,7 @@
             animation: indieSpeakBody 2.8s ease-in-out infinite;
         }
         .indie-frame-img {
-            transition: opacity 90ms ease-in-out;
+            transition: opacity 135ms cubic-bezier(0.4, 0, 0.2, 1);
         }
         @keyframes barPulse {
             0%, 100% { transform: scaleY(0.35); }
@@ -2693,19 +2693,29 @@
 
             const airTemp = (document.getElementById('telemetry-airtemp')?.innerText || `${today.high}°F`).replace('°F', ' degrees');
             const waterTemp = (document.getElementById('telemetry-watertemp')?.innerText || '58.8°F').replace('°F', ' degrees');
-            const windNow = (document.getElementById('telemetry-wind')?.innerText || '2 mph')
-                .replace(/\bmph\b/i, 'miles per hour');
+            const rawWind = (document.getElementById('telemetry-wind')?.innerText || '2 mph').trim();
+            const windNow = rawWind.replace(/\bmph\b/i, 'miles per hour');
             const rawSky = (document.getElementById('telemetry-sky')?.innerText || 'Clear Sky').trim().toLowerCase();
 
-            let skySentence = 'clear skies and';
-            if (rawSky.includes('night')) {
-                skySentence = 'a clear night with';
-            } else if (rawSky.includes('clear')) {
-                skySentence = 'clear skies and';
-            } else if (rawSky.includes('sky') || rawSky.includes('skies')) {
-                skySentence = `${rawSky} and`;
-            } else {
-                skySentence = `${rawSky} skies and`;
+            let skyCondition = 'under clear skies';
+            if (rawSky.includes('thunder')) {
+                skyCondition = 'with thunderstorms in the area';
+            } else if (rawSky.includes('rain')) {
+                skyCondition = 'with rain';
+            } else if (rawSky.includes('drizzle')) {
+                skyCondition = 'with light drizzle';
+            } else if (rawSky.includes('fog')) {
+                skyCondition = 'with coastal fog';
+            } else if (rawSky.includes('overcast')) {
+                skyCondition = 'under overcast skies';
+            } else if (rawSky.includes('partly cloudy')) {
+                skyCondition = 'with partly cloudy skies';
+            } else if (rawSky.includes('mostly clear')) {
+                skyCondition = 'under mostly clear skies';
+            } else if (rawSky.includes('mostly sunny')) {
+                skyCondition = 'under mostly sunny skies';
+            } else if (rawSky.includes('night')) {
+                skyCondition = 'under a clear night sky';
             }
 
             const nowMins = getCurrentMinutesOfDay();
@@ -2715,6 +2725,7 @@
 
             const formatSpokenWindow = (text) => text
                 .replace(/^Tomorrow:\s*/i, '')
+                .replace(/^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\s+/i, '')
                 .replace(/\s*[–—-]\s*/g, ' to ')
                 .replace(/\bNow\b/g, 'now');
 
@@ -2734,8 +2745,8 @@
                 windowPhrase = `Since it's already after dark in Morro Bay, his next best launch window ${sitePrep.toLowerCase()} is tomorrow from ${spokenWindow}.`;
             } else if (liveRainState.isRaining) {
                 const nextDry = findNextDryDaylightWindow(0, nowMins, currentSite);
-                const nextDayLabel = nextDry.dayIdx === 0 ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : nextDry.dayObj.day);
-                windowPhrase = `Since it's raining right now, I'm advising him to stay ashore—his next dry daylight window ${sitePrep.toLowerCase()} is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)}.`;
+                const nextDayLabel = nextDry.dayIdx === 0 ? 'later today' : (nextDry.dayIdx === 1 ? 'tomorrow' : `on ${nextDry.dayObj.day}`);
+                windowPhrase = `Since it's raining right now, I'm advising him to stay ashore. His next dry daylight launch window ${sitePrep.toLowerCase()} is ${nextDayLabel} around ${formatMinutesToTime(nextDry.startMins)}.`;
             } else {
                 const windowClause = spokenWindow.includes('now')
                     ? `is ${spokenWindow}`
@@ -2747,23 +2758,27 @@
             }
 
             const flirtyClosings = [
-                `Don't stay out on the water too long, handsome. I'll be waiting right here on the sand to warm you up.`,
-                `Paddle fast back to shore, Chris. I've got much better plans for us once you're out of that kayak.`,
+                `Don't stay out on the water too long, handsome—I'll be waiting right here on the sand to warm you up.`,
+                `Paddle back to shore quickly, Chris—I have much better plans for us once you're out of that kayak.`,
                 `Enjoy the smooth ride on the bay, babe, because the best part of your day is waiting for you right back home.`
             ];
             const closing = liveRainState.isRaining
-                ? `Stay dry with me inside today, handsome—we can hit the bay as soon as the rain clears.`
+                ? `Stay dry inside with me today, handsome—we can head out on the bay as soon as the rain clears.`
                 : flirtyClosings[Math.max(0, indieOutfitIdx) % flirtyClosings.length];
 
             const intro = liveRainState.isRaining
-                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors today because of the rain, and I definitely don't want him out on the water getting soaked. Here's what's happening.`
-                : `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I've got Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here's what he can expect.`;
+                ? `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors today because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`
+                : `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. I have Chris's kayak out and ready for the bay, though honestly, watching him paddle out here is only half the fun. Here is what he can expect.`;
 
             const rainNote = (!liveRainState.isRaining && today.precipProb >= 30)
-                ? ` There's also a ${today.precipProb} percent chance of rain today, so keep an eye on the sky.`
+                ? ` There is also a ${today.precipProb} percent chance of rain today, so keep an eye on the sky.`
                 : '';
 
-            const weatherSummary = `Right now we have ${skySentence} ${airTemp}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—and winds around ${windNow}. Today's high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
+            const windClause = (!rawWind || rawWind === '--' || /n\/a/i.test(rawWind))
+                ? 'and light winds'
+                : `and winds around ${windNow}`;
+
+            const weatherSummary = `Right now, it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}—just cool enough to give him a great excuse to let me warm him up later—${windClause}. Today's high will reach ${today.high} degrees, with a low of ${today.low}.${rainNote}`;
 
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
@@ -2827,18 +2842,20 @@
                 startIndieMouthAnimation();
             };
 
+            let indieLastMouthAt = 0;
             utter.onboundary = (e) => {
-                indieLastBoundaryAt = Date.now();
+                const now = Date.now();
+                indieLastBoundaryAt = now;
                 if (typeof e.charIndex === 'number') {
                     renderIndieCaptionAt(e.charIndex);
+                    if (now - indieLastMouthAt < 115) return;
+                    indieLastMouthAt = now;
                     const wordMatch = indieCurrentScript.slice(e.charIndex).match(/^\S+/);
                     const word = wordMatch ? wordMatch[0].toLowerCase() : '';
                     if (/[ao]/.test(word) && word.length > 4) {
                         setIndieMouthFrame('open');
                     } else if (word.length > 0) {
                         setIndieMouthFrame('mid');
-                    } else {
-                        setIndieMouthFrame('closed');
                     }
                 }
             };
