@@ -65,7 +65,7 @@ This file captures the architecture, tech stack, design guidelines, key decision
 ### Avatar Anatomy & Wardrobe Guidelines
 - **Consistency:** Preserve Indie's exact face, blonde hair, and body proportions across all outfits.
 - **Wardrobe Styling Rule:** Anytime an outfit is created or updated, show **generous, tight center cleavage** (full, natural teardrop drape) and **most of her toned legs (short upper-thigh hemline)** unless the user specifically requests long pants or a mid-thigh hemline.
-- **Anatomy Refinements:** Keep knees smoothly shaded (avoid harsh angular creases) and calves/ankles sleekly tapered.
+- **Anatomy Refinements:** Keep knees smoothly shaded (avoid harsh angular creases) and calves/ankles sleekly tapered while maintaining her defined calf muscles and shape.
 
 ---
 
