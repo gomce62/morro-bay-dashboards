@@ -3532,13 +3532,16 @@
                 `Go catch some smooth water, babe; I'll be right here waiting with a towel and a big smile when you get back.`,
                 `Make sure you wave from the water, Chris—you already know you're my favorite view in Morro Bay.`
             ];
+            const isAfterDark = todayPlan.isAfterDarkToday || !liveTide.isDaylight;
+            const canKayakNow = !activeRain.isRaining && !isAfterDark;
+
             const afterDarkClosings = [
                 `Keep the kayak parked for tonight, Chris—let's save the paddling for daylight and enjoy the evening together.`,
                 `No night paddles on my watch, handsome—stay on shore with me tonight and we'll hit the water in the morning.`
             ];
             const closing = activeRain.isRaining
                 ? pickIndieLine(rainyClosings, 'indie_last_rain_close')
-                : ((todayPlan.isAfterDarkToday || !liveTide.isDaylight)
+                : (isAfterDark
                     ? pickIndieLine(afterDarkClosings, 'indie_last_dark_close')
                     : pickIndieLine(flirtyClosings, 'indie_last_clear_close'));
 
@@ -3546,6 +3549,12 @@
                 `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. Chris's kayak is staying dry indoors because of the rain, and I definitely don't want him getting soaked out on the water. Here's what's happening on the bay.`,
                 `${timeGreeting}! It's Indie, your Morro Bay Alta Court weather girl. Since it's raining, I tucked Chris's kayak away indoors—plus, I'd rather have him all to myself inside today anyway. Here's the latest forecast.`,
                 `${timeGreeting}! I'm Indie from Morro Bay Alta Court. No paddling in this rain—Chris's kayak is staying dry inside, and honestly, a cozy indoor day with him sounds much better. Here's how the bay looks.`
+            ];
+
+            const afterDarkIntros = [
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. It's already too dark to kayak safely out on the bay, so I'm keeping Chris on shore tonight—but here are the current conditions and when I recommend launching next.`,
+                `${timeGreeting}! It's Indie from Morro Bay Alta Court. Since it's past sunset and too dark to paddle, Chris's kayak is staying put for the night. Here's a quick look at current conditions and your next best launch window.`,
+                `${timeGreeting}! I'm Indie, your Morro Bay Alta Court weather girl. No kayaking in the dark tonight, handsome—let's check the current bay conditions and see when you should head out next.`
             ];
 
             const clearIntros = [
@@ -3559,7 +3568,9 @@
 
             const intro = activeRain.isRaining
                 ? pickIndieLine(rainyIntros, 'indie_last_rain_intro')
-                : pickIndieLine(clearIntros, 'indie_last_clear_intro');
+                : (isAfterDark
+                    ? pickIndieLine(afterDarkIntros, 'indie_last_dark_intro')
+                    : pickIndieLine(clearIntros, 'indie_last_clear_intro'));
 
             const waterQuips = [
                 `—just cool enough to give him a great excuse to let me warm him up later—`,
@@ -3570,7 +3581,9 @@
                 `—nice and brisk, which means extra hugs are definitely waiting on the beach—`,
                 `—chilly enough that he'll deserve a warm welcome when he gets back—`
             ];
-            const waterQuip = pickIndieLine(waterQuips, 'indie_last_water_quip');
+            const waterQuip = canKayakNow
+                ? pickIndieLine(waterQuips, 'indie_last_water_quip')
+                : ', ';
 
             const effectivePrecipProb = simState.enabled ? activeRain.precipProb : today.precipProb;
             const rainNote = (!activeRain.isRaining && effectivePrecipProb >= 30)
