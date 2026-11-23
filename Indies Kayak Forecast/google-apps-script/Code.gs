@@ -112,7 +112,7 @@ function handleIndieRequest_(ctx) {
     generationConfig: {
       temperature: 1.15,
       topP: 0.95,
-      maxOutputTokens: 350,
+      maxOutputTokens: 2048,
       responseMimeType: 'application/json'
     }
   };
@@ -150,7 +150,11 @@ function handleIndieRequest_(ctx) {
     return jsonOutput_({ ok: false, error: 'Empty Gemini response' });
   }
 
-  var lines = JSON.parse(text);
+  var cleaned = String(text).trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```$/i, '')
+    .trim();
+  var lines = JSON.parse(cleaned);
   return jsonOutput_({
     ok: true,
     intro: String(lines.intro || '').trim(),
