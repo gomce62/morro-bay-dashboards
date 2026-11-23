@@ -2458,15 +2458,16 @@
             const blink = document.getElementById('indie-frame-blink');
             if (!closed || !mid || !open) return;
 
+            // Keep base closed frame always opaque so body/legs never crossfade through dark bg
+            closed.style.opacity = '1';
+
             if (indieIsBlinking && blink) {
-                closed.style.opacity = '0';
                 mid.style.opacity = '0';
                 open.style.opacity = '0';
                 blink.style.opacity = '1';
                 return;
             }
             if (blink) blink.style.opacity = '0';
-            closed.style.opacity = frameName === 'closed' ? '1' : '0';
             mid.style.opacity = frameName === 'mid' ? '1' : '0';
             open.style.opacity = frameName === 'open' ? '1' : '0';
         }
