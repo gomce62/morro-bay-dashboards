@@ -2566,6 +2566,7 @@
             if (!box) return;
             if (charIndex < 0 || charIndex >= indieCurrentScript.length) {
                 box.textContent = indieCurrentScript;
+                box.scrollTop = 0;
                 return;
             }
             const rest = indieCurrentScript.slice(charIndex);
@@ -2582,6 +2583,13 @@
             span.textContent = active;
             box.appendChild(span);
             box.appendChild(document.createTextNode(after));
+
+            // Keep the active spoken word comfortably visible inside the scrollable captions box
+            const spanTop = span.offsetTop - box.offsetTop;
+            const spanBottom = spanTop + span.offsetHeight;
+            if (spanBottom > box.scrollTop + box.clientHeight - 10 || spanTop < box.scrollTop) {
+                box.scrollTop = Math.max(0, spanTop - Math.floor(box.clientHeight * 0.35));
+            }
         }
 
         const indieOutfits = [
