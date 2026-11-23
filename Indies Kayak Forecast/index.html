@@ -3496,7 +3496,7 @@
         async function fetchIndieDynamicLines(ctx) {
             if (!INDIE_AI_PROXY_URL) return null;
             const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 4500);
+            const timer = setTimeout(() => controller.abort(), 9000);
             try {
                 const payload = encodeURIComponent(JSON.stringify({ ...ctx, nonce: Math.random().toString(36).slice(2) }));
                 const res = await fetch(`${INDIE_AI_PROXY_URL}?payload=${payload}`, { signal: controller.signal });
