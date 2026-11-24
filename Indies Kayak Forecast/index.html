@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <title>Morro Bay Kayak Forecast &bull; Conditions &amp; Optimal Planner</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,9 +42,13 @@
             transform-origin: bottom;
             animation: barPulse 0.55s ease-in-out infinite;
         }
-        .tv-focus:focus-visible {
+        .tv-focus:focus-visible,
+        button:focus-visible,
+        a:focus-visible,
+        select:focus-visible,
+        input:focus-visible {
             outline: none;
-            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.85);
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.92), 0 0 18px rgba(45, 212, 191, 0.35);
         }
     </style>
 
@@ -3837,11 +3847,50 @@
             if (panel) panel.classList.toggle('hidden');
         }
 
+        function speakViaAndroidTTS(text, rate, pitch) {
+            if (!window.AndroidTTS || typeof window.AndroidTTS.speak !== 'function') return false;
+            try {
+                window.AndroidTTS.stop();
+                window.__onAndroidTTSStart = () => {
+                    setIndieSpeakingUI(true, 'Speaking');
+                    startIndieMouthAnimation();
+                };
+                window.__onAndroidTTSEnd = () => {
+                    stopIndieMouthAnimation();
+                    renderIndieCaptionAt(-1);
+                    setIndieSpeakingUI(false, 'Done');
+                };
+                window.__onAndroidTTSError = () => {
+                    stopIndieMouthAnimation();
+                    renderIndieCaptionAt(-1);
+                    setIndieSpeakingUI(false, 'Captions Only');
+                };
+                setIndieSpeakingUI(true, 'Speaking');
+                startIndieMouthAnimation();
+                window.AndroidTTS.speak(text, Number(rate) || 0.95, Number(pitch) || 0.98);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
         function speakIndieForecast(forceLocalFallback = false) {
             indieCurrentScript = buildTodayBriefingScript(indieLastAiLines);
             renderIndieCaptionAt(-1);
 
-            if (!('speechSynthesis' in window)) {
+            const rateInput = document.getElementById('indie-rate-input');
+            const pitchInput = document.getElementById('indie-pitch-input');
+            const rate = rateInput ? Number(rateInput.value) : 0.95;
+            const pitch = pitchInput ? Number(pitchInput.value) : 0.98;
+
+            const hasWebSpeech = ('speechSynthesis' in window);
+            const hasWebVoices = hasWebSpeech && (indieVoices.length > 0 || (window.speechSynthesis.getVoices() || []).length > 0);
+
+            if ((!hasWebSpeech || !hasWebVoices) && window.AndroidTTS) {
+                if (speakViaAndroidTTS(indieCurrentScript, rate, pitch)) return;
+            }
+
+            if (!hasWebSpeech) {
                 setIndieSpeakingUI(false, 'Captions Only');
                 return;
             }
@@ -3849,8 +3898,6 @@
             window.speechSynthesis.cancel();
             const utter = new SpeechSynthesisUtterance(indieCurrentScript);
             const selectEl = document.getElementById('indie-voice-select');
-            const rateInput = document.getElementById('indie-rate-input');
-            const pitchInput = document.getElementById('indie-pitch-input');
 
             let chosenVoice = null;
             if (forceLocalFallback) {
@@ -3859,8 +3906,8 @@
                 chosenVoice = selectEl && selectEl.value !== '' ? indieVoices[Number(selectEl.value)] : indieVoices[0];
             }
             if (chosenVoice) utter.voice = chosenVoice;
-            utter.rate = rateInput ? Number(rateInput.value) : 0.95;
-            utter.pitch = pitchInput ? Number(pitchInput.value) : 0.98;
+            utter.rate = rate;
+            utter.pitch = pitch;
 
             utter.onstart = () => {
                 setIndieSpeakingUI(true, 'Speaking');
@@ -3896,6 +3943,9 @@
                 if (errType === 'canceled' || errType === 'interrupted') {
                     return;
                 }
+                if (window.AndroidTTS && speakViaAndroidTTS(indieCurrentScript, rate, pitch)) {
+                    return;
+                }
                 if (!forceLocalFallback) {
                     // Online/cloud browser voices can fail on file://; retry with local OS voice
                     setTimeout(() => speakIndieForecast(true), 60);
@@ -3913,19 +3963,28 @@
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
             }
+            if (window.AndroidTTS && typeof window.AndroidTTS.stop === 'function') {
+                try { window.AndroidTTS.stop(); } catch (_) {}
+            }
             stopIndieMouthAnimation();
             renderIndieCaptionAt(-1);
             setIndieSpeakingUI(false, 'Ready');
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
+            if (e.key === 'Escape' || e.key === 'GoBack') {
                 const modal = document.getElementById('indie-modal');
                 if (modal && !modal.classList.contains('hidden')) {
                     closeIndieBriefing();
                 }
             }
         });
+
+        if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
     </script>
 </body>
 </html>
