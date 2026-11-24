@@ -17,7 +17,7 @@
  * 5. Hard-code that Web app URL into INDIE_AI_PROXY_URL in Indies Kayak Forecast/index.html.
  */
 
-const GEMINI_MODELS = ['gemini-3.8-flash', 'gemini-3.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+const GEMINI_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.8-flash'];
 
 function getGeminiApiKey_() {
   const keys = ['GEMINI_API_KEY', 'GOOGLE_AI_API_KEY', 'AI_API_KEY'];
@@ -110,10 +110,9 @@ function handleIndieRequest_(ctx) {
   var payload = {
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
-      temperature: 1.15,
-      topP: 0.95,
-      maxOutputTokens: 2048,
-      responseMimeType: 'application/json'
+      maxOutputTokens: 1024,
+      responseMimeType: 'application/json',
+      thinkingConfig: { thinkingLevel: 'LOW' }
     }
   };
 
