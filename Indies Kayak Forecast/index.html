@@ -730,6 +730,7 @@
                 <span id="indie-onair-dot" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
                 <span id="indie-modal-title" class="text-sm font-bold text-white tracking-wide">Indie &bull; Today's Forecast</span>
                 <span id="indie-status-pill" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-800 text-teal-300 border border-slate-700">Ready</span>
+                <span id="indie-source-badge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">Fallback</span>
                 <span id="indie-sim-badge" class="hidden text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/40">Simulated</span>
             </div>
             <div class="flex items-center gap-1.5">
@@ -3754,6 +3755,24 @@
             return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
 
+        function setIndieSourceBadge(mode, detail = '') {
+            const badge = document.getElementById('indie-source-badge');
+            if (!badge) return;
+            if (mode === 'loading') {
+                badge.textContent = 'AI...';
+                badge.title = 'Requesting fresh AI lines';
+                badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 animate-pulse';
+            } else if (mode === 'ai') {
+                badge.textContent = '✨ Live AI';
+                badge.title = 'Freshly generated via Gemini AI';
+                badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40';
+            } else {
+                badge.textContent = 'Fallback';
+                badge.title = detail || 'Using built-in forecast lines';
+                badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700';
+            }
+        }
+
         async function openIndieBriefing(autoSpeak = true) {
             const modal = document.getElementById('indie-modal');
             if (!modal) return;
@@ -3762,6 +3781,7 @@
             startIndieBlinkLoop();
             indieCurrentScript = buildTodayBriefingScript();
             renderIndieCaptionAt(-1);
+            setIndieSourceBadge(INDIE_AI_PROXY_URL ? 'loading' : 'fallback');
             modal.classList.remove('hidden');
 
             if (INDIE_AI_PROXY_URL) {
@@ -3788,6 +3808,9 @@
                 if (aiLines) {
                     indieCurrentScript = buildTodayBriefingScript(aiLines);
                     renderIndieCaptionAt(-1);
+                    setIndieSourceBadge('ai');
+                } else {
+                    setIndieSourceBadge('fallback', 'AI unavailable or timed out — using built-in lines');
                 }
             }
 
