@@ -1,6 +1,6 @@
 {
-  "name": "Indie's Morro Bay Kayak Forecast",
-  "short_name": "Indie's Kayak",
+  "name": "MB Kayak Conditions",
+  "short_name": "MB Kayak",
   "description": "Live Morro Bay kayak conditions, tide planner, 805 webcams, and Indie's animated weather briefing.",
   "start_url": "./",
   "scope": "./",

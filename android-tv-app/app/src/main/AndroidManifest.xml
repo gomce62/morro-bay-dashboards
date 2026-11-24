@@ -16,7 +16,7 @@
         android:banner="@drawable/tv_banner"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Indie's Kayak"
+        android:label="MB Kayak Conditions"
         android:usesCleartextTraffic="false">
 
         <activity
