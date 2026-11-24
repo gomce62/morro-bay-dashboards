@@ -3060,6 +3060,7 @@
         let indieMouthTimer = null;
         let indieGestureTimer = null;
         let indieCurrentScript = '';
+        let indieLastAiLines = null;
         let indieLastBoundaryAt = 0;
 
         function scoreIndieVoice(v) {
@@ -3779,6 +3780,7 @@
             preloadIndieOutfits();
             rotateIndieOutfit();
             startIndieBlinkLoop();
+            indieLastAiLines = null;
             indieCurrentScript = buildTodayBriefingScript();
             renderIndieCaptionAt(-1);
             setIndieSourceBadge(INDIE_AI_PROXY_URL ? 'loading' : 'fallback');
@@ -3806,7 +3808,8 @@
                     recommendedSite: liveTide.direction === 'Rising' ? 'State Park Launch Ramp or Public Launch Ramp' : 'Coleman Park'
                 });
                 if (aiLines) {
-                    indieCurrentScript = buildTodayBriefingScript(aiLines);
+                    indieLastAiLines = aiLines;
+                    indieCurrentScript = buildTodayBriefingScript(indieLastAiLines);
                     renderIndieCaptionAt(-1);
                     setIndieSourceBadge('ai');
                 } else {
@@ -3835,7 +3838,7 @@
         }
 
         function speakIndieForecast(forceLocalFallback = false) {
-            indieCurrentScript = buildTodayBriefingScript();
+            indieCurrentScript = buildTodayBriefingScript(indieLastAiLines);
             renderIndieCaptionAt(-1);
 
             if (!('speechSynthesis' in window)) {
