@@ -3232,9 +3232,54 @@
 
         let indieIsSpeaking = false;
 
-        function startIndieMouthAnimation() {
+        let indieCaptionTimer = null;
+
+        function startIndieCaptionFallback(rate) {
+            stopIndieCaptionFallback();
+            const script = indieCurrentScript || '';
+            if (!script) return;
+
+            const words = [];
+            const re = /\S+/g;
+            let m;
+            while ((m = re.exec(script)) !== null) {
+                words.push({ index: m.index, text: m[0] });
+            }
+            if (!words.length) return;
+
+            const rateEl = document.getElementById('indie-rate-input');
+            const speed = Math.max(0.5, Number(rate || (rateEl && rateEl.value)) || 0.95);
+            let wordIdx = 0;
+
+            const stepCaption = () => {
+                if (!indieIsSpeaking || wordIdx >= words.length) return;
+                // Only drive captions via cadence if onboundary isn't firing (e.g. Android Chrome / TV)
+                if (Date.now() - indieLastBoundaryAt > 450) {
+                    renderIndieCaptionAt(words[wordIdx].index);
+                }
+                const w = words[wordIdx].text;
+                wordIdx++;
+                let ms = (210 + Math.min(w.length, 10) * 26) / speed;
+                if (/[.!?]$/.test(w)) ms += 260 / speed;
+                else if (/[,;:]$/.test(w)) ms += 130 / speed;
+                indieCaptionTimer = setTimeout(stepCaption, Math.round(ms));
+            };
+
+            indieCaptionTimer = setTimeout(stepCaption, 300);
+        }
+
+        function stopIndieCaptionFallback() {
+            if (indieCaptionTimer) {
+                clearTimeout(indieCaptionTimer);
+                indieCaptionTimer = null;
+            }
+        }
+
+        function startIndieMouthAnimation(rate) {
             stopIndieMouthAnimation();
             indieIsSpeaking = true;
+            indieLastBoundaryAt = 0;
+            startIndieCaptionFallback(rate);
             // Conversational cadence: mostly mid/closed with occasional soft open
             const frames = ['mid', 'closed', 'mid', 'open', 'mid', 'closed'];
             let step = 0;
@@ -3254,6 +3299,7 @@
 
         function stopIndieMouthAnimation() {
             indieIsSpeaking = false;
+            stopIndieCaptionFallback();
             if (indieMouthTimer) {
                 clearTimeout(indieMouthTimer);
                 indieMouthTimer = null;
@@ -3308,10 +3354,11 @@
             box.appendChild(document.createTextNode(after));
 
             // Keep the active spoken word comfortably visible inside the scrollable captions box
-            const spanTop = span.offsetTop - box.offsetTop;
-            const spanBottom = spanTop + span.offsetHeight;
-            if (spanBottom > box.scrollTop + box.clientHeight - 10 || spanTop < box.scrollTop) {
-                box.scrollTop = Math.max(0, spanTop - Math.floor(box.clientHeight * 0.35));
+            const boxRect = box.getBoundingClientRect();
+            const spanRect = span.getBoundingClientRect();
+            const relTop = spanRect.top - boxRect.top + box.scrollTop;
+            if (spanRect.bottom > boxRect.bottom - 8 || spanRect.top < boxRect.top + 4) {
+                box.scrollTop = Math.max(0, relTop - Math.floor(box.clientHeight * 0.35));
             }
         }
 
