@@ -3402,11 +3402,29 @@
             {
                 key: 'cozy',
                 label: 'Cozy Knit',
-                mode: 'day',
+                mode: 'cool',
                 closed: 'assets/indie_cozy_closed.png',
                 mid: 'assets/indie_cozy_mid.png',
                 open: 'assets/indie_cozy_open.png',
                 blink: 'assets/indie_cozy_blink.png'
+            },
+            {
+                key: 'cool_fleece',
+                label: 'Teal Quarter-Zip',
+                mode: 'cool',
+                closed: 'assets/indie_cool_fleece_closed.png',
+                mid: 'assets/indie_cool_fleece_mid.png',
+                open: 'assets/indie_cool_fleece_open.png',
+                blink: 'assets/indie_cool_fleece_blink.png'
+            },
+            {
+                key: 'cool_cardi',
+                label: 'Coastal Cardigan',
+                mode: 'cool',
+                closed: 'assets/indie_cool_cardi_closed.png',
+                mid: 'assets/indie_cool_cardi_mid.png',
+                open: 'assets/indie_cool_cardi_open.png',
+                blink: 'assets/indie_cool_cardi_blink.png'
             },
             {
                 key: 'rainy',
@@ -3443,6 +3461,24 @@
                 mid: 'assets/indie_night_cowl_mid.png',
                 open: 'assets/indie_night_cowl_open.png',
                 blink: 'assets/indie_night_cowl_blink.png'
+            },
+            {
+                key: 'night_burgundy',
+                label: 'Burgundy Halter',
+                mode: 'night',
+                closed: 'assets/indie_night_burgundy_closed.png',
+                mid: 'assets/indie_night_burgundy_mid.png',
+                open: 'assets/indie_night_burgundy_open.png',
+                blink: 'assets/indie_night_burgundy_blink.png'
+            },
+            {
+                key: 'night_navy',
+                label: 'Navy Blazer Dress',
+                mode: 'night',
+                closed: 'assets/indie_night_navy_closed.png',
+                mid: 'assets/indie_night_navy_mid.png',
+                open: 'assets/indie_night_navy_open.png',
+                blink: 'assets/indie_night_navy_blink.png'
             }
         ];
         let indieOutfitIdx = -1;
@@ -3508,6 +3544,12 @@
             });
         }
 
+        function isIndieCoolNow() {
+            const rawTemp = document.getElementById('telemetry-temp')?.innerText || '';
+            const tempF = parseFloat(rawTemp);
+            return !Number.isNaN(tempF) && tempF <= 62;
+        }
+
         function rotateIndieOutfit() {
             if (isIndieAfterDarkNow()) {
                 const nightIndices = indieOutfits
@@ -3529,6 +3571,22 @@
                 const rainyIdx = indieOutfits.findIndex(o => o.key === 'rainy');
                 if (rainyIdx !== -1) {
                     applyIndieOutfit(rainyIdx);
+                    return;
+                }
+            }
+            if (isIndieCoolNow()) {
+                const coolIndices = indieOutfits
+                    .map((o, i) => (o.mode === 'cool' ? i : -1))
+                    .filter(i => i !== -1);
+                if (coolIndices.length > 0) {
+                    let lastCoolPos = -1;
+                    try {
+                        const stored = localStorage.getItem('indie_cool_pos');
+                        if (stored !== null && !Number.isNaN(Number(stored))) lastCoolPos = Number(stored);
+                    } catch (e) {}
+                    const nextCoolPos = (lastCoolPos + 1) % coolIndices.length;
+                    try { localStorage.setItem('indie_cool_pos', String(nextCoolPos)); } catch (e) {}
+                    applyIndieOutfit(coolIndices[nextCoolPos]);
                     return;
                 }
             }
