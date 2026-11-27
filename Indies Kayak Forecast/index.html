@@ -3547,7 +3547,7 @@
         function isIndieCoolNow() {
             const rawTemp = document.getElementById('telemetry-temp')?.innerText || '';
             const tempF = parseFloat(rawTemp);
-            return !Number.isNaN(tempF) && tempF <= 62;
+            return !Number.isNaN(tempF) && tempF < 50;
         }
 
         function rotateIndieOutfit() {
