@@ -65,8 +65,8 @@ This file captures the architecture, tech stack, design guidelines, key decision
 ### Avatar Anatomy & Wardrobe Guidelines
 - **Consistency:** Preserve Indie's exact face, blonde hair, and body proportions across all outfits.
 - **Pose Variation:** Give each outfit a slightly different natural standing position and pose (e.g., weight shifted, subtle turn, varied arm/hand placement) while preserving her exact face and body proportions.
-- **Wardrobe Styling Rule:** Anytime an outfit is created or updated, show **generous, full breast size with tight, pressed-together vertical center cleavage** (full, natural teardrop drape) and **most of her toned legs (short upper-thigh hemline)** unless the user specifically requests long pants or a mid-thigh hemline.
-- **Anatomy Refinements:** Keep knees smoothly shaded (avoid harsh angular creases) and legs lean and toned with **well-defined, shapely calf muscles** tapering cleanly into slim ankles.
+- **Wardrobe Styling Rule:** Anytime an outfit is created or updated, show **natural medium-full breast size (proportionate to her slender frame, never oversized) with tight, pressed-together vertical center cleavage** (soft, natural teardrop drape) and **most of her toned legs (mid-thigh hemline for skirts/dresses)** unless the user specifically requests long pants.
+- **Anatomy Refinements:** Keep her legs long, lean, and slender with smoothly shaded knees (avoid harsh angular creases) and **high, sleek, well-defined calf muscles** tapering cleanly into slim ankles.
 
 ---
 
