@@ -3729,7 +3729,10 @@
                         timingFollowup = ` That favorable rising-tide window runs through ${endTime}.`;
                     } else if (todayPlan.isNextDay) {
                         const nextRisingStart = spokenWindow.split(' to ')[0];
-                        timingFollowup = ` Since it's getting close to sunset, his next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDaySpoken} at ${nextRisingStart} when the tide will be coming in.`;
+                        const sunsetLead = nowMins >= sun.lastSafeLaunchMins - 90
+                            ? `Since it's getting close to sunset,`
+                            : `Since today's favorable rising-tide window has already wrapped up,`;
+                        timingFollowup = ` ${sunsetLead} his next opportunity to kayak out of the State Park Launch Ramp or the Public Launch Ramp is ${nextDaySpoken} at ${nextRisingStart} when the tide will be coming in.`;
                     }
                 } else {
                     const risingPlan = getTodayOptimalWindow(today, true);
