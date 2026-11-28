@@ -3018,6 +3018,13 @@
             updatePlannerRecommendation();
             updateTideAlignmentUI();
             renderForecast();
+
+            const indieModal = document.getElementById('indie-modal');
+            if (indieModal && !indieModal.classList.contains('hidden')) {
+                rotateIndieOutfit();
+                indieCurrentScript = buildTodayBriefingScript(indieLastAiLines);
+                renderIndieCaptionAt(-1);
+            }
         }
 
         function resetSimulatorToLive(keepPanelOpen = true) {
@@ -4009,6 +4016,13 @@
         }
 
         function speakIndieForecast(forceLocalFallback = false) {
+            const expectedMode = isIndieAfterDarkNow()
+                ? 'night'
+                : (isIndieRainingNow() ? 'rainy' : (isIndieCoolNow() ? 'cool' : 'day'));
+            const currentMode = indieOutfits[indieOutfitIdx]?.mode;
+            if (currentMode !== expectedMode) {
+                rotateIndieOutfit();
+            }
             indieCurrentScript = buildTodayBriefingScript(indieLastAiLines);
             renderIndieCaptionAt(-1);
 
