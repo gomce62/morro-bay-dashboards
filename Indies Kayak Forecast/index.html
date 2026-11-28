@@ -3868,7 +3868,25 @@
 
             const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}${waterQuip}${windClause}${waveNote}. ${highLowSentence}${rainNote}`;
 
-            return `${intro} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
+            const activeOutfitMode = indieOutfits[indieOutfitIdx]?.mode || 'day';
+            const coolWardrobeLines = [
+                `With that crisp chill in the air, I dressed for the cool coastal weather today.`,
+                `It's a brisk one out here, so I layered up for the cool air on the sand.`
+            ];
+            const warmWardrobeLines = [
+                `With weather this nice on the bay, I dressed for a gorgeous day out on the sand.`,
+                `It's such a nice day out here that I couldn't resist dressing for the sunshine.`
+            ];
+            let wardrobeNote = '';
+            if (canKayakNow) {
+                if (activeOutfitMode === 'cool') {
+                    wardrobeNote = pickIndieLine(coolWardrobeLines, 'indie_last_cool_wardrobe');
+                } else if (activeOutfitMode === 'day' && !rawSky.includes('overcast') && !rawSky.includes('fog')) {
+                    wardrobeNote = pickIndieLine(warmWardrobeLines, 'indie_last_warm_wardrobe');
+                }
+            }
+
+            return `${intro}${wardrobeNote ? ' ' + wardrobeNote : ''} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
 
         function setIndieSourceBadge(mode, detail = '') {
