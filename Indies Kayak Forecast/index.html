@@ -3872,16 +3872,16 @@
             const parsedAirTemp = parseFloat(document.getElementById('telemetry-airtemp')?.innerText || '');
             const isCoolOrBreezy = activeOutfitMode === 'cool' || (!Number.isNaN(parsedAirTemp) && parsedAirTemp < 58) || activeWindMph >= 12;
             const coolWardrobeLines = [
-                `Grab a jacket and long water-resistant pants today to stay warm inside the kayak.`,
-                `A good day to wear a warm jacket and long water-resistant pants before launching from shore.`
+                `With the chill in the air, I layered up for the cool coastal weather—and Chris, you'll want a warm jacket and long water-resistant pants inside the kayak today.`,
+                `I went with something cozy for the brisk air on the sand, so grab a jacket and long water-resistant pants before you launch from shore.`
             ];
             const breezyWardrobeLines = [
-                `With a cool breeze on the water, a light jacket or water-resistant pants will help keep you warm.`,
-                `You may want a light jacket or water-resistant pants today to block the breeze on the bay.`
+                `With a cool breeze on the water, a light jacket or water-resistant pants will help keep you warm out on the bay.`,
+                `It's a bit breezy out here, so a light jacket or water-resistant pants is a smart move before launching.`
             ];
             const warmWardrobeLines = [
-                `A great day to break out your favorite beachwear if you're heading to the water.`,
-                `Break out your favorite beachwear today and enjoy the sunshine on the bay.`
+                `With nice, warm conditions like this, I broke out my beachwear—it's a gorgeous day to get out on the water.`,
+                `It's warm and sunny enough for beachwear out here on the sand, so enjoy the sunshine on the bay today.`
             ];
             let wardrobeNote = '';
             if (canKayakNow && Math.random() < 0.45) {
