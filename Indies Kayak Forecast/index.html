@@ -21,7 +21,9 @@
         }
         @keyframes indieSpeakBody {
             0%   { transform: scale(1.0) translateY(0px); }
-            50%  { transform: scale(1.006) translateY(-1.2px); }
+            22%  { transform: scale(1.005) translateY(-1.1px); }
+            48%  { transform: scale(1.002) translateY(-0.3px); }
+            74%  { transform: scale(1.006) translateY(-1.4px); }
             100% { transform: scale(1.0) translateY(0px); }
         }
         .indie-live-motion {
@@ -29,7 +31,7 @@
             animation: indieBreathe 3.8s ease-in-out infinite;
         }
         .indie-live-motion.is-speaking {
-            animation: indieSpeakBody 2.6s ease-in-out infinite;
+            animation: indieSpeakBody 4.2s ease-in-out infinite;
         }
         .indie-frame-img {
             will-change: opacity;
@@ -769,6 +771,7 @@
             <div class="relative z-10 w-full h-full scale-[1.02]" style="transform-origin: 50% 94%;">
                 <div id="indie-stage" class="relative w-full h-full indie-live-motion">
                     <img id="indie-frame-closed" src="assets/indie_onepiece_closed.png" alt="Indie standing head-to-toe beside her kayak at Morro Bay" class="absolute inset-0 z-10 w-full h-full object-contain opacity-100" />
+                    <img id="indie-frame-rest" src="assets/indie_onepiece_rest.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 z-20 w-full h-full object-contain opacity-0" />
                     <img id="indie-frame-mid" src="assets/indie_onepiece_mid.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 z-20 w-full h-full object-contain opacity-0" />
                     <img id="indie-frame-open" src="assets/indie_onepiece_open.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 z-20 w-full h-full object-contain opacity-0" />
                     <img id="indie-frame-blink" src="assets/indie_onepiece_blink.png" alt="" aria-hidden="true" class="indie-frame-img absolute inset-0 z-20 w-full h-full object-contain opacity-0" />
@@ -3182,6 +3185,7 @@
         function setIndieMouthFrame(frameName) {
             indieCurrentMouthFrame = frameName;
             const closed = document.getElementById('indie-frame-closed');
+            const rest = document.getElementById('indie-frame-rest');
             const mid = document.getElementById('indie-frame-mid');
             const open = document.getElementById('indie-frame-open');
             const blink = document.getElementById('indie-frame-blink');
@@ -3190,13 +3194,10 @@
             // Keep base closed frame always opaque so body/legs never crossfade through dark bg
             closed.style.opacity = '1';
 
-            if (indieIsBlinking && blink) {
-                mid.style.opacity = '0';
-                open.style.opacity = '0';
-                blink.style.opacity = '1';
-                return;
-            }
-            if (blink) blink.style.opacity = '0';
+            // Eyelid blink overlay only affects eyes, so mouth keeps moving naturally during blinks
+            if (blink) blink.style.opacity = indieIsBlinking ? '1' : '0';
+
+            if (rest) rest.style.opacity = frameName === 'rest' ? '1' : '0';
             mid.style.opacity = frameName === 'mid' ? '1' : '0';
             open.style.opacity = frameName === 'open' ? '1' : '0';
         }
@@ -3216,7 +3217,7 @@
         function startIndieBlinkLoop() {
             stopIndieBlinkLoop();
             const scheduleNext = () => {
-                const waitMs = 2600 + Math.floor(Math.random() * 2400);
+                const waitMs = 2400 + Math.floor(Math.random() * 2400);
                 indieBlinkTimer = setTimeout(() => {
                     triggerIndieBlink();
                     scheduleNext();
@@ -3238,8 +3239,88 @@
         }
 
         let indieIsSpeaking = false;
-
         let indieCaptionTimer = null;
+        let indieVisemeTimers = [];
+        let indieAvgMsPerChar = 52;
+        let indiePrevBoundaryTime = 0;
+        let indiePrevBoundaryChars = 0;
+
+        function clearIndieVisemeTimers() {
+            while (indieVisemeTimers.length) {
+                clearTimeout(indieVisemeTimers.pop());
+            }
+        }
+
+        function wordToVisemes(rawWord) {
+            const w = (rawWord || '').toLowerCase();
+            const trailing = w.match(/[.,!?;:]+$/)?.[0] || '';
+            let core = w.replace(/[^a-z0-9]/g, '');
+            if (!core) {
+                return trailing && /[.!?]/.test(trailing) ? ['closed'] : ['rest'];
+            }
+            // Expand digits/symbols roughly to spoken syllable length
+            core = core.replace(/\d+/g, (d) => 'ta'.repeat(Math.min(d.length, 3)));
+
+            const seq = [];
+            let i = 0;
+            while (i < core.length) {
+                const ch = core[i];
+                const pair = core.slice(i, i + 2);
+                let v = null;
+                if (pair === 'oo' || pair === 'ou' || pair === 'ow' || pair === 'aw' || pair === 'au' || pair === 'oa') {
+                    v = 'open';
+                    i += 2;
+                } else if (pair === 'ee' || pair === 'ea' || pair === 'ai' || pair === 'ay' || pair === 'th' || pair === 'sh' || pair === 'ch') {
+                    v = 'mid';
+                    i += 2;
+                } else if (ch === 'm' || ch === 'b' || ch === 'p') {
+                    v = 'rest';
+                    i += 1;
+                } else if (ch === 'a' || ch === 'o') {
+                    v = 'open';
+                    i += 1;
+                } else if ('eiuyfvsztdnlrkgcjhwxq'.includes(ch)) {
+                    v = 'mid';
+                    i += 1;
+                } else {
+                    i += 1;
+                }
+                if (v && seq[seq.length - 1] !== v) {
+                    seq.push(v);
+                }
+            }
+
+            if (!seq.length) seq.push('mid');
+            // Cap overly dense clusters so mouth movements stay natural and unhurried
+            const maxSteps = Math.max(2, Math.min(5, Math.ceil(core.length / 2.2)));
+            const compact = seq.length > maxSteps
+                ? seq.filter((_, idx) => idx === 0 || idx === seq.length - 1 || idx % 2 === 0).slice(0, maxSteps)
+                : seq;
+
+            if (/[.!?]/.test(trailing)) {
+                compact.push('closed');
+            } else if (/[,;:]/.test(trailing)) {
+                compact.push('rest');
+            }
+            return compact;
+        }
+
+        function playWordVisemes(rawWord, durationMs) {
+            clearIndieVisemeTimers();
+            if (!indieIsSpeaking) return;
+            const visemes = wordToVisemes(rawWord);
+            const total = Math.max(110, Math.min(560, durationMs || 220));
+            const stepMs = Math.max(55, Math.floor(total / visemes.length));
+
+            setIndieMouthFrame(visemes[0]);
+            for (let idx = 1; idx < visemes.length; idx++) {
+                const frame = visemes[idx];
+                const t = setTimeout(() => {
+                    if (indieIsSpeaking) setIndieMouthFrame(frame);
+                }, idx * stepMs);
+                indieVisemeTimers.push(t);
+            }
+        }
 
         function startIndieCaptionFallback(rate) {
             stopIndieCaptionFallback();
@@ -3260,19 +3341,21 @@
 
             const stepCaption = () => {
                 if (!indieIsSpeaking || wordIdx >= words.length) return;
-                // Only drive captions via cadence if onboundary isn't firing (e.g. Android Chrome / TV)
-                if (Date.now() - indieLastBoundaryAt > 450) {
-                    renderIndieCaptionAt(words[wordIdx].index);
-                }
                 const w = words[wordIdx].text;
-                wordIdx++;
-                let ms = (210 + Math.min(w.length, 10) * 26) / speed;
+                let ms = (185 + Math.min(w.length, 10) * 28) / speed;
                 if (/[.!?]$/.test(w)) ms += 260 / speed;
                 else if (/[,;:]$/.test(w)) ms += 130 / speed;
+
+                // Only drive captions & visemes via cadence if onboundary isn't firing (e.g. Android Chrome / TV)
+                if (Date.now() - indieLastBoundaryAt > 420) {
+                    renderIndieCaptionAt(words[wordIdx].index);
+                    playWordVisemes(w, ms * 0.88);
+                }
+                wordIdx++;
                 indieCaptionTimer = setTimeout(stepCaption, Math.round(ms));
             };
 
-            indieCaptionTimer = setTimeout(stepCaption, 300);
+            indieCaptionTimer = setTimeout(stepCaption, 140);
         }
 
         function stopIndieCaptionFallback() {
@@ -3286,26 +3369,16 @@
             stopIndieMouthAnimation();
             indieIsSpeaking = true;
             indieLastBoundaryAt = 0;
+            indiePrevBoundaryTime = 0;
+            indiePrevBoundaryChars = 0;
+            const speed = Math.max(0.5, Number(rate) || 0.95);
+            indieAvgMsPerChar = 52 / speed;
             startIndieCaptionFallback(rate);
-            // Conversational cadence: mostly mid/closed with occasional soft open
-            const frames = ['mid', 'closed', 'mid', 'open', 'mid', 'closed'];
-            let step = 0;
-
-            const tick = () => {
-                if (!indieIsSpeaking) return;
-                if (Date.now() - indieLastBoundaryAt > 180) {
-                    const next = frames[step % frames.length];
-                    setIndieMouthFrame(next);
-                    step++;
-                }
-                const jitter = 95 + Math.floor(Math.random() * 75);
-                indieMouthTimer = setTimeout(tick, jitter);
-            };
-            indieMouthTimer = setTimeout(tick, 95);
         }
 
         function stopIndieMouthAnimation() {
             indieIsSpeaking = false;
+            clearIndieVisemeTimers();
             stopIndieCaptionFallback();
             if (indieMouthTimer) {
                 clearTimeout(indieMouthTimer);
@@ -3515,12 +3588,14 @@
             indieOutfitIdx = ((idx % indieOutfits.length) + indieOutfits.length) % indieOutfits.length;
             const outfit = indieOutfits[indieOutfitIdx];
             const closed = document.getElementById('indie-frame-closed');
+            const rest = document.getElementById('indie-frame-rest');
             const mid = document.getElementById('indie-frame-mid');
             const open = document.getElementById('indie-frame-open');
             const blink = document.getElementById('indie-frame-blink');
             const bgImg = document.getElementById('indie-bg-img');
             const label = document.getElementById('indie-outfit-label');
             if (closed) closed.src = outfit.closed;
+            if (rest) rest.src = outfit.rest || outfit.closed.replace('_closed.png', '_rest.png');
             if (mid) mid.src = outfit.mid;
             if (open) open.src = outfit.open;
             if (blink) blink.src = outfit.blink;
@@ -3553,7 +3628,8 @@
                 img.src = src;
             });
             indieOutfits.forEach(o => {
-                [o.closed, o.mid, o.open, o.blink].forEach(src => {
+                const restSrc = o.rest || o.closed.replace('_closed.png', '_rest.png');
+                [o.closed, restSrc, o.mid, o.open, o.blink].forEach(src => {
                     const img = new Image();
                     img.src = src;
                 });
@@ -4068,24 +4144,30 @@
 
             utter.onstart = () => {
                 setIndieSpeakingUI(true, 'Speaking');
-                startIndieMouthAnimation();
+                startIndieMouthAnimation(rate);
             };
 
-            let indieLastMouthAt = 0;
             utter.onboundary = (e) => {
                 const now = Date.now();
                 indieLastBoundaryAt = now;
                 if (typeof e.charIndex === 'number') {
                     renderIndieCaptionAt(e.charIndex);
-                    if (now - indieLastMouthAt < 115) return;
-                    indieLastMouthAt = now;
                     const wordMatch = indieCurrentScript.slice(e.charIndex).match(/^\S+/);
-                    const word = wordMatch ? wordMatch[0].toLowerCase() : '';
-                    if (/[ao]/.test(word) && word.length > 4) {
-                        setIndieMouthFrame('open');
-                    } else if (word.length > 0) {
-                        setIndieMouthFrame('mid');
+                    const word = wordMatch ? wordMatch[0] : '';
+                    if (!word) return;
+
+                    if (indiePrevBoundaryTime > 0 && indiePrevBoundaryChars > 0) {
+                        const dt = now - indiePrevBoundaryTime;
+                        if (dt >= 90 && dt <= 900) {
+                            const sampleMsPerChar = dt / Math.max(1, indiePrevBoundaryChars);
+                            indieAvgMsPerChar = indieAvgMsPerChar * 0.65 + Math.max(26, Math.min(95, sampleMsPerChar)) * 0.35;
+                        }
                     }
+                    indiePrevBoundaryTime = now;
+                    indiePrevBoundaryChars = word.length;
+
+                    const estMs = Math.max(120, Math.min(540, word.length * indieAvgMsPerChar));
+                    playWordVisemes(word, estMs);
                 }
             };
 
