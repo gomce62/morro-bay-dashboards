@@ -3870,12 +3870,12 @@
 
             const activeOutfitMode = indieOutfits[indieOutfitIdx]?.mode || 'day';
             const coolWardrobeLines = [
-                `With the current temperature at ${airTemp}, you'll definitely want to dress in layers today.`,
-                `With it sitting around ${airTemp} right now, dressing in layers is the smart move on the bay.`
+                `Dress in layers today if you're heading out on the bay.`,
+                `A good day to layer up before you head down to the water.`
             ];
             const warmWardrobeLines = [
-                `With nice, warm conditions like this, it's a great day to break out your favorite beachwear.`,
-                `With weather this pleasant on the bay, you can break out your favorite beachwear and enjoy the sun.`
+                `A great day to break out your favorite beachwear if you're heading to the water.`,
+                `Break out your favorite beachwear today and enjoy the sunshine on the bay.`
             ];
             let wardrobeNote = '';
             if (canKayakNow && Math.random() < 0.4) {
@@ -3886,7 +3886,7 @@
                 }
             }
 
-            return `${intro}${wardrobeNote ? ' ' + wardrobeNote : ''} ${weatherSummary} ${tidePhrase} ${windowPhrase} ${closing}`;
+            return `${intro} ${weatherSummary}${wardrobeNote ? ' ' + wardrobeNote : ''} ${tidePhrase} ${windowPhrase} ${closing}`;
         }
 
         function setIndieSourceBadge(mode, detail = '') {
