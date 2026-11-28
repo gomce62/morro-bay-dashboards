@@ -3878,7 +3878,7 @@
                 `With weather this pleasant on the bay, you can break out your favorite beachwear and enjoy the sun.`
             ];
             let wardrobeNote = '';
-            if (canKayakNow) {
+            if (canKayakNow && Math.random() < 0.4) {
                 if (activeOutfitMode === 'cool') {
                     wardrobeNote = pickIndieLine(coolWardrobeLines, 'indie_last_cool_wardrobe');
                 } else if (activeOutfitMode === 'day' && !rawSky.includes('overcast') && !rawSky.includes('fog')) {
