@@ -58,15 +58,18 @@ This file captures the architecture, tech stack, design guidelines, key decision
    - Auto-selected when raining during daylight (`Rainy Day` outfit with umbrella).
    - Uses `assets/bg_morro_bay_rainy.jpg` (overcast Morro Bay with falling rain and **no kayak**—kayak stays dry indoors).
    - Note: `bg_morro_bay_rainy.jpg` is shown **only** when the `Rainy Day` outfit is active.
-3. **Daytime Clear (`mode: 'day'`):**
-   - Rotates through `One-Piece`, `Sport Shorts`, `Skort & Knit`, `Surf Rashguard`, and `Cozy Knit`.
+3. **Daytime Cool (`mode: 'cool'`, `< 50°F`):**
+   - Auto-selected during dry daylight when `#telemetry-airtemp` is below `50°F`.
+   - Rotates through `Cozy Knit`, `Teal Quarter-Zip`, and `Coastal Cardigan` using `assets/bg_morro_bay.jpg`.
+4. **Daytime Clear (`mode: 'day'`, `>= 50°F`):**
+   - Rotates through `One-Piece`, `Sport Shorts`, `Skort & Knit`, and `Surf Rashguard`.
    - Uses `assets/bg_morro_bay.jpg`, featuring Chris's actual **red Pelican sit-in kayak** positioned in the shallow waterline behind Indie so she stands cleanly on the sandy shore in front of it.
 
 ### Avatar Anatomy & Wardrobe Guidelines
-- **Consistency:** Preserve Indie's exact face, blonde hair, and body proportions across all outfits.
-- **Pose Variation:** Give each outfit a slightly different natural standing position and pose (e.g., weight shifted, subtle turn, varied arm/hand placement) while preserving her exact face and body proportions.
-- **Wardrobe Styling Rule:** Anytime an outfit is created or updated, show **natural medium-full breast size (proportionate to her slender frame, never oversized) with tight, pressed-together vertical center cleavage** (soft, natural teardrop drape) and **most of her toned legs (mid-thigh hemline for skirts/dresses)** unless the user specifically requests long pants.
-- **Anatomy Refinements:** Keep her legs long, lean, and slender with smoothly shaded knees (avoid harsh angular creases) and **high, sleek, well-defined calf muscles** tapering cleanly into slim ankles.
+- **Consistency:** Preserve Indie's exact face, blonde hair, and body proportions across all outfits, matching `image_2.png` (and `Skort & Knit` / `Coastal Cardigan`) consistently.
+- **Pose Variation:** Give each outfit a distinct natural standing pose (avoiding repetitive hand-on-hip poses; keep studio/rainy poses grounded on camera rather than mid-stride walking) while preserving her exact face and body proportions.
+- **Wardrobe Styling Rule:** Anytime an outfit is created or updated, show a **full, natural D-cup bust proportionate to her slender frame (matching `image_2.png`, soft natural teardrop drape, tight pressed-together vertical center cleavage, never cartoonish)**, **most of her toned legs (mid-thigh hemline for skirts/dresses)** unless the user specifically requests long pants, **no midriff/tummy showing**, and **outfit-matching shoes** (heels for studio outfits, rain boots for rainy day, barefoot on the beach).
+- **Anatomy Refinements:** Keep her legs long, lean, and slender with smoothly shaded knees (avoid harsh angular creases) and **high, sleek, well-defined calf muscles that pop naturally** and taper cleanly into slim ankles.
 
 ---
 
@@ -77,6 +80,7 @@ This file captures the architecture, tech stack, design guidelines, key decision
 - **Condition-Aware Script:**
   - **After Dark:** Lead immediately with the fact that it's too dark to kayak tonight, then give current conditions and the next daylight launch recommendation.
   - **Rain:** State that Chris's kayak is staying dry indoors due to rain and advise staying ashore until the next dry daylight window.
+  - **Sit-In Kayak Attire (No Wetsuit):** Chris launches from shore in a sit-in kayak and **never uses a wetsuit**; when cool (`< 58°F`) or breezy (`>= 12 mph`), occasionally (~45%) pair Indie's subtle outfit mention with advising a warm jacket and long water-resistant pants (or beachwear when warm/sunny), placed **after** `weatherSummary`.
   - **No Post-Water Quips When Not Kayaking:** Omit flirty "after you get out of the water" quips whenever it is raining or too dark to kayak (`!canKayakNow`).
   - **Time-Aware High/Low:** After 4:00 PM or after dark on Today's forecast, use past tense for the daytime high (`"Earlier today, the high reached ..."`).
 - **Grammar & Variety:**
