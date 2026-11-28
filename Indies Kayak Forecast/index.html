@@ -3835,7 +3835,7 @@
             let waterQuip = canKayakNow
                 ? pickIndieLine(waterQuips, 'indie_last_water_quip')
                 : ', ';
-            if (canKayakNow && aiLines && aiLines.waterQuip) {
+            if (canKayakNow && aiLines && aiLines.waterQuip && !/wetsuit/i.test(aiLines.waterQuip)) {
                 const q = String(aiLines.waterQuip).trim();
                 if (q.length >= 10) {
                     waterQuip = (q.startsWith('—') ? '' : '—') + q + (q.endsWith('—') ? '' : '—');
@@ -3869,18 +3869,26 @@
             const weatherSummary = `${timeContext} it's ${airTemp} ${skyCondition}, with a water temperature of ${waterTemp}${waterQuip}${windClause}${waveNote}. ${highLowSentence}${rainNote}`;
 
             const activeOutfitMode = indieOutfits[indieOutfitIdx]?.mode || 'day';
+            const parsedAirTemp = parseFloat(document.getElementById('telemetry-airtemp')?.innerText || '');
+            const isCoolOrBreezy = activeOutfitMode === 'cool' || (!Number.isNaN(parsedAirTemp) && parsedAirTemp < 58) || activeWindMph >= 12;
             const coolWardrobeLines = [
-                `Dress in layers today if you're heading out on the bay.`,
-                `A good day to layer up before you head down to the water.`
+                `Grab a jacket and long water-resistant pants today to stay warm inside the kayak.`,
+                `A good day to wear a warm jacket and long water-resistant pants before launching from shore.`
+            ];
+            const breezyWardrobeLines = [
+                `With a cool breeze on the water, a light jacket or water-resistant pants will help keep you warm.`,
+                `You may want a light jacket or water-resistant pants today to block the breeze on the bay.`
             ];
             const warmWardrobeLines = [
                 `A great day to break out your favorite beachwear if you're heading to the water.`,
                 `Break out your favorite beachwear today and enjoy the sunshine on the bay.`
             ];
             let wardrobeNote = '';
-            if (canKayakNow && Math.random() < 0.4) {
+            if (canKayakNow && Math.random() < 0.45) {
                 if (activeOutfitMode === 'cool') {
                     wardrobeNote = pickIndieLine(coolWardrobeLines, 'indie_last_cool_wardrobe');
+                } else if (isCoolOrBreezy) {
+                    wardrobeNote = pickIndieLine(breezyWardrobeLines, 'indie_last_breezy_wardrobe');
                 } else if (activeOutfitMode === 'day' && !rawSky.includes('overcast') && !rawSky.includes('fog')) {
                     wardrobeNote = pickIndieLine(warmWardrobeLines, 'indie_last_warm_wardrobe');
                 }
